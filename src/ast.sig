@@ -18,9 +18,9 @@ signature AST = sig
   type fun_name = string
   datatype param = Param of string * Type.ty
 
-  datatype top_ast = Defun of fun_name * param list * ast
+  datatype top_ast = Defun of fun_name * param list * Type.ty * ast
 
-  val parseSexp : Parser.sexp -> ast option
+  val parse : Parser.sexp -> ast
 
-  val parseToplevel : Parser.sexp -> Type.tenv -> top_ast option
+  val parseToplevel : Parser.sexp -> Type.tenv -> top_ast
 end

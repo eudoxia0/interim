@@ -18,36 +18,33 @@ structure AST :> AST = struct
   type fun_name = string
   datatype param = Param of string * Type.ty
 
-  datatype top_ast = Defun of fun_name * param list * ast
+  datatype top_ast = Defun of fun_name * param list * Type.ty * ast
 
   local
     open Parser
   in
-    fun p (Integer i) = ConstInt i
-      | p (String s) = ConstString s
-      | p (Symbol s) = Var s
-      | p (SList [Symbol "+", a, b]) = Binop (Add, p a, p b)
-      | p (SList [Symbol "-", a, b]) = Binop (Sub, p a, p b)
-      | p (SList [Symbol "*", a, b]) = Binop (Mul, p a, p b)
-      | p (SList [Symbol "/", a, b]) = Binop (Div, p a, p b)
-      | p (SList [Symbol "=", a, b]) = Binop (Eq, p a, p b)
-      | p (SList [Symbol "<", a, b]) = Binop (LT, p a, p b)
-      | p (SList [Symbol "<=", a, b]) = Binop (LEq, p a, p b)
-      | p (SList [Symbol ">", a, b]) = Binop (GT, p a, p b)
-      | p (SList [Symbol ">=", a, b]) = Binop (GEq, p a, p b)
-      | p _ = raise Fail "Bad sexp"
-
-    fun parseSexp s = (SOME (p s)) handle (Fail _) => NONE
+    fun parse (Integer i) = ConstInt i
+      | parse (String s) = ConstString s
+      | parse (Symbol s) = Var s
+      | parse (SList [Symbol "+", a, b]) = Binop (Add, parse a, parse b)
+      | parse (SList [Symbol "-", a, b]) = Binop (Sub, parse a, parse b)
+      | parse (SList [Symbol "*", a, b]) = Binop (Mul, parse a, parse b)
+      | parse (SList [Symbol "/", a, b]) = Binop (Div, parse a, parse b)
+      | parse (SList [Symbol "=", a, b]) = Binop (Eq, parse a, parse b)
+      | parse (SList [Symbol "<", a, b]) = Binop (LT, parse a, parse b)
+      | parse (SList [Symbol "<=", a, b]) = Binop (LEq, parse a, parse b)
+      | parse (SList [Symbol ">", a, b]) = Binop (GT, parse a, parse b)
+      | parse (SList [Symbol ">=", a, b]) = Binop (GEq, parse a, parse b)
+      | parse _ = raise Fail "Bad expression"
 
     fun parseParam (SList [Symbol n, t]) e = Param (n, Type.parseTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
 
-    fun parseToplevel' (SList [Symbol "defun", Symbol name, SList params, body]) e =
-      (case (parseSexp body) of
-           (SOME body') => Defun (name, map (fn p => parseParam p e) params, body')
-         | NONE => raise Fail "Bad body")
-      | parseToplevel' _ _ = raise Fail "Bad toplevel node"
-
-   fun parseToplevel s e = (SOME (parseToplevel' s e)) handle (Fail _) => NONE
+    fun parseToplevel (SList [Symbol "defun", Symbol name, SList params, rt, body]) e =
+      Defun (name,
+             map (fn p => parseParam p e) params,
+             Type.parseTypeSpecifier rt e,
+             parse body)
+      | parseToplevel _ _ = raise Fail "Bad toplevel node"
   end
 end

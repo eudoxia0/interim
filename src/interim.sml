@@ -18,13 +18,14 @@ structure Interim :> INTERIM = struct
               in
                   let val sexp = Parser.parseString s
                   in
-                      (case (AST.parseToplevel sexp c) of
-                           (SOME a) => print "AST node\n"
-                         | NONE => print "Bad sexp->AST parse\n")
-                  end;
+                      let val ast = AST.parseToplevel sexp c
+                      in
+                          print "AST node\n"
+                      end
+                  end  handle Fail s => print ("Error: " ^ s ^ "\n");
                   repl' c
               end
-          end handle Fail s => print ("Error: " ^ s ^ "\n")
+          end
     in
         repl' (SymTab.empty)
     end
