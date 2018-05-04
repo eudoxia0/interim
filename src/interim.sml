@@ -30,7 +30,8 @@ structure Interim :> INTERIM = struct
                                    in
                                        let val code = Backend.defineFunction func tast
                                        in
-                                           print "Code\n";
+                                           print "Code:\n";
+                                           print (Backend.renderTop code);
                                            repl' (tenv, fenv')
                                        end
                                    end

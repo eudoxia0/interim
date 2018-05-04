@@ -4,17 +4,18 @@ structure Backend :> BACKEND = struct
 
   datatype cparam = CParam of string * ctype
 
-  datatype cast = CConstBool of bool
-                | CConstInt of int
-                | CVar of string
-                | CBinop of AST.binop * cast * cast
-                | CSeq of cast list
-                | CDeclare of ctype * string
-                | CAssign of string * cast
-                | CCond of cast * cast * cast
-                | CFuncall of string * cast list
+  datatype exp_cast = CConstBool of bool
+                    | CConstInt of int
+                    | CVar of string
+                    | CBinop of AST.binop * exp_cast * exp_cast
+                    | CFuncall of string * exp_cast list
 
-  datatype top_cast = CFunction of string * cparam list * ctype * cast
+  datatype block_cast = CSeq of block_cast list
+                      | CDeclare of ctype * string
+                      | CAssign of string * exp_cast
+                      | CCond of exp_cast * block_cast * block_cast
+
+  datatype top_cast = CFunction of string * cparam list * ctype * block_cast
 
   val count = ref 0
   fun fresh s =
@@ -47,8 +48,25 @@ structure Backend :> BACKEND = struct
     fun convert (TConstBool b) = wrapConstant (CConstBool b) Bool
       | convert (TConstInt (i, _)) = wrapConstant (CConstInt i) Int64
       | convert (TVar (s, t)) = wrapConstant (CVar s) (convertType t)
-      | convert (TBinop (oper, a, b, t)) = wrapConstant (CBinop (oper, convert a, convert b))
-                                                        (convertType t)
+      | convert (TBinop (oper, a, b, t)) =
+        let val a' = convert a
+        in
+            let val avar = curVar ()
+            in
+                let val b' = convert b
+                in
+                    let val bvar = curVar ()
+                    in
+                        CSeq [
+                            a',
+                            b',
+                            wrapConstant (CBinop (oper, avar, bvar))
+                                         (convertType t)
+                        ]
+                    end
+                end
+            end
+        end
       | convert (TCond (t, c, a, _)) =
         let val result = freshVar ()
             and resType = convertType (AST.typeOf c)
@@ -82,5 +100,43 @@ structure Backend :> BACKEND = struct
                  convertType rt,
                  convert tast)
 
+    fun binopStr Add = "+"
+      | binopStr Sub = "-"
+      | binopStr Mul = "*"
+      | binopStr Div = "/"
+      | binopStr Eq = "="
+      | binopStr LT = "<"
+      | binopStr LEq = "<="
+      | binopStr GT = ">"
+      | binopStr GEq = ">="
   end
+
+  fun typeName Bool = "Bool"
+    | typeName Int64 = "int64_t"
+
+  fun sepBy sep strings =
+    foldr (fn (a,b) => a ^ sep ^ b) "" strings
+
+  fun pad n =
+    if n > 0 then
+        " " ^ (pad (n-1))
+    else
+        ""
+
+  fun renderExp (CConstBool true) = "true"
+    | renderExp (CConstBool false) = "false"
+    | renderExp (CConstInt i) = (if i < 0 then "-" else "") ^ (Int.toString (abs i))
+    | renderExp (CVar s) = s
+    | renderExp (CBinop (oper, a, b)) = "(" ^ (renderExp a) ^ (binopStr oper) ^ (renderExp b) ^ ")"
+    | renderExp (CFuncall (f, args)) = f ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
+
+  fun renderBlock (CSeq l) = sepBy ";\n" (map renderBlock l)
+    | renderBlock (CDeclare (t, n)) = (typeName t) ^ " " ^ n
+    | renderBlock (CAssign (n, v)) = n ^ " = " ^ (renderExp v)
+    | renderBlock (CCond (t, c, a)) = "if (" ^ (renderExp t) ^ ") {\n" ^ (renderBlock c)
+                                      ^ "\n} else { \n" ^ (renderBlock a) ^ "\n}"
+
+  fun renderTop (CFunction (name, params, rt, body)) =
+    (typeName rt) ^ " " ^ name ^ "(" ^ (sepBy "," (map renderParam params)) ^ ") {\n" ^ (renderBlock body) ^ "\n  return " ^ (renderExp (curVar ())) ^ ";\n}"
+  and renderParam (CParam (n, t)) = (typeName t) ^ " " ^ n
 end
