@@ -15,12 +15,24 @@ signature AST = sig
                | Binop of binop * ast * ast
                | Funcall of string * ast list
 
-  type fun_name = string
   datatype param = Param of string * Type.ty
+  datatype func = Function of string * param list * Type.ty
 
-  datatype top_ast = Defun of fun_name * param list * Type.ty * ast
+  datatype top_ast = Defun of func * ast
 
   val parse : Parser.sexp -> ast
-
   val parseToplevel : Parser.sexp -> Type.tenv -> top_ast
+
+  type fenv = func SymTab.symtab
+  datatype tast = TConstInt of int * Type.ty
+                | TVar of string * Type.ty
+                | TBinop of binop * tast * tast * Type.ty
+                | TFuncall of string * tast list * Type.ty
+
+  val typeOf : tast -> Type.ty
+
+  datatype binding = Binding of string * Type.ty
+  type stack = binding SymTab.symtab
+
+  val augment : ast -> stack -> Type.tenv -> fenv -> tast
 end
