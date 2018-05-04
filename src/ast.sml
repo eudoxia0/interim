@@ -17,12 +17,7 @@ structure AST :> AST = struct
                | Binop of binop * ast * ast
                | Funcall of string * ast list
 
-  datatype param = Param of string * Type.ty
-  datatype func = Function of string * param list * Type.ty
-
-  fun funcName (Function (s, _, _)) = s
-
-  datatype top_ast = Defun of func * ast
+  datatype top_ast = Defun of Function.func * ast
 
   local
     open Parser
@@ -41,38 +36,25 @@ structure AST :> AST = struct
       | parse (SList [Symbol ">=", a, b]) = Binop (GEq, parse a, parse b)
       | parse _ = raise Fail "Bad expression"
 
-    fun parseParam (SList [Symbol n, t]) e = Param (n, Type.parseTypeSpecifier t e)
+    fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
 
     fun parseToplevel (SList [Symbol "defun", Symbol name, SList params, rt, body]) e =
-      Defun (Function (name,
-                       map (fn p => parseParam p e) params,
-                       Type.parseTypeSpecifier rt e),
+      Defun (Function.Function (name,
+                                map (fn p => parseParam p e) params,
+                                Type.parseTypeSpecifier rt e),
              parse body)
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
   end
 
-  type fenv = func SymTab.symtab
   datatype tast = TConstInt of int * Type.ty
                 | TVar of string * Type.ty
                 | TBinop of binop * tast * tast * Type.ty
                 | TFuncall of string * tast list * Type.ty
 
-  datatype binding = Binding of string * Type.ty
-  type stack = binding SymTab.symtab
-
-  fun funcStack (Function (_, params, _)) =
-    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t)) acc
-          | toStack nil acc = acc
-
-    in
-        toStack params empty
-    end
-
-  fun bindType (Binding (s, t)) = t
-
   local
       open Type
+      open Function
   in
     fun typeOf (TConstInt (_, t)) = t
       | typeOf (TVar (_, t)) = t
@@ -84,7 +66,7 @@ structure AST :> AST = struct
           raise Fail "Wrong parameter count"
       else
           ListPair.all (fn (pt, at) => pt = at)
-                       ((map (fn (Param (n,t)) => t) params),
+                       ((map (fn (Function.Param (n,t)) => t) params),
                         (map typeOf args))
 
     fun augment (ConstInt i) _ _ _ = TConstInt (i, I64)

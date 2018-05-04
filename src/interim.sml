@@ -1,7 +1,7 @@
 structure Interim :> INTERIM = struct
   open SymTab
 
-  type compiler = Type.tenv * AST.fenv
+  type compiler = Type.tenv * Function.fenv
 
   fun readUntilBlank () =
     case (TextIO.inputLine TextIO.stdIn) of
@@ -24,9 +24,9 @@ structure Interim :> INTERIM = struct
                       in
                           (case ast of
                                (AST.Defun (func, ast)) =>
-                               let val fenv' = bind (AST.funcName func, func) fenv
+                               let val fenv' = bind (Function.funcName func, func) fenv
                                in
-                                   let val tast = AST.augment ast (AST.funcStack func) tenv fenv'
+                                   let val tast = AST.augment ast (Function.funcStack func) tenv fenv'
                                    in
                                        print "Defined function\n";
                                        repl' (tenv, fenv')
