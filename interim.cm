@@ -16,6 +16,9 @@ is
   src/parser.sig
   src/parser.sml
 
+  src/func.sig
+  src/func.sml
+
   src/ast.sig
   src/ast.sml
 
