@@ -1,4 +1,6 @@
 structure AST :> AST = struct
+  open SymTab
+
   datatype binop = Add
                  | Sub
                  | Mul
@@ -59,11 +61,18 @@ structure AST :> AST = struct
   datatype binding = Binding of string * Type.ty
   type stack = binding SymTab.symtab
 
+  fun funcStack (Function (_, params, _)) =
+    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t)) acc
+          | toStack nil acc = acc
+
+    in
+        toStack params empty
+    end
+
   fun bindType (Binding (s, t)) = t
 
   local
       open Type
-      open SymTab
   in
     fun typeOf (TConstInt (_, t)) = t
       | typeOf (TVar (_, t)) = t

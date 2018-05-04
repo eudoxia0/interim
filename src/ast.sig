@@ -36,5 +36,7 @@ signature AST = sig
   datatype binding = Binding of string * Type.ty
   type stack = binding SymTab.symtab
 
+  val funcStack : func -> stack
+
   val augment : ast -> stack -> Type.tenv -> fenv -> tast
 end
