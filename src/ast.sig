@@ -16,9 +16,11 @@ signature AST = sig
                | Funcall of string * ast list
 
   type fun_name = string
-  type param = string * Type.ty
+  datatype param = Param of string * Type.ty
 
   datatype top_ast = Defun of fun_name * param list * ast
 
   val parseSexp : Parser.sexp -> ast option
+
+  val parseToplevel : Parser.sexp -> Type.tenv -> top_ast option
 end
