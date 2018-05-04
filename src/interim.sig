@@ -1,5 +1,5 @@
 signature INTERIM = sig
-  type compiler = Type.tenv
+  type compiler
 
   val repl : unit -> unit
 end
