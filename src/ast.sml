@@ -108,6 +108,5 @@ structure AST :> AST = struct
             else
                 raise Fail "Argument types don't match parameter types"
         end
-      | augment _ _ _ _ = raise Fail "DERP"
   end
 end
