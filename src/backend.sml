@@ -13,7 +13,7 @@ structure Backend :> BACKEND = struct
     let val cur = !count
     in
         count := cur + 1;
-        cur
+        s ^ (Int.toString cur)
     end
 
   fun convertType (Type.Unit) = Bool
