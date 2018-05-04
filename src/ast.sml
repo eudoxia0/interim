@@ -15,6 +15,11 @@ structure AST :> AST = struct
                | Binop of binop * ast * ast
                | Funcall of string * ast list
 
+  type fun_name = string
+  type param = string * Type.ty
+
+  datatype top_ast = Defun of fun_name * param list * ast
+
   local
     open Parser
   in
