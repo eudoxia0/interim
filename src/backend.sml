@@ -28,6 +28,7 @@ structure Backend :> BACKEND = struct
   fun freshVar () = fresh "r"
 
   fun curVar () = CVar ("r" ^ (Int.toString (!count)))
+  fun curVarStr () = let val (CVar s) = curVar () in s end
 
   fun convertType (Type.Unit) = Bool
     | convertType (Type.Bool) = Bool
@@ -81,7 +82,9 @@ structure Backend :> BACKEND = struct
                          CSeq [
                              convert a,
                              CAssign (result, curVar ())
-                        ])
+                        ]),
+                  CDeclare (resType, freshVar ()),
+                  CAssign (curVarStr (), CVar result)
                  ]
         end
       | convert (TFuncall (f, args, rt)) =
