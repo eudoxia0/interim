@@ -26,8 +26,11 @@ structure Interim :> INTERIM = struct
                                (AST.Defun (func, ast)) =>
                                let val fenv' = bind (AST.funcName func, func) fenv
                                in
-                                   print "Defined function\n";
-                                   repl' (tenv, fenv')
+                                   let val tast = AST.augment ast (AST.funcStack func) tenv fenv'
+                                   in
+                                       print "Defined function\n";
+                                       repl' (tenv, fenv')
+                                   end
                                end)
                       end
                   end  handle Fail s => print ("Error: " ^ s ^ "\n");
