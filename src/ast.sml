@@ -39,10 +39,7 @@ structure AST :> AST = struct
 
     fun parseSexp s = (SOME (p s)) handle (Fail _) => NONE
 
-    fun parseParam (SList [Symbol n, t]) e =
-      (case (Type.parseTypeSpecifier t e) of
-           (SOME t') => Param (n, t')
-         | NONE => raise Fail "Bad type specifier")
+    fun parseParam (SList [Symbol n, t]) e = Param (n, Type.parseTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
 
     fun parseToplevel' (SList [Symbol "defun", Symbol name, SList params, body]) e =

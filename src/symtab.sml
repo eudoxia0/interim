@@ -6,8 +6,8 @@ structure SymTab :> SYMTAB = struct
   fun bind (n, v) st = (n, v) :: st
 
   fun lookup s ((n,v)::xs) = if (n = s) then
-                                 SOME v
+                                 v
                              else
                                  lookup s xs
-    | lookup s nil = NONE
+    | lookup s nil = raise Fail ("Symbol table lookup failed for '" ^ s ^ "'")
 end

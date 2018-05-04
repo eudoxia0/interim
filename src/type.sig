@@ -5,5 +5,5 @@ signature TYPE = sig
 
   type tenv = ty SymTab.symtab
 
-  val parseTypeSpecifier : Parser.sexp -> tenv -> ty option
+  val parseTypeSpecifier : Parser.sexp -> tenv -> ty
 end

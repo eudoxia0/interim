@@ -10,10 +10,10 @@ structure Type :> TYPE = struct
   local
       open Parser
   in
-    fun parseTypeSpecifier (Symbol "unit") _ = SOME Unit
-      | parseTypeSpecifier (Symbol "bool") _ = SOME Bool
-      | parseTypeSpecifier (Symbol "i64") _ = SOME I64
+    fun parseTypeSpecifier (Symbol "unit") _ = Unit
+      | parseTypeSpecifier (Symbol "bool") _ = Bool
+      | parseTypeSpecifier (Symbol "i64") _ = I64
       | parseTypeSpecifier (Symbol s) e = lookup s e
-      | parseTypeSpecifier _ _ = NONE
+      | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
   end
 end

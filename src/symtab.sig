@@ -3,5 +3,5 @@ signature SYMTAB = sig
 
   val empty : 'a symtab
   val bind : (string * 'a) -> 'a symtab -> 'a symtab
-  val lookup : string -> 'a symtab -> 'a option
+  val lookup : string -> 'a symtab -> 'a
 end
