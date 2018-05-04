@@ -33,7 +33,7 @@ signature AST = sig
 
   val typeOf : tast -> Type.ty
 
-  datatype binding = Binding of string * Type.ty
+  type binding
   type stack = binding SymTab.symtab
 
   val funcStack : func -> stack
