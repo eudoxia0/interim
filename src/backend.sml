@@ -7,6 +7,10 @@ structure Backend :> BACKEND = struct
 
   datatype cast = CConstInt of int
 
-  fun convert a = raise Fail "derp"
-  fun convertTop a = raise Fail "derp"
+  local
+      open AST
+  in
+    fun convert a = raise Fail "derp"
+    fun convertTop a = raise Fail "derp"
+  end
 end
