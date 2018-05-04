@@ -1,9 +1,12 @@
 structure Backend :> BACKEND = struct
   datatype ctype = Int64
 
-  datatype param = Param of string * ctype
+  datatype cparam = CParam of string * ctype
 
-  datatype top_ast = Function of string * param list * ctype
+  datatype top_cast = CFunction of string * cparam list * ctype
+
+  datatype cast = CConstInt of int
 
   fun convert a = raise Fail "derp"
+  fun convertTop a = raise Fail "derp"
 end
