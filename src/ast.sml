@@ -18,6 +18,8 @@ structure AST :> AST = struct
   datatype param = Param of string * Type.ty
   datatype func = Function of string * param list * Type.ty
 
+  fun funcName (Function (s, _, _)) = s
+
   datatype top_ast = Defun of func * ast
 
   local

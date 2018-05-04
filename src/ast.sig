@@ -18,6 +18,8 @@ signature AST = sig
   datatype param = Param of string * Type.ty
   datatype func = Function of string * param list * Type.ty
 
+  val funcName : func -> string
+
   datatype top_ast = Defun of func * ast
 
   val parse : Parser.sexp -> ast

@@ -1,4 +1,6 @@
 structure Interim :> INTERIM = struct
+  open SymTab
+
   type compiler = Type.tenv * AST.fenv
 
   fun readUntilBlank () =
@@ -21,13 +23,18 @@ structure Interim :> INTERIM = struct
                       let val ast = AST.parseToplevel sexp tenv
                       in
                           (case ast of
-                               (AST.Defun (func, ast)) => print "Defined a function\n")
+                               (AST.Defun (func, ast)) =>
+                               let val fenv' = bind (AST.funcName func, func) fenv
+                               in
+                                   print "Defined function\n";
+                                   repl' (tenv, fenv')
+                               end)
                       end
                   end  handle Fail s => print ("Error: " ^ s ^ "\n");
                   repl' (tenv, fenv)
               end
           end
     in
-        repl' (SymTab.empty, SymTab.empty)
+        repl' (empty, empty)
     end
 end
