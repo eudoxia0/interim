@@ -19,10 +19,10 @@ structure Backend :> BACKEND = struct
 
   val count = ref 0
   fun fresh s =
-    let val cur = !count
+    let
     in
-        count := cur + 1;
-        s ^ (Int.toString cur)
+        count := !count + 1;
+        s ^ (Int.toString (!count))
     end
 
   fun freshVar () = fresh "r"
@@ -81,7 +81,8 @@ structure Backend :> BACKEND = struct
                          CSeq [
                              convert a,
                              CAssign (result, curVar ())
-                         ])]
+                        ])
+                 ]
         end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => (convert a, curVar ())) args
@@ -111,11 +112,11 @@ structure Backend :> BACKEND = struct
       | binopStr GEq = ">="
   end
 
-  fun typeName Bool = "Bool"
+  fun typeName Bool = "bool"
     | typeName Int64 = "int64_t"
 
-  fun sepBy sep strings =
-    foldr (fn (a,b) => a ^ sep ^ b) "" strings
+  fun sepBy sep (string::nil) = string
+    | sepBy sep strings = foldr (fn (a,b) => a ^ sep ^ b) "" strings
 
   fun pad n =
     if n > 0 then
@@ -130,9 +131,9 @@ structure Backend :> BACKEND = struct
     | renderExp (CBinop (oper, a, b)) = "(" ^ (renderExp a) ^ (binopStr oper) ^ (renderExp b) ^ ")"
     | renderExp (CFuncall (f, args)) = f ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
-  fun renderBlock (CSeq l) = sepBy ";\n" (map renderBlock l)
-    | renderBlock (CDeclare (t, n)) = (typeName t) ^ " " ^ n
-    | renderBlock (CAssign (n, v)) = n ^ " = " ^ (renderExp v)
+  fun renderBlock (CSeq l) = sepBy "\n" (map renderBlock l)
+    | renderBlock (CDeclare (t, n)) = (typeName t) ^ " " ^ n ^ ";"
+    | renderBlock (CAssign (n, v)) = n ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock (CCond (t, c, a)) = "if (" ^ (renderExp t) ^ ") {\n" ^ (renderBlock c)
                                       ^ "\n} else { \n" ^ (renderBlock a) ^ "\n}"
 
