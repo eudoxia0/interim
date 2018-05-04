@@ -5,5 +5,5 @@ signature BACKEND = sig
 
   val convertType : Type.ty -> ctype
   val convert : AST.tast -> cast
-  val convertTop : AST.top_ast -> top_cast
+  val defineFunction : Function.func -> AST.tast -> top_cast
 end

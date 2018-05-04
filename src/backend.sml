@@ -76,6 +76,11 @@ structure Backend :> BACKEND = struct
                    CAssign (res, CFuncall (f, map (fn (c, v) => v) args'))])
         end
 
-    fun convertTop a = raise Fail "derp"
+    fun defineFunction (Function.Function (name, params, rt)) tast =
+      CFunction (name,
+                 map (fn (Function.Param (n,t)) => CParam (n, convertType t)) params,
+                 convertType rt,
+                 convert tast)
+
   end
 end
