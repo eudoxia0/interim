@@ -24,7 +24,7 @@ structure Interim :> INTERIM = struct
                   end;
                   repl' c
               end
-          end
+          end handle Fail s => print ("Error: " ^ s ^ "\n")
     in
         repl' (SymTab.empty)
     end
