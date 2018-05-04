@@ -1,0 +1,28 @@
+Library
+  signature PARSER
+  structure Parser
+  signature AST
+  structure AST
+  signature TYPE
+  structure Type
+  signature INTERIM
+  structure Interim
+is
+  vendor/parsimony/parsimony.cm
+
+  src/symtab.sig
+  src/symtab.sml
+
+  src/parser.sig
+  src/parser.sml
+
+  src/ast.sig
+  src/ast.sml
+
+  src/type.sig
+  src/type.sml
+
+  src/interim.sig
+  src/interim.sml
+
+  $/basis.cm
