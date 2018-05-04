@@ -24,6 +24,7 @@ signature AST = sig
   datatype tast = TConstInt of int * Type.ty
                 | TVar of string * Type.ty
                 | TBinop of binop * tast * tast * Type.ty
+                | TCond of tast * tast * tast * Type.ty
                 | TFuncall of string * tast list * Type.ty
 
   val typeOf : tast -> Type.ty

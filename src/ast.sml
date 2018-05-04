@@ -53,6 +53,7 @@ structure AST :> AST = struct
   datatype tast = TConstInt of int * Type.ty
                 | TVar of string * Type.ty
                 | TBinop of binop * tast * tast * Type.ty
+                | TCond of tast * tast * tast * Type.ty
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -62,6 +63,7 @@ structure AST :> AST = struct
     fun typeOf (TConstInt (_, t)) = t
       | typeOf (TVar (_, t)) = t
       | typeOf (TBinop (_, _, _, t)) = t
+      | typeOf (TCond (_, _, _, t)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -83,6 +85,19 @@ structure AST :> AST = struct
       | augment (Binop (LEq, a, b)) s t f = TBinop (LEq, augment a s t f, augment b s t f, Bool)
       | augment (Binop (GT, a, b)) s t f = TBinop (GT, augment a s t f, augment b s t f, Bool)
       | augment (Binop (GEq, a, b)) s t f = TBinop (GEq, augment a s t f, augment b s t f, Bool)
+      | augment (Cond (test, c, a)) s t f =
+        let val test' = augment test s t f
+            and c' = augment c s t f
+            and a' = augment a s t f
+        in
+            if (typeOf test') <> Bool then
+                raise Fail "The test in an if must be of boolean type"
+            else
+                if (typeOf c') <> (typeOf a') then
+                    raise Fail "The consequent and the alternate must have the same type"
+                else
+                    TCond (test', c', a', typeOf c')
+        end
       | augment (Funcall (name, args)) s t fenv =
         let val (Function (_, params, rt)) = lookup name fenv
             and targs = (map (fn e => augment e s t fenv) args)
