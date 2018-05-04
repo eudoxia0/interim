@@ -8,6 +8,14 @@ structure Backend :> BACKEND = struct
 
   datatype cast = CConstInt of int
 
+  val count = ref 0
+  fun fresh s =
+    let val cur = !count
+    in
+        count := cur + 1;
+        cur
+    end
+
   fun convertType (Type.Unit) = Bool
     | convertType (Type.Bool) = Bool
     | convertType (Type.I64) = Int64
