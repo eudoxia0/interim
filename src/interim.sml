@@ -1,5 +1,5 @@
 structure Interim :> INTERIM = struct
-  type compiler = Type.tenv
+  type compiler = Type.tenv * AST.fenv
 
   fun readUntilBlank () =
     case (TextIO.inputLine TextIO.stdIn) of
@@ -10,7 +10,7 @@ structure Interim :> INTERIM = struct
       | NONE => OS.Process.terminate OS.Process.success
 
   fun repl () =
-    let fun repl' c =
+    let fun repl' (tenv, fenv) =
           let
           in
               print "> ";
@@ -18,15 +18,16 @@ structure Interim :> INTERIM = struct
               in
                   let val sexp = Parser.parseString s
                   in
-                      let val ast = AST.parseToplevel sexp c
+                      let val ast = AST.parseToplevel sexp tenv
                       in
-                          print "AST node\n"
+                          (case ast of
+                               (AST.Defun (func, ast)) => print "Defined a function\n")
                       end
                   end  handle Fail s => print ("Error: " ^ s ^ "\n");
-                  repl' c
+                  repl' (tenv, fenv)
               end
           end
     in
-        repl' (SymTab.empty)
+        repl' (SymTab.empty, SymTab.empty)
     end
 end
