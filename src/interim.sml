@@ -28,8 +28,11 @@ structure Interim :> INTERIM = struct
                                in
                                    let val tast = AST.augment ast (Function.funcStack func) tenv fenv'
                                    in
-                                       print "Defined function\n";
-                                       repl' (tenv, fenv')
+                                       let val code = Backend.defineFunction func tast
+                                       in
+                                           print "Code\n";
+                                           repl' (tenv, fenv')
+                                       end
                                    end
                                end)
                       end
