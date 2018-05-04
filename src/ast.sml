@@ -15,6 +15,7 @@ structure AST :> AST = struct
                | ConstString of string
                | Var of string
                | Binop of binop * ast * ast
+               | Cond of ast * ast * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -34,6 +35,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol "<=", a, b]) = Binop (LEq, parse a, parse b)
       | parse (SList [Symbol ">", a, b]) = Binop (GT, parse a, parse b)
       | parse (SList [Symbol ">=", a, b]) = Binop (GEq, parse a, parse b)
+      | parse (SList [Symbol "if", t, c, a]) = Cond (parse t, parse c, parse a)
       | parse (SList ((Symbol s)::rest)) = Funcall (s, map parse rest)
       | parse _ = raise Fail "Bad expression"
 

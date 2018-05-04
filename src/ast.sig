@@ -13,6 +13,7 @@ signature AST = sig
                | ConstString of string
                | Var of string
                | Binop of binop * ast * ast
+               | Cond of ast * ast * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
