@@ -4,8 +4,6 @@ structure Backend :> BACKEND = struct
 
   datatype cparam = CParam of string * ctype
 
-  datatype top_cast = CFunction of string * cparam list * ctype
-
   datatype cast = CConstBool of bool
                 | CConstInt of int
                 | CVar of string
@@ -15,6 +13,8 @@ structure Backend :> BACKEND = struct
                 | CAssign of string * cast
                 | CCond of cast * cast * cast
                 | CFuncall of string * cast list
+
+  datatype top_cast = CFunction of string * cparam list * ctype * cast
 
   val count = ref 0
   fun fresh s =
