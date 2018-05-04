@@ -34,6 +34,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol "<=", a, b]) = Binop (LEq, parse a, parse b)
       | parse (SList [Symbol ">", a, b]) = Binop (GT, parse a, parse b)
       | parse (SList [Symbol ">=", a, b]) = Binop (GEq, parse a, parse b)
+      | parse (SList ((Symbol s)::rest)) = Funcall (s, map parse rest)
       | parse _ = raise Fail "Bad expression"
 
     fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseTypeSpecifier t e)
