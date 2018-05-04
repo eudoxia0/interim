@@ -81,6 +81,7 @@ structure AST :> AST = struct
       | augment (Binop (Sub, a, b)) s t f = TBinop (Sub, augment a s t f, augment b s t f, I64)
       | augment (Binop (Mul, a, b)) s t f = TBinop (Mul, augment a s t f, augment b s t f, I64)
       | augment (Binop (Div, a, b)) s t f = TBinop (Div, augment a s t f, augment b s t f, I64)
+      | augment (Binop (Eq, a, b)) s t f = TBinop (Eq, augment a s t f, augment b s t f, Bool)
       | augment (Binop (LT, a, b)) s t f = TBinop (LT, augment a s t f, augment b s t f, Bool)
       | augment (Binop (LEq, a, b)) s t f = TBinop (LEq, augment a s t f, augment b s t f, Bool)
       | augment (Binop (GT, a, b)) s t f = TBinop (GT, augment a s t f, augment b s t f, Bool)
