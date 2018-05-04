@@ -9,7 +9,8 @@ signature AST = sig
                  | GT
                  | GEq
 
-  datatype ast = ConstInt of int
+  datatype ast = ConstBool of bool
+               | ConstInt of int
                | ConstString of string
                | Var of string
                | Binop of binop * ast * ast
@@ -21,7 +22,8 @@ signature AST = sig
   val parse : Parser.sexp -> ast
   val parseToplevel : Parser.sexp -> Type.tenv -> top_ast
 
-  datatype tast = TConstInt of int * Type.ty
+  datatype tast = TConstBool of bool
+                | TConstInt of int * Type.ty
                 | TVar of string * Type.ty
                 | TBinop of binop * tast * tast * Type.ty
                 | TCond of tast * tast * tast * Type.ty

@@ -11,7 +11,8 @@ structure AST :> AST = struct
                  | GT
                  | GEq
 
-  datatype ast = ConstInt of int
+  datatype ast = ConstBool of bool
+               | ConstInt of int
                | ConstString of string
                | Var of string
                | Binop of binop * ast * ast
@@ -25,6 +26,8 @@ structure AST :> AST = struct
   in
     fun parse (Integer i) = ConstInt i
       | parse (String s) = ConstString s
+      | parse (Symbol "true") = ConstBool true
+      | parse (Symbol "false") = ConstBool false
       | parse (Symbol s) = Var s
       | parse (SList [Symbol "+", a, b]) = Binop (Add, parse a, parse b)
       | parse (SList [Symbol "-", a, b]) = Binop (Sub, parse a, parse b)
@@ -50,7 +53,8 @@ structure AST :> AST = struct
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
   end
 
-  datatype tast = TConstInt of int * Type.ty
+  datatype tast = TConstBool of bool
+                | TConstInt of int * Type.ty
                 | TVar of string * Type.ty
                 | TBinop of binop * tast * tast * Type.ty
                 | TCond of tast * tast * tast * Type.ty
@@ -60,7 +64,8 @@ structure AST :> AST = struct
       open Type
       open Function
   in
-    fun typeOf (TConstInt (_, t)) = t
+    fun typeOf (TConstBool _) = Bool
+      | typeOf (TConstInt (_, t)) = t
       | typeOf (TVar (_, t)) = t
       | typeOf (TBinop (_, _, _, t)) = t
       | typeOf (TCond (_, _, _, t)) = t
@@ -74,7 +79,8 @@ structure AST :> AST = struct
                        ((map (fn (Function.Param (n,t)) => t) params),
                         (map typeOf args))
 
-    fun augment (ConstInt i) _ _ _ = TConstInt (i, I64)
+    fun augment (ConstBool b) _ _ _ = TConstBool b
+      | augment (ConstInt i) _ _ _ = TConstInt (i, I64)
       | augment (ConstString s) _ _ _ = raise Fail "STRINGS ARE NOT SUPPORTED YET"
       | augment (Var s) stack _ _ = TVar (s, bindType (lookup s stack))
       | augment (Binop (Add, a, b)) s t f = TBinop (Add, augment a s t f, augment b s t f, I64)
