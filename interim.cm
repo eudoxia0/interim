@@ -22,6 +22,9 @@ is
   src/type.sig
   src/type.sml
 
+  src/backend.sig
+  src/backend.sml
+
   src/interim.sig
   src/interim.sml
 
