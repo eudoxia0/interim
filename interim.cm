@@ -1,10 +1,16 @@
 Library
+  signature SYMTAB
+  structure SymTab
   signature PARSER
   structure Parser
+  signature FUNCTION
+  structure Function
   signature AST
   structure AST
   signature TYPE
   structure Type
+  signature BACKEND
+  structure Backend
   signature INTERIM
   structure Interim
 is
