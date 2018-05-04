@@ -14,6 +14,7 @@ structure Backend :> BACKEND = struct
                 | CDeclare of ctype * string
                 | CAssign of string * cast
                 | CCond of cast * cast * cast
+                | CFuncall of string * cast list
 
   val count = ref 0
   fun fresh s =
@@ -31,13 +32,23 @@ structure Backend :> BACKEND = struct
     | convertType (Type.Bool) = Bool
     | convertType (Type.I64) = Int64
 
+  fun wrapConstant c t =
+    let val result = freshVar ()
+    in
+        CSeq [
+            CDeclare (t, result),
+            CAssign (result, c)
+        ]
+    end
+
   local
       open AST
   in
-    fun convert (TConstBool b) = CConstBool b
-      | convert (TConstInt (i, _)) = CConstInt i
-      | convert (TVar (s, _)) = CVar s
-      | convert (TBinop (oper, a, b, _)) = CBinop (oper, convert a, convert b)
+    fun convert (TConstBool b) = wrapConstant (CConstBool b) Bool
+      | convert (TConstInt (i, _)) = wrapConstant (CConstInt i) Int64
+      | convert (TVar (s, t)) = wrapConstant (CVar s) (convertType t)
+      | convert (TBinop (oper, a, b, t)) = wrapConstant (CBinop (oper, convert a, convert b))
+                                                        (convertType t)
       | convert (TCond (t, c, a, _)) =
         let val result = freshVar ()
             and resType = convertType (AST.typeOf c)
@@ -54,7 +65,17 @@ structure Backend :> BACKEND = struct
                              CAssign (result, curVar ())
                          ])]
         end
-      | convert _ = raise Fail "derp"
+      | convert (TFuncall (f, args, rt)) =
+        let val args' = map (fn a => (convert a, curVar ())) args
+            and rt' = convertType rt
+            and res = freshVar ()
+        in
+            CSeq ((map (fn (c, v) => c) args')
+                  @
+                  [CDeclare (rt', res),
+                   CAssign (res, CFuncall (f, map (fn (c, v) => v) args'))])
+        end
+
     fun convertTop a = raise Fail "derp"
   end
 end
