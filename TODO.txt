@@ -1,24 +1,16 @@
-- Check type of arguments in binops
-
 - Implement cast across integer types
-
 - Implement deftype
-
 - Implement the
-
 - Implement floats
 - Implement comments
-
 - Implement tuples
 - Implement tuple indexing, creation
-
 - Implement a print function for primitive types
-
 - Implement progn
 - Implement c/embed
-
 - Implement let
 
 DONE:
 
 - Check type of function body matches return type
+- Check type of arguments in binops
