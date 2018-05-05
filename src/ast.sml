@@ -88,15 +88,15 @@ structure AST :> AST = struct
       | augment (ConstInt i) _ _ _ = TConstInt (i, I64)
       | augment (ConstString s) _ _ _ = raise Fail "STRINGS ARE NOT SUPPORTED YET"
       | augment (Var s) stack _ _ = TVar (s, bindType (lookup s stack))
-      | augment (Binop (Add, a, b)) s t f = TBinop (Add, augment a s t f, augment b s t f, I64)
-      | augment (Binop (Sub, a, b)) s t f = TBinop (Sub, augment a s t f, augment b s t f, I64)
-      | augment (Binop (Mul, a, b)) s t f = TBinop (Mul, augment a s t f, augment b s t f, I64)
-      | augment (Binop (Div, a, b)) s t f = TBinop (Div, augment a s t f, augment b s t f, I64)
-      | augment (Binop (Eq, a, b)) s t f = TBinop (Eq, augment a s t f, augment b s t f, Bool)
-      | augment (Binop (LT, a, b)) s t f = TBinop (LT, augment a s t f, augment b s t f, Bool)
-      | augment (Binop (LEq, a, b)) s t f = TBinop (LEq, augment a s t f, augment b s t f, Bool)
-      | augment (Binop (GT, a, b)) s t f = TBinop (GT, augment a s t f, augment b s t f, Bool)
-      | augment (Binop (GEq, a, b)) s t f = TBinop (GEq, augment a s t f, augment b s t f, Bool)
+      | augment (Binop (Add, a, b)) s t f = augmentArithOp Add a b s t f
+      | augment (Binop (Sub, a, b)) s t f = augmentArithOp Sub a b s t f
+      | augment (Binop (Mul, a, b)) s t f = augmentArithOp Mul a b s t f
+      | augment (Binop (Div, a, b)) s t f = augmentArithOp Div a b s t f
+      | augment (Binop (Eq, a, b)) s t f = augmentCompOp Eq a b s t f
+      | augment (Binop (LT, a, b)) s t f = augmentCompOp LT a b s t f
+      | augment (Binop (LEq, a, b)) s t f = augmentCompOp LEq a b s t f
+      | augment (Binop (GT, a, b)) s t f = augmentCompOp GT a b s t f
+      | augment (Binop (GEq, a, b)) s t f = augmentCompOp GEq a b s t f
       | augment (Cond (test, c, a)) s t f =
         let val test' = augment test s t f
             and c' = augment c s t f
@@ -118,6 +118,24 @@ structure AST :> AST = struct
                 TFuncall (name, targs, rt)
             else
                 raise Fail "Argument types don't match parameter types"
+        end
+    and augmentArithOp oper a b s t f =
+        let val a' = augment a s t f
+            and b' = augment b s t f
+        in
+            if (typeOf a') <> (typeOf b') then
+                raise Fail "Both operands to an arithmetic operation must be of the same type"
+            else
+                TBinop (oper, a', b', typeOf a')
+        end
+    and augmentCompOp oper a b s t f =
+        let val a' = augment a s t f
+            and b' = augment b s t f
+        in
+            if (typeOf a') <> (typeOf b') then
+                raise Fail "Both operands to an comparison operation must be of the same type"
+            else
+                TBinop (oper, a', b', Bool)
         end
   end
 end
