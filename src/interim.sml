@@ -28,12 +28,15 @@ structure Interim :> INTERIM = struct
                                in
                                    let val tast = AST.augment ast (Function.funcStack func) tenv fenv'
                                    in
-                                       let val code = Backend.defineFunction func tast
-                                       in
-                                           print "Code:\n";
-                                           print (Backend.renderTop code);
-                                           repl' (tenv, fenv')
-                                       end
+                                       if (AST.typeOf tast) <> Function.funcRT func then
+                                           raise Fail "Return type does not match type of body"
+                                       else
+                                           let val code = Backend.defineFunction func tast
+                                           in
+                                               print "Code:\n";
+                                               print (Backend.renderTop code);
+                                               repl' (tenv, fenv')
+                                           end
                                    end
                                end)
                       end

@@ -10,5 +10,6 @@ signature FUNCTION = sig
   val bindType : binding -> Type.ty
 
   val funcName : func -> string
+  val funcRT : func -> Type.ty
   val funcStack : func -> stack
 end

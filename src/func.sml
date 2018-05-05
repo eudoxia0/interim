@@ -11,7 +11,9 @@ structure Function :> FUNCTION = struct
 
   fun bindType (Binding (s, t)) = t
 
-  fun funcName (Function (s, _, _)) = s
+  fun funcName (Function (n, _, _)) = n
+
+  fun funcRT (Function (_, _, r)) = r
 
   fun funcStack (Function (_, params, _)) =
     let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t)) acc
