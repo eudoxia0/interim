@@ -19,6 +19,13 @@ structure Type :> TYPE = struct
   in
     fun parseTypeSpecifier (Symbol "unit") _ = Unit
       | parseTypeSpecifier (Symbol "bool") _ = Bool
+      | parseTypeSpecifier (Symbol "u8") _ = U8
+      | parseTypeSpecifier (Symbol "i8") _ = I8
+      | parseTypeSpecifier (Symbol "u16") _ = U16
+      | parseTypeSpecifier (Symbol "i16") _ = I16
+      | parseTypeSpecifier (Symbol "u32") _ = U32
+      | parseTypeSpecifier (Symbol "i32") _ = I32
+      | parseTypeSpecifier (Symbol "u64") _ = U64
       | parseTypeSpecifier (Symbol "i64") _ = I64
       | parseTypeSpecifier (Symbol s) e = lookup s e
       | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
