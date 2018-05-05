@@ -1,5 +1,12 @@
 structure Backend :> BACKEND = struct
   datatype ctype = Bool
+                 | UInt8
+                 | Int8
+                 | UInt16
+                 | Int16
+                 | UInt32
+                 | Int32
+                 | UInt64
                  | Int64
 
   datatype cparam = CParam of string * ctype
@@ -32,6 +39,13 @@ structure Backend :> BACKEND = struct
 
   fun convertType (Type.Unit) = Bool
     | convertType (Type.Bool) = Bool
+    | convertType (Type.U8) = UInt8
+    | convertType (Type.I8) = Int8
+    | convertType (Type.U16) = UInt16
+    | convertType (Type.I16) = Int16
+    | convertType (Type.U32) = UInt32
+    | convertType (Type.I32) = Int32
+    | convertType (Type.U64) = UInt64
     | convertType (Type.I64) = Int64
 
   fun wrapConstant c t =
@@ -116,6 +130,13 @@ structure Backend :> BACKEND = struct
   end
 
   fun typeName Bool = "bool"
+    | typeName UInt8 = "uint8_t"
+    | typeName Int8 = "int8_t"
+    | typeName UInt16 = "uint16_t"
+    | typeName Int16 = "int16_t"
+    | typeName UInt32 = "uint32_t"
+    | typeName Int32 = "int32_t"
+    | typeName UInt64 = "uint64_t"
     | typeName Int64 = "int64_t"
 
   fun sepBy sep (string::nil) = string
