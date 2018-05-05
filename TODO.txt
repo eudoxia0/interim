@@ -1,6 +1,8 @@
 - Check type of arguments in binops
 - Check type of function body matches return type
 
+- Implement cast across integer types
+
 - Implement deftype
 
 - Implement the
