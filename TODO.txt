@@ -1,0 +1,19 @@
+- Check type of arguments in binops
+- Check type of function body matches return type
+
+- Implement deftype
+
+- Implement the
+
+- Implement floats
+- Implement comments
+
+- Implement tuples
+- Implement tuple indexing, creation
+
+- Implement a print function for primitive types
+
+- Implement progn
+- Implement c/embed
+
+- Implement let
