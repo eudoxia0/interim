@@ -60,7 +60,8 @@ structure Backend :> BACKEND = struct
   local
       open AST
   in
-    fun convert (TConstBool b) = wrapConstant (CConstBool b) Bool
+    fun convert TConstUnit = wrapConstant (CConstBool false) Bool
+      | convert (TConstBool b) = wrapConstant (CConstBool b) Bool
       | convert (TConstInt (i, _)) = wrapConstant (CConstInt i) Int64
       | convert (TVar (s, t)) = wrapConstant (CVar s) (convertType t)
       | convert (TBinop (oper, a, b, t)) =
