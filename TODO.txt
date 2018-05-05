@@ -1,5 +1,4 @@
 - Check type of arguments in binops
-- Check type of function body matches return type
 
 - Implement cast across integer types
 
@@ -19,3 +18,7 @@
 - Implement c/embed
 
 - Implement let
+
+DONE:
+
+- Check type of function body matches return type
