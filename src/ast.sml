@@ -18,6 +18,7 @@ structure AST :> AST = struct
                | Var of string
                | Binop of binop * ast * ast
                | Cond of ast * ast * ast
+               | Cast of Type.ty * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -25,24 +26,25 @@ structure AST :> AST = struct
   local
     open Parser
   in
-    fun parse (Integer i) = ConstInt i
-      | parse (String s) = ConstString s
-      | parse (Symbol "nil") = ConstUnit
-      | parse (Symbol "true") = ConstBool true
-      | parse (Symbol "false") = ConstBool false
-      | parse (Symbol s) = Var s
-      | parse (SList [Symbol "+", a, b]) = Binop (Add, parse a, parse b)
-      | parse (SList [Symbol "-", a, b]) = Binop (Sub, parse a, parse b)
-      | parse (SList [Symbol "*", a, b]) = Binop (Mul, parse a, parse b)
-      | parse (SList [Symbol "/", a, b]) = Binop (Div, parse a, parse b)
-      | parse (SList [Symbol "=", a, b]) = Binop (Eq, parse a, parse b)
-      | parse (SList [Symbol "<", a, b]) = Binop (LT, parse a, parse b)
-      | parse (SList [Symbol "<=", a, b]) = Binop (LEq, parse a, parse b)
-      | parse (SList [Symbol ">", a, b]) = Binop (GT, parse a, parse b)
-      | parse (SList [Symbol ">=", a, b]) = Binop (GEq, parse a, parse b)
-      | parse (SList [Symbol "if", t, c, a]) = Cond (parse t, parse c, parse a)
-      | parse (SList ((Symbol s)::rest)) = Funcall (s, map parse rest)
-      | parse _ = raise Fail "Bad expression"
+    fun parse (Integer i) _ = ConstInt i
+      | parse (String s) _ = ConstString s
+      | parse (Symbol "nil") _ = ConstUnit
+      | parse (Symbol "true") _ = ConstBool true
+      | parse (Symbol "false") _ = ConstBool false
+      | parse (Symbol s) _ = Var s
+      | parse (SList [Symbol "+", a, b]) e = Binop (Add, parse a e, parse b e)
+      | parse (SList [Symbol "-", a, b]) e = Binop (Sub, parse a e, parse b e)
+      | parse (SList [Symbol "*", a, b]) e = Binop (Mul, parse a e, parse b e)
+      | parse (SList [Symbol "/", a, b]) e = Binop (Div, parse a e, parse b e)
+      | parse (SList [Symbol "=", a, b]) e = Binop (Eq, parse a e, parse b e)
+      | parse (SList [Symbol "<", a, b]) e = Binop (LT, parse a e, parse b e)
+      | parse (SList [Symbol "<=", a, b]) e = Binop (LEq, parse a e, parse b e)
+      | parse (SList [Symbol ">", a, b]) e = Binop (GT, parse a e, parse b e)
+      | parse (SList [Symbol ">=", a, b]) e = Binop (GEq, parse a e, parse b e)
+      | parse (SList [Symbol "if", t, c, a]) e = Cond (parse t e, parse c e, parse a e)
+      | parse (SList [Symbol "the", t, a]) e = Cast (Type.parseTypeSpecifier t e, parse a e)
+      | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
+      | parse _ _ = raise Fail "Bad expression"
 
     fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
@@ -51,7 +53,7 @@ structure AST :> AST = struct
       Defun (Function.Function (name,
                                 map (fn p => parseParam p e) params,
                                 Type.parseTypeSpecifier rt e),
-             parse body)
+             parse body e)
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
   end
 
@@ -61,6 +63,7 @@ structure AST :> AST = struct
                 | TVar of string * Type.ty
                 | TBinop of binop * tast * tast * Type.ty
                 | TCond of tast * tast * tast * Type.ty
+                | TCast of Type.ty * tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -73,6 +76,7 @@ structure AST :> AST = struct
       | typeOf (TVar (_, t)) = t
       | typeOf (TBinop (_, _, _, t)) = t
       | typeOf (TCond (_, _, _, t)) = t
+      | typeOf (TCast (t, _)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -97,6 +101,17 @@ structure AST :> AST = struct
       | augment (Binop (LEq, a, b)) s t f = augmentCompOp LEq a b s t f
       | augment (Binop (GT, a, b)) s t f = augmentCompOp GT a b s t f
       | augment (Binop (GEq, a, b)) s t f = augmentCompOp GEq a b s t f
+      | augment (Cast (ty, a)) s t f =
+        let val a' = augment a s t f
+        in
+            if (Type.isNumeric ty) then
+                if (Type.isNumeric (typeOf a')) then
+                    TCast (ty, a')
+                else
+                    raise Fail "Cannot cast this type to a numeric type"
+            else
+                raise Fail "Casting to this type is not supported"
+        end
       | augment (Cond (test, c, a)) s t f =
         let val test' = augment test s t f
             and c' = augment c s t f

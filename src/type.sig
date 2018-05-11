@@ -10,6 +10,8 @@ signature TYPE = sig
               | U64
               | I64
 
+  val isNumeric : ty -> bool
+
   type tenv = ty SymTab.symtab
 
   val parseTypeSpecifier : Parser.sexp -> tenv -> ty

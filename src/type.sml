@@ -12,6 +12,16 @@ structure Type :> TYPE = struct
               | U64
               | I64
 
+  fun isNumeric U8 = true
+    | isNumeric I8 = true
+    | isNumeric U16 = true
+    | isNumeric I16 = true
+    | isNumeric U32 = true
+    | isNumeric I32 = true
+    | isNumeric U64 = true
+    | isNumeric I64 = true
+    | isNumeric _ = false
+
   type tenv = ty symtab
 
   local

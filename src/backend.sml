@@ -15,6 +15,7 @@ structure Backend :> BACKEND = struct
                     | CConstInt of int
                     | CVar of string
                     | CBinop of AST.binop * exp_cast * exp_cast
+                    | CCast of ctype * exp_cast
                     | CFuncall of string * exp_cast list
 
   datatype block_cast = CSeq of block_cast list
@@ -102,6 +103,17 @@ structure Backend :> BACKEND = struct
                   CAssign (curVarStr (), CVar result)
                  ]
         end
+      | convert (TCast (ty, a)) =
+        let val a' = convert a
+            and avar = curVar ()
+            and res = freshVar ()
+        in
+            CSeq [
+                a',
+                CDeclare (convertType ty, res),
+                CAssign (res, CCast (convertType ty, avar))
+            ]
+        end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => (convert a, curVar ())) args
             and rt' = convertType rt
@@ -130,15 +142,15 @@ structure Backend :> BACKEND = struct
       | binopStr GEq = ">="
   end
 
-  fun typeName Bool = "bool"
-    | typeName UInt8 = "uint8_t"
-    | typeName Int8 = "int8_t"
-    | typeName UInt16 = "uint16_t"
-    | typeName Int16 = "int16_t"
-    | typeName UInt32 = "uint32_t"
-    | typeName Int32 = "int32_t"
-    | typeName UInt64 = "uint64_t"
-    | typeName Int64 = "int64_t"
+  fun renderType Bool = "bool"
+    | renderType UInt8 = "uint8_t"
+    | renderType Int8 = "int8_t"
+    | renderType UInt16 = "uint16_t"
+    | renderType Int16 = "int16_t"
+    | renderType UInt32 = "uint32_t"
+    | renderType Int32 = "int32_t"
+    | renderType UInt64 = "uint64_t"
+    | renderType Int64 = "int64_t"
 
   fun sepBy sep (string::nil) = string
     | sepBy sep strings = foldr (fn (a,b) => a ^ sep ^ b) "" strings
@@ -154,15 +166,16 @@ structure Backend :> BACKEND = struct
     | renderExp (CConstInt i) = (if i < 0 then "-" else "") ^ (Int.toString (abs i))
     | renderExp (CVar s) = s
     | renderExp (CBinop (oper, a, b)) = "(" ^ (renderExp a) ^ (binopStr oper) ^ (renderExp b) ^ ")"
+    | renderExp (CCast (ty, a)) = "((" ^ (renderType ty) ^ ")(" ^ (renderExp a) ^ "))"
     | renderExp (CFuncall (f, args)) = f ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
   fun renderBlock (CSeq l) = sepBy "\n" (map renderBlock l)
-    | renderBlock (CDeclare (t, n)) = (typeName t) ^ " " ^ n ^ ";"
+    | renderBlock (CDeclare (t, n)) = (renderType t) ^ " " ^ n ^ ";"
     | renderBlock (CAssign (n, v)) = n ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock (CCond (t, c, a)) = "if (" ^ (renderExp t) ^ ") {\n" ^ (renderBlock c)
                                       ^ "\n} else { \n" ^ (renderBlock a) ^ "\n}"
 
   fun renderTop (CFunction (name, params, rt, body)) =
-    (typeName rt) ^ " " ^ name ^ "(" ^ (sepBy "," (map renderParam params)) ^ ") {\n" ^ (renderBlock body) ^ "\n  return " ^ (renderExp (curVar ())) ^ ";\n}"
-  and renderParam (CParam (n, t)) = (typeName t) ^ " " ^ n
+    (renderType rt) ^ " " ^ name ^ "(" ^ (sepBy "," (map renderParam params)) ^ ") {\n" ^ (renderBlock body) ^ "\n  return " ^ (renderExp (curVar ())) ^ ";\n}"
+  and renderParam (CParam (n, t)) = (renderType t) ^ " " ^ n
 end
