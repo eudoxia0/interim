@@ -36,22 +36,27 @@ structure Parser :> PARSER = struct
 
   val symbolParser = pmap String.implode (many1 symbolChar)
 
-  val whitespaceParser = anyOf [#" ", #"\n"]
+  val whitespaceParser = choice [pchar #" ",
+                                 pchar #"\n",
+                                 seqR (pchar #";")
+                                      (seqR (many (noneOf [#"\n"]))
+                                            (pchar #"\n"))]
 
   val ws = many whitespaceParser
 
   fun defineSexpParser listParser =
-    ps.choice [ps.pmap Integer integerParser,
-               ps.pmap String quotedString,
-               ps.pmap Symbol symbolParser,
-               listParser]
+    choice [pmap Integer integerParser,
+            pmap String quotedString,
+            pmap Symbol symbolParser,
+            listParser]
 
   val listParser =
-      let val (sexpParser: sexp ps.parser, r: sexp ps.parser ref) = ps.wrapper ()
+      let val (sexpParser: sexp parser, r: sexp parser ref) = wrapper ()
       in
-          let val listParser = ps.pmap SList (ps.between (ps.pchar #"(")
-                                                         (ps.many (ps.seqL sexpParser ws))
-                                                         (ps.pchar #")"))
+          let val listParser = pmap SList (seqR (pchar #"(")
+                                                (between ws
+                                                         (many (seqL sexpParser ws))
+                                                         (pchar #")")))
           in
               r := defineSexpParser listParser;
               listParser
@@ -63,5 +68,5 @@ structure Parser :> PARSER = struct
   fun parseString s =
     case (run sexpParser (ParsimonyStringInput.fromString s)) of
         (Success (v, p)) => v
-      | (Failure msg) => raise Fail "Bad parse"
+      | (Failure (_, _, msg)) => raise Fail ("Bad parse: " ^ msg)
 end
