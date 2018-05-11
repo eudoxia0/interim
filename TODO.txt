@@ -1,16 +1,19 @@
-- Implement cast across integer types
 - Implement deftype
-- Implement the
 - Implement floats
-- Implement comments
 - Implement tuples
 - Implement tuple indexing, creation
 - Implement a print function for primitive types
 - Implement progn
 - Implement c/embed
 - Implement let
+- Fix parser: whitespace-prefixed forms
+- Escape function names
+- Clean up the backend so it's less shitty
 
 DONE:
 
 - Check type of function body matches return type
 - Check type of arguments in binops
+- Implement comments
+- Fix parser: whitespace-only forms
+- Implement the
