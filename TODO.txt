@@ -1,6 +1,5 @@
 TODO:
 
-- Implement assignment
 - Implement while loop
 
 DONE:
@@ -29,6 +28,7 @@ DONE:
 - Implement c/embed
 - Implement record types
 - Implement c/call
+- Implement assignment
 
 WISHLIST:
 

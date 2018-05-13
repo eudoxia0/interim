@@ -21,6 +21,7 @@ structure AST :> AST = struct
                | Cast of Type.ty * ast
                | Progn of ast list
                | Let of string * ast * ast
+               | Assign of string * ast
                | NullPtr of Parser.sexp
                | Load of ast
                | Store of ast * ast
@@ -64,6 +65,7 @@ structure AST :> AST = struct
         end
       | parse (SList ((Symbol "let")::(SList nil)::body)) e =
         Progn (map (fn a => parse a e) body)
+      | parse (SList [Symbol "<-", Symbol var, v]) e = Assign (var, parse v e)
       | parse (SList [Symbol "nullptr", t]) _ = NullPtr t
       | parse (SList [Symbol "load", v]) e = Load (parse v e)
       | parse (SList [Symbol "store", p, v]) e = Store (parse p e, parse v e)

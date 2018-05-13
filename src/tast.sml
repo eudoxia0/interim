@@ -10,6 +10,7 @@ structure TAST :> TAST = struct
                 | TCast of Type.ty * tast
                 | TProgn of tast list
                 | TLet of string * tast * tast
+                | TAssign of string * tast
                 | TNullPtr of Type.ty
                 | TLoad of tast * Type.ty
                 | TStore of tast * tast
@@ -37,6 +38,7 @@ structure TAST :> TAST = struct
         else
             typeOf (List.last ls)
       | typeOf (TLet (_, _, b)) = typeOf b
+      | typeOf (TAssign (_, v)) = typeOf v
       | typeOf (TNullPtr t) = RawPointer t
       | typeOf (TLoad (_, t)) = t
       | typeOf (TStore (_, v)) = typeOf v
@@ -106,6 +108,17 @@ structure TAST :> TAST = struct
                   TLet (name,
                         v',
                         augment body s' t f)
+              end
+          end
+        | augment (Assign (var, v)) s t f =
+          let val v' = augment v s t f
+          in
+              let val (Binding (_, ty)) = lookup var s
+              in
+                  if typeOf v' = ty then
+                      TAssign (var, v')
+                  else
+                      raise Fail ("Cannot assign to variable '" ^ var ^ "': wrong type")
               end
           end
         | augment (NullPtr t) _ tenv _ =

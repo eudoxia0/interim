@@ -19,6 +19,7 @@ signature AST = sig
                | Cast of Type.ty * ast
                | Progn of ast list
                | Let of string * ast * ast
+               | Assign of string * ast
                | NullPtr of Parser.sexp
                | Load of ast
                | Store of ast * ast

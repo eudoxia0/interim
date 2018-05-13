@@ -148,6 +148,11 @@ structure Backend :> BACKEND = struct
             (CSeq ([vblock] @ [CDeclare (ty, name), CAssign (CVar name, vval)] @ [bblock]),
              bval)
         end
+      | convert (TAssign (var, v)) =
+        let val (vblock, vval) = convert v
+        in
+            (CSeq [vblock, CAssign (CVar var, vval)], vval)
+        end
       | convert (TNullPtr _) = (CSeq [], CConstNull)
       | convert (TLoad (e, _)) =
         let val (eblock, eval) = convert e
