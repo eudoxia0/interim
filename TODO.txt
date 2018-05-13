@@ -2,7 +2,6 @@ TODO:
 
 - Implement malloc
 - Implement store
-- Implement pointer equality
 
 DONE:
 
@@ -21,6 +20,7 @@ DONE:
 - Implement raw pointer types
 - Implement nullptr
 - Implement load
+- Implement pointer equality
 
 WISHLIST:
 
