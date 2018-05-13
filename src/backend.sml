@@ -21,6 +21,7 @@ structure Backend :> BACKEND = struct
                     | CCast of ctype * exp_cast
                     | CDeref of exp_cast
                     | CSizeOf of ctype
+                    | CAdjacent of exp_cast list
                     | CFuncall of string * exp_cast list
 
   datatype block_cast = CSeq of block_cast list
@@ -71,15 +72,16 @@ structure Backend :> BACKEND = struct
   in
     fun formatStringFor Unit = [CConstString "nil"]
       | formatStringFor Bool = raise Fail "bool can't be printf'd"
-      | formatStringFor U8 = [CVar "PRIu8"]
-      | formatStringFor I8 = [CVar "PRIi8"]
-      | formatStringFor U16 = [CVar "PRIu16"]
-      | formatStringFor I16 = [CVar "PRIi16"]
-      | formatStringFor U32 = [CVar "PRIu32"]
-      | formatStringFor I32 = [CVar "PRIi32"]
-      | formatStringFor U64 = [CVar "PRIu64"]
-      | formatStringFor I64 = [CVar "PRIi64"]
+      | formatStringFor U8 = wrap "PRIu8"
+      | formatStringFor I8 = wrap "PRIi8"
+      | formatStringFor U16 = wrap "PRIu16"
+      | formatStringFor I16 = wrap "PRIi16"
+      | formatStringFor U32 = wrap "PRIu32"
+      | formatStringFor I32 = wrap "PRIi32"
+      | formatStringFor U64 = wrap "PRIu64"
+      | formatStringFor I64 = wrap "PRIi64"
       | formatStringFor (RawPointer _) = [CConstString "%p"]
+    and wrap s = [CAdjacent [CConstString "%", CVar s]]
   end
 
   local
@@ -87,7 +89,7 @@ structure Backend :> BACKEND = struct
   in
     fun convert TConstUnit = (CSeq [], unitConstant)
       | convert (TConstBool b) = (CSeq [], CConstBool b)
-      | convert (TConstInt (i, _)) = (CSeq [], CConstInt i)
+      | convert (TConstInt (i, t)) = (CSeq [], CCast (convertType t, CConstInt i))
       | convert (TVar (s, t)) = (CSeq [], CVar s)
       | convert (TBinop (oper, a, b, t)) =
         let val (ablock, aval) = convert a
@@ -254,6 +256,7 @@ structure Backend :> BACKEND = struct
     | renderExp (CCast (ty, a)) = "((" ^ (renderType ty) ^ ")(" ^ (renderExp a) ^ "))"
     | renderExp (CDeref e) = "*" ^ (renderExp e)
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
+    | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
     | renderExp (CFuncall (f, args)) = (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)
