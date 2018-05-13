@@ -23,6 +23,7 @@ signature AST = sig
                | Load of ast
                | Store of ast * ast
                | Malloc of Parser.sexp * ast
+               | Free of ast
                | Print of ast
                | Funcall of string * ast list
 

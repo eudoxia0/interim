@@ -167,6 +167,11 @@ structure Backend :> BACKEND = struct
                  CCast (Pointer ty, CVar res))
             end
         end
+      | convert (TFree p) =
+        let val (pblock, pval) = convert p
+        in
+            (CSeq [pblock, CFuncall (NONE, "free", [pval])], unitConstant)
+        end
       | convert (TPrint v) =
         let val (vblock, vval) = convert v
             and ty = typeOf v

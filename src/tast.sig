@@ -12,6 +12,7 @@ signature TAST = sig
                 | TLoad of tast * Type.ty
                 | TStore of tast * tast
                 | TMalloc of Type.ty * tast
+                | TFree of tast
                 | TPrint of tast
                 | TFuncall of string * tast list * Type.ty
 
