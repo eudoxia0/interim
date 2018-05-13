@@ -1,6 +1,5 @@
 TODO:
 
-- Implement c/call
 
 DONE:
 
@@ -27,6 +26,7 @@ DONE:
 - Implement free
 - Implement c/embed
 - Implement record types
+- Implement c/call
 
 WISHLIST:
 

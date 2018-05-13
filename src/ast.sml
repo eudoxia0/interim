@@ -28,6 +28,7 @@ structure AST :> AST = struct
                | Free of ast
                | Print of ast
                | CEmbed of Parser.sexp * string
+               | CCall of string * Parser.sexp * ast list
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -71,6 +72,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol "print", v]) e = Print (parse v e)
       | parse (SList [Symbol "c/embed", t, String s]) _ = CEmbed (t, s)
       | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"
+      | parse (SList (Symbol "c/call" :: String n :: t :: args)) e = CCall (n, t, map (fn a => parse a e) args)
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 

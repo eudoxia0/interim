@@ -17,6 +17,7 @@ structure TAST :> TAST = struct
                 | TFree of tast
                 | TPrint of tast
                 | TCEmbed of Type.ty * string
+                | TCCall of string * Type.ty * tast list
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -43,6 +44,7 @@ structure TAST :> TAST = struct
       | typeOf (TFree _) = Unit
       | typeOf (TPrint _) = Unit
       | typeOf (TCEmbed (t, _)) = t
+      | typeOf (TCCall (_, t, _)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -155,6 +157,12 @@ structure TAST :> TAST = struct
           end
         | augment (CEmbed (ts, c)) _ t _ =
           TCEmbed (parseTypeSpecifier ts t, c)
+        | augment (CCall (n, ts, args)) s t f =
+          let val t = parseTypeSpecifier ts t
+              and args = map (fn a => augment a s t f) args
+          in
+              TCCall (n, t, args)
+          end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)

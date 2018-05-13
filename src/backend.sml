@@ -191,13 +191,32 @@ structure Backend :> BACKEND = struct
         end
       | convert (TCEmbed (t, s)) =
         (CSeq [], CCast (convertType t, CRaw s))
+      | convert (TCCall (f, t, args)) =
+        let val args' = map (fn a => convert a) args
+            and t' = convertType t
+        in
+             let val blocks = map (fn (b, _) => b) args'
+                 and argvals = map (fn (_, v) => v) args'
+             in
+                 if t = Type.Unit then
+                     (CSeq (blocks @ [CFuncall (NONE, f, argvals)]),
+                      unitConstant)
+                 else
+                     let val res = freshVar ()
+                     in
+                         (CSeq (blocks @ [CDeclare (t', res), CFuncall (SOME res, f, argvals)]),
+                          CVar res)
+                     end
+             end
+        end
       | convert (TFuncall (f, args, rt)) =
+
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
             and res = freshVar ()
         in
-            let val blocks = (map (fn (b, v) => b) args')
-                and argvals = map (fn (b, v) => v) args'
+            let val blocks = map (fn (b, _) => b) args'
+                and argvals = map (fn (_, v) => v) args'
             in
                 (CSeq (blocks @ [CDeclare (rt', res), CFuncall (SOME res, f, argvals)]),
                  CVar res)
