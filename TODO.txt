@@ -2,7 +2,7 @@ TODO:
 
 - Implement c/embed
 - Implement c/call
-- Implement a print function for primitive types
+- Implement free
 
 DONE:
 
@@ -24,5 +24,6 @@ DONE:
 - Implement pointer equality
 - Implement store
 - Implement malloc
+- Implement a print function for primitive types
 
 WISHLIST:
