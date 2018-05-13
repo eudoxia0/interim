@@ -1,6 +1,5 @@
 TODO:
 
-- Implement c/embed
 - Implement c/call
 
 DONE:
@@ -26,5 +25,11 @@ DONE:
 - Implement a print function for primitive types
 - Fix function calls
 - Implement free
+- Implement c/embed
 
 WISHLIST:
+
+- Implement record types
+- Implement defrecord
+- Implement record creation
+- Implement slot access
