@@ -18,6 +18,7 @@ structure Backend :> BACKEND = struct
                     | CVar of string
                     | CBinop of AST.binop * exp_cast * exp_cast
                     | CCast of ctype * exp_cast
+                    | CDeref of exp_cast
                     | CFuncall of string * exp_cast list
 
   datatype block_cast = CSeq of block_cast list
@@ -122,6 +123,11 @@ structure Backend :> BACKEND = struct
              bval)
         end
       | convert (TNullPtr _) = (CSeq [], CConstNull)
+      | convert (TLoad (e, _)) =
+        let val (eblock, eval) = convert e
+        in
+            (CSeq [eblock], CDeref eval)
+        end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
@@ -191,6 +197,7 @@ structure Backend :> BACKEND = struct
     | renderExp (CBinop (oper, a, b)) =
       "(" ^ (renderExp a) ^ " " ^ (binopStr oper) ^ " " ^ (renderExp b) ^ ")"
     | renderExp (CCast (ty, a)) = "((" ^ (renderType ty) ^ ")(" ^ (renderExp a) ^ "))"
+    | renderExp (CDeref e) = "*" ^ (renderExp e)
     | renderExp (CFuncall (f, args)) = (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)

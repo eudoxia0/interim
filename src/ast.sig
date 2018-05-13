@@ -20,6 +20,7 @@ signature AST = sig
                | Progn of ast list
                | Let of string * ast * ast
                | NullPtr of Parser.sexp
+               | Load of ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast

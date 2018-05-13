@@ -11,6 +11,7 @@ structure TAST :> TAST = struct
                 | TProgn of tast list
                 | TLet of string * tast * tast
                 | TNullPtr of Type.ty
+                | TLoad of tast * Type.ty
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -31,6 +32,7 @@ structure TAST :> TAST = struct
             typeOf (List.last ls)
       | typeOf (TLet (_, _, b)) = typeOf b
       | typeOf (TNullPtr t) = RawPointer t
+      | typeOf (TLoad (_, t)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -96,6 +98,13 @@ structure TAST :> TAST = struct
           end
         | augment (NullPtr t) _ tenv _ =
           TNullPtr (parseTypeSpecifier t tenv)
+        | augment (Load e) s t f =
+          let val e' = augment e s t f
+          in
+              case (typeOf e') of
+                  RawPointer t => TLoad (e', t)
+                | _ => raise Fail "load: not a pointer"
+          end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)

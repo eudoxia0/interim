@@ -9,6 +9,7 @@ signature TAST = sig
                 | TProgn of tast list
                 | TLet of string * tast * tast
                 | TNullPtr of Type.ty
+                | TLoad of tast * Type.ty
                 | TFuncall of string * tast list * Type.ty
 
   val typeOf : tast -> Type.ty
