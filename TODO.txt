@@ -1,4 +1,3 @@
-- Implement deftype
 - Implement a print function for primitive types
 - Implement c/embed
 
