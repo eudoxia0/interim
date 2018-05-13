@@ -14,6 +14,7 @@ structure TAST :> TAST = struct
                 | TLoad of tast * Type.ty
                 | TStore of tast * tast
                 | TMalloc of Type.ty * tast
+                | TPrint of tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -37,6 +38,7 @@ structure TAST :> TAST = struct
       | typeOf (TLoad (_, t)) = t
       | typeOf (TStore (_, v)) = typeOf v
       | typeOf (TMalloc (t, _)) = RawPointer t
+      | typeOf (TPrint _) = Unit
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -132,6 +134,7 @@ structure TAST :> TAST = struct
               else
                   TMalloc (t', c')
           end
+        | augment (Print v) s t f = TPrint (augment v s t f)
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)

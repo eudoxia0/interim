@@ -14,6 +14,7 @@ structure Backend :> BACKEND = struct
 
   datatype exp_cast = CConstBool of bool
                     | CConstInt of int
+                    | CConstString of string
                     | CConstNull
                     | CVar of string
                     | CBinop of AST.binop * exp_cast * exp_cast
@@ -27,6 +28,7 @@ structure Backend :> BACKEND = struct
                       | CDeclare of ctype * string
                       | CAssign of exp_cast * exp_cast
                       | CCond of exp_cast * block_cast * block_cast
+                      | CVoidCall of exp_cast
 
   datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
 
@@ -62,10 +64,28 @@ structure Backend :> BACKEND = struct
     | convertType (Type.I64) = Int64
     | convertType (Type.RawPointer t) = Pointer (convertType t)
 
+  val unitConstant = CConstBool false
+
+  local
+      open Type
+  in
+    fun formatStringFor Unit = [CConstString "nil"]
+      | formatStringFor Bool = raise Fail "bool can't be printf'd"
+      | formatStringFor U8 = [CVar "PRIu8"]
+      | formatStringFor I8 = [CVar "PRIi8"]
+      | formatStringFor U16 = [CVar "PRIu16"]
+      | formatStringFor I16 = [CVar "PRIi16"]
+      | formatStringFor U32 = [CVar "PRIu32"]
+      | formatStringFor I32 = [CVar "PRIi32"]
+      | formatStringFor U64 = [CVar "PRIu64"]
+      | formatStringFor I64 = [CVar "PRIi64"]
+      | formatStringFor (RawPointer _) = [CConstString "%p"]
+  end
+
   local
       open TAST
   in
-    fun convert TConstUnit = (CSeq [], CConstBool false)
+    fun convert TConstUnit = (CSeq [], unitConstant)
       | convert (TConstBool b) = (CSeq [], CConstBool b)
       | convert (TConstInt (i, _)) = (CSeq [], CConstInt i)
       | convert (TVar (s, t)) = (CSeq [], CVar s)
@@ -110,7 +130,7 @@ structure Backend :> BACKEND = struct
         let val exps' = map convert exps
         in
             if (length exps = 0) then
-                (CSeq [], CConstBool false)
+                (CSeq [], unitConstant)
             else
                 (CSeq (map (fn (b, _) => b) exps'),
                  let val (_, v) = List.last exps' in v end)
@@ -127,7 +147,7 @@ structure Backend :> BACKEND = struct
       | convert (TLoad (e, _)) =
         let val (eblock, eval) = convert e
         in
-            (CSeq [eblock], CDeref eval)
+            (eblock, CDeref eval)
         end
       | convert (TStore (p, v)) =
         let val (pblock, pval) = convert p
@@ -141,7 +161,20 @@ structure Backend :> BACKEND = struct
         in
             let val sizecalc = CBinop (AST.Mul, cval, CSizeOf ty)
             in
-                (CSeq [cblock], CCast (Pointer ty, CFuncall ("malloc", [sizecalc])))
+                (cblock, CCast (Pointer ty, CFuncall ("malloc", [sizecalc])))
+            end
+        end
+      | convert (TPrint v) =
+        let val (vblock, vval) = convert v
+            and ty = typeOf v
+        in
+            let val printer = if ty = Type.Bool then
+                                  CFuncall ("interim_print_bool", [vval])
+                              else
+                                  CFuncall ("printf", (formatStringFor ty) @ [vval])
+            in
+                (CSeq [vblock, CVoidCall printer],
+                 unitConstant)
             end
         end
       | convert (TFuncall (f, args, rt)) =
@@ -208,6 +241,12 @@ structure Backend :> BACKEND = struct
   fun renderExp (CConstBool true) = "true"
     | renderExp (CConstBool false) = "false"
     | renderExp (CConstInt i) = (if i < 0 then "-" else "") ^ (Int.toString (abs i))
+    | renderExp (CConstString s) =
+      let fun tr #"\"" = "\\\""
+            | tr c = str c
+      in
+          "\"" ^ (String.translate tr s) ^ "\""
+      end
     | renderExp CConstNull = "null"
     | renderExp (CVar s) = (escapeIdent s)
     | renderExp (CBinop (oper, a, b)) =
@@ -223,6 +262,7 @@ structure Backend :> BACKEND = struct
     | renderBlock' d (CAssign (var, v)) = (pad d) ^ (renderExp var) ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock' d (CCond (t, c, a)) = (pad d) ^ "if (" ^ (renderExp t) ^ ") " ^ (renderBlock' (indent d) c)
                                          ^ " else " ^ (renderBlock' (indent d) a)
+    | renderBlock' d (CVoidCall e) = (pad d) ^ (renderExp e) ^ ";"
 
   fun renderBlock b = renderBlock' (indent 0) b
 

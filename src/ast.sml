@@ -25,6 +25,7 @@ structure AST :> AST = struct
                | Load of ast
                | Store of ast * ast
                | Malloc of Parser.sexp * ast
+               | Print of ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -60,14 +61,11 @@ structure AST :> AST = struct
         end
       | parse (SList ((Symbol "let")::(SList nil)::body)) e =
         Progn (map (fn a => parse a e) body)
-      | parse (SList [Symbol "nullptr", t]) _ =
-        NullPtr t
-      | parse (SList [Symbol "load", v]) e =
-        Load (parse v e)
-      | parse (SList [Symbol "store", p, v]) e =
-        Store (parse p e, parse v e)
-      | parse (SList [Symbol "malloc", t, c]) e =
-        Malloc (t, parse c e)
+      | parse (SList [Symbol "nullptr", t]) _ = NullPtr t
+      | parse (SList [Symbol "load", v]) e = Load (parse v e)
+      | parse (SList [Symbol "store", p, v]) e = Store (parse p e, parse v e)
+      | parse (SList [Symbol "malloc", t, c]) e = Malloc (t, parse c e)
+      | parse (SList [Symbol "print", v]) e = Print (parse v e)
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 

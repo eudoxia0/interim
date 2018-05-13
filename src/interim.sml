@@ -3,6 +3,18 @@ structure Interim :> INTERIM = struct
 
   type compiler = Type.tenv * Function.fenv
 
+  val prelude = String.concatWith "\n" [
+          "#include <stdbool.h>",
+          "#include <inttypes.h>",
+          "#include <stdio.h>",
+          "#include <stdlib.h>",
+          "",
+          "int interim_print_bool(bool v) {",
+          "  return printf(v ? \"true\" : \"false\");",
+          "}",
+          ""
+      ]
+
   fun readUntilBlank () =
     case (TextIO.inputLine TextIO.stdIn) of
         (SOME s) => if s = "\n" then
@@ -34,7 +46,10 @@ structure Interim :> INTERIM = struct
                                            let val code = Backend.defineFunction func tast
                                            in
                                                print "Code:\n";
+                                               print prelude;
+                                               print "\n";
                                                print (Backend.renderTop code);
+                                               print "\n";
                                                repl' (tenv, fenv')
                                            end
                                    end
