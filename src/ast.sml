@@ -21,6 +21,7 @@ structure AST :> AST = struct
                | Cast of Type.ty * ast
                | Progn of ast list
                | Let of string * ast * ast
+               | NullPtr of Parser.sexp
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -56,6 +57,8 @@ structure AST :> AST = struct
         end
       | parse (SList ((Symbol "let")::(SList nil)::body)) e =
         Progn (map (fn a => parse a e) body)
+      | parse (SList [Symbol "nullptr", t]) _ =
+        NullPtr t
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 

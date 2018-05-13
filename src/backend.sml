@@ -14,6 +14,7 @@ structure Backend :> BACKEND = struct
 
   datatype exp_cast = CConstBool of bool
                     | CConstInt of int
+                    | CConstNull
                     | CVar of string
                     | CBinop of AST.binop * exp_cast * exp_cast
                     | CCast of ctype * exp_cast
@@ -120,6 +121,7 @@ structure Backend :> BACKEND = struct
             (CSeq ([vblock] @ [CDeclare (ty, name), CAssign (name, vval)] @ [bblock]),
              bval)
         end
+      | convert (TNullPtr _) = (CSeq [], CConstNull)
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
@@ -184,6 +186,7 @@ structure Backend :> BACKEND = struct
   fun renderExp (CConstBool true) = "true"
     | renderExp (CConstBool false) = "false"
     | renderExp (CConstInt i) = (if i < 0 then "-" else "") ^ (Int.toString (abs i))
+    | renderExp CConstNull = "null"
     | renderExp (CVar s) = (escapeIdent s)
     | renderExp (CBinop (oper, a, b)) =
       "(" ^ (renderExp a) ^ " " ^ (binopStr oper) ^ " " ^ (renderExp b) ^ ")"
