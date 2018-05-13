@@ -24,7 +24,7 @@ structure Backend :> BACKEND = struct
   datatype block_cast = CSeq of block_cast list
                       | CBlock of block_cast list
                       | CDeclare of ctype * string
-                      | CAssign of string * exp_cast
+                      | CAssign of exp_cast * exp_cast
                       | CCond of exp_cast * block_cast * block_cast
 
   datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
@@ -91,11 +91,11 @@ structure Backend :> BACKEND = struct
                   CCond (tval,
                          CBlock [
                              cblock,
-                             CAssign (result, cval)
+                             CAssign (CVar result, cval)
                          ],
                          CBlock [
                              ablock,
-                             CAssign (result, aval)
+                             CAssign (CVar result, aval)
                         ])
               ],
              CVar result)
@@ -119,7 +119,7 @@ structure Backend :> BACKEND = struct
             and ty = convertType (typeOf v)
             and (bblock, bval) = convert b
         in
-            (CSeq ([vblock] @ [CDeclare (ty, name), CAssign (name, vval)] @ [bblock]),
+            (CSeq ([vblock] @ [CDeclare (ty, name), CAssign (CVar name, vval)] @ [bblock]),
              bval)
         end
       | convert (TNullPtr _) = (CSeq [], CConstNull)
@@ -127,6 +127,12 @@ structure Backend :> BACKEND = struct
         let val (eblock, eval) = convert e
         in
             (CSeq [eblock], CDeref eval)
+        end
+      | convert (TStore (p, v)) =
+        let val (pblock, pval) = convert p
+            and (vblock, vval) = convert v
+        in
+            (CSeq [pblock, vblock, CAssign ((CDeref pval), vval)], vval)
         end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
@@ -203,7 +209,7 @@ structure Backend :> BACKEND = struct
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)
     | renderBlock' d (CBlock l) = "{\n" ^ (sepBy "\n" (map (renderBlock' d) l)) ^ "\n" ^ (pad (unindent d)) ^ "}"
     | renderBlock' d (CDeclare (t, n)) = (pad d) ^ (renderType t) ^ " " ^ n ^ ";"
-    | renderBlock' d (CAssign (n, v)) = (pad d) ^ n ^ " = " ^ (renderExp v) ^ ";"
+    | renderBlock' d (CAssign (var, v)) = (pad d) ^ (renderExp var) ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock' d (CCond (t, c, a)) = (pad d) ^ "if (" ^ (renderExp t) ^ ") " ^ (renderBlock' (indent d) c)
                                          ^ " else " ^ (renderBlock' (indent d) a)
 

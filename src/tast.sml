@@ -12,6 +12,7 @@ structure TAST :> TAST = struct
                 | TLet of string * tast * tast
                 | TNullPtr of Type.ty
                 | TLoad of tast * Type.ty
+                | TStore of tast * tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -33,6 +34,7 @@ structure TAST :> TAST = struct
       | typeOf (TLet (_, _, b)) = typeOf b
       | typeOf (TNullPtr t) = RawPointer t
       | typeOf (TLoad (_, t)) = t
+      | typeOf (TStore (_, v)) = typeOf v
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -104,6 +106,20 @@ structure TAST :> TAST = struct
               case (typeOf e') of
                   RawPointer t => TLoad (e', t)
                 | _ => raise Fail "load: not a pointer"
+          end
+        | augment (Store (p, v)) s t f =
+          let val p' = augment p s t f
+              and v' = augment v s t f
+          in
+              case (typeOf p') of
+                  RawPointer t => let val ty = typeOf v'
+                                  in
+                                      if ty = t then
+                                          TStore (p', v')
+                                      else
+                                          raise Fail "store: type mismatch"
+                                  end
+                | _ => raise Fail "store: first argument must be a pointer"
           end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
