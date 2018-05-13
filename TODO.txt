@@ -1,5 +1,4 @@
 - Implement deftype
-- Implement tuple indexing, creation
 - Implement floats
 - Implement a print function for primitive types
 - Implement progn
@@ -18,4 +17,3 @@ DONE:
 - Indent the C output
 - Escape function and variable names
 - Move the typed AST to its own sig/struct
-- Implement tuple types
