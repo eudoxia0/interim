@@ -33,3 +33,9 @@ WISHLIST:
 - Implement defrecord
 - Implement record creation
 - Implement slot access
+- Implement function declarations
+- Implement disjunctions
+- Implement defdisjunction
+- Implement disjunction creation
+- Implement case
+- Implement macros
