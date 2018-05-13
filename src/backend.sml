@@ -22,14 +22,13 @@ structure Backend :> BACKEND = struct
                     | CDeref of exp_cast
                     | CSizeOf of ctype
                     | CAdjacent of exp_cast list
-                    | CFuncall of string * exp_cast list
 
   datatype block_cast = CSeq of block_cast list
                       | CBlock of block_cast list
                       | CDeclare of ctype * string
                       | CAssign of exp_cast * exp_cast
                       | CCond of exp_cast * block_cast * block_cast
-                      | CVoidCall of exp_cast
+                      | CFuncall of string option * string * exp_cast list
 
   datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
 
@@ -160,10 +159,12 @@ structure Backend :> BACKEND = struct
       | convert (TMalloc (t, c)) =
         let val (cblock, cval) = convert c
             and ty = convertType t
+            and res = freshVar ()
         in
             let val sizecalc = CBinop (AST.Mul, cval, CSizeOf ty)
             in
-                (cblock, CCast (Pointer ty, CFuncall ("malloc", [sizecalc])))
+                (CSeq [cblock, CDeclare (ty, res), CFuncall (SOME res, "malloc", [sizecalc])],
+                 CCast (Pointer ty, CVar res))
             end
         end
       | convert (TPrint v) =
@@ -171,20 +172,25 @@ structure Backend :> BACKEND = struct
             and ty = typeOf v
         in
             let val printer = if ty = Type.Bool then
-                                  CFuncall ("interim_print_bool", [vval])
+                                  CFuncall (NONE, "interim_print_bool", [vval])
                               else
-                                  CFuncall ("printf", (formatStringFor ty) @ [vval])
+                                  CFuncall (NONE, "printf", (formatStringFor ty) @ [vval])
             in
-                (CSeq [vblock, CVoidCall printer],
+                (CSeq [vblock, printer],
                  unitConstant)
             end
         end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
+            and res = freshVar ()
         in
-            (CSeq (map (fn (b, v) => b) args'),
-             CFuncall (f, map (fn (b, v) => v) args'))
+            let val blocks = (map (fn (b, v) => b) args')
+                and argvals = map (fn (b, v) => v) args'
+            in
+                (CSeq (blocks @ [CDeclare (rt', res), CFuncall (SOME res, f, argvals)]),
+                 CVar res)
+            end
         end
 
     fun defineFunction (Function.Function (name, params, rt)) tast =
@@ -257,7 +263,6 @@ structure Backend :> BACKEND = struct
     | renderExp (CDeref e) = "*" ^ (renderExp e)
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
     | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
-    | renderExp (CFuncall (f, args)) = (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)
     | renderBlock' d (CBlock l) = "{\n" ^ (sepBy "\n" (map (renderBlock' d) l)) ^ "\n" ^ (pad (unindent d)) ^ "}"
@@ -265,7 +270,10 @@ structure Backend :> BACKEND = struct
     | renderBlock' d (CAssign (var, v)) = (pad d) ^ (renderExp var) ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock' d (CCond (t, c, a)) = (pad d) ^ "if (" ^ (renderExp t) ^ ") " ^ (renderBlock' (indent d) c)
                                          ^ " else " ^ (renderBlock' (indent d) a)
-    | renderBlock' d (CVoidCall e) = (pad d) ^ (renderExp e) ^ ";"
+    | renderBlock' d (CFuncall (res, f, args)) =
+      (pad d) ^ (renderRes res) ^ (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ");"
+  and renderRes (SOME res) = (escapeIdent res) ^ " = "
+    | renderRes NONE = ""
 
   fun renderBlock b = renderBlock' (indent 0) b
 
