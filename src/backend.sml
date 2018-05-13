@@ -114,6 +114,15 @@ structure Backend :> BACKEND = struct
         in
             (ablock, CCast (convertType ty, aval))
         end
+      | convert (TProgn exps) =
+        let val exps' = map convert exps
+        in
+            if (length exps = 0) then
+                (CSeq [], CConstBool false)
+            else
+                (CSeq (map (fn (b, _) => b) exps'),
+                 let val (_, v) = List.last exps' in v end)
+        end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt

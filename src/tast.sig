@@ -6,6 +6,7 @@ signature TAST = sig
                 | TBinop of AST.binop * tast * tast * Type.ty
                 | TCond of tast * tast * tast * Type.ty
                 | TCast of Type.ty * tast
+                | TProgn of tast list
                 | TFuncall of string * tast list * Type.ty
 
   val typeOf : tast -> Type.ty

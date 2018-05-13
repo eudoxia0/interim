@@ -19,6 +19,7 @@ structure AST :> AST = struct
                | Binop of binop * ast * ast
                | Cond of ast * ast * ast
                | Cast of Type.ty * ast
+               | Progn of ast list
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -43,6 +44,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol ">=", a, b]) e = Binop (GEq, parse a e, parse b e)
       | parse (SList [Symbol "if", t, c, a]) e = Cond (parse t e, parse c e, parse a e)
       | parse (SList [Symbol "the", t, a]) e = Cast (Type.parseTypeSpecifier t e, parse a e)
+      | parse (SList ((Symbol "progn")::rest)) e = Progn (map (fn a => parse a e) rest)
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 

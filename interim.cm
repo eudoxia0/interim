@@ -9,6 +9,8 @@ Library
   structure AST
   signature TYPE
   structure Type
+  signature TAST
+  structure TAST
   signature BACKEND
   structure Backend
   signature INTERIM
