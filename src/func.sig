@@ -4,7 +4,7 @@ signature FUNCTION = sig
 
   type fenv = func SymTab.symtab
 
-  type binding
+  datatype binding = Binding of string * Type.ty
   type stack = binding SymTab.symtab
 
   val bindType : binding -> Type.ty

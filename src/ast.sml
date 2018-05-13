@@ -20,6 +20,7 @@ structure AST :> AST = struct
                | Cond of ast * ast * ast
                | Cast of Type.ty * ast
                | Progn of ast list
+               | Let of string * ast * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -45,6 +46,16 @@ structure AST :> AST = struct
       | parse (SList [Symbol "if", t, c, a]) e = Cond (parse t e, parse c e, parse a e)
       | parse (SList [Symbol "the", t, a]) e = Cast (Type.parseTypeSpecifier t e, parse a e)
       | parse (SList ((Symbol "progn")::rest)) e = Progn (map (fn a => parse a e) rest)
+      | parse (SList ((Symbol "let")::(SList [SList [Symbol var, v]])::body)) e =
+        Let (var, parse v e, Progn (map (fn a => parse a e) body))
+      | parse (SList ((Symbol "let")::(SList ((SList [Symbol var, v])::rest))::body)) e =
+        let val exp = SList [Symbol "let", SList [SList [Symbol var, v]],
+                             SList ((Symbol "let")::(SList rest)::body)]
+        in
+            parse exp e
+        end
+      | parse (SList ((Symbol "let")::(SList nil)::body)) e =
+        Progn (map (fn a => parse a e) body)
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 

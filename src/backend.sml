@@ -110,6 +110,14 @@ structure Backend :> BACKEND = struct
                 (CSeq (map (fn (b, _) => b) exps'),
                  let val (_, v) = List.last exps' in v end)
         end
+      | convert (TLet (name, v, b)) =
+        let val (vblock, vval) = convert v
+            and ty = convertType (typeOf v)
+            and (bblock, bval) = convert b
+        in
+            (CSeq ([vblock] @ [CDeclare (ty, name), CAssign (name, vval)] @ [bblock]),
+             bval)
+        end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt

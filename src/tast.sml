@@ -9,6 +9,7 @@ structure TAST :> TAST = struct
                 | TCond of tast * tast * tast * Type.ty
                 | TCast of Type.ty * tast
                 | TProgn of tast list
+                | TLet of string * tast * tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -27,6 +28,7 @@ structure TAST :> TAST = struct
             Unit
         else
             typeOf (List.last ls)
+      | typeOf (TLet (_, _, b)) = typeOf b
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -80,6 +82,16 @@ structure TAST :> TAST = struct
           end
         | augment (Progn exps) s t f =
           TProgn (map (fn a => augment a s t f) exps)
+        | augment (Let (name, v, body)) s t f =
+          let val v' = augment v s t f
+          in
+              let val s' = bind (name, (Binding (name, typeOf v'))) s
+              in
+                  TLet (name,
+                        v',
+                        augment body s' t f)
+              end
+          end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)

@@ -18,6 +18,7 @@ signature AST = sig
                | Cond of ast * ast * ast
                | Cast of Type.ty * ast
                | Progn of ast list
+               | Let of string * ast * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
