@@ -1,5 +1,9 @@
 TODO:
 
+- Implement c/embed
+- Implement c/call
+- Implement a print function for primitive types
+
 DONE:
 
 - Check type of function body matches return type
@@ -22,6 +26,3 @@ DONE:
 - Implement malloc
 
 WISHLIST:
-
-- Implement a print function for primitive types
-- Implement c/embed
