@@ -9,7 +9,6 @@ signature TYPE = sig
               | I32
               | U64
               | I64
-              | Tuple of ty list
 
   val isNumeric : ty -> bool
 
