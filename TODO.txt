@@ -1,5 +1,7 @@
 TODO:
 
+- Implement assignment
+- Implement while loop
 
 DONE:
 
