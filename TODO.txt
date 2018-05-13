@@ -3,6 +3,7 @@ TODO:
 - Implement c/embed
 - Implement c/call
 - Implement free
+- Fix function calls
 
 DONE:
 
