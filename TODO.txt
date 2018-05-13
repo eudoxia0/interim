@@ -1,5 +1,9 @@
-- Implement a print function for primitive types
-- Implement c/embed
+TODO:
+
+- Implement raw pointer types
+- Implement malloc
+- Implement load
+- Implement store
 
 DONE:
 
@@ -15,3 +19,8 @@ DONE:
 - Move the typed AST to its own sig/struct
 - Implement progn
 - Implement let
+
+WISHLIST:
+
+- Implement a print function for primitive types
+- Implement c/embed
