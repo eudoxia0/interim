@@ -163,7 +163,7 @@ structure Backend :> BACKEND = struct
         in
             let val sizecalc = CBinop (AST.Mul, cval, CSizeOf ty)
             in
-                (CSeq [cblock, CDeclare (ty, res), CFuncall (SOME res, "malloc", [sizecalc])],
+                (CSeq [cblock, CDeclare (Pointer ty, res), CFuncall (SOME res, "malloc", [sizecalc])],
                  CCast (Pointer ty, CVar res))
             end
         end
