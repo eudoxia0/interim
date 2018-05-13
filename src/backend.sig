@@ -5,7 +5,7 @@ signature BACKEND = sig
   type top_cast
 
   val convertType : Type.ty -> ctype
-  val convert : AST.tast -> block_cast
+  val convert : AST.tast -> block_cast * exp_cast
   val defineFunction : Function.func -> AST.tast -> top_cast
   val renderExp : exp_cast -> string
   val renderBlock : block_cast -> string

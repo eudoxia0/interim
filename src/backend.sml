@@ -19,11 +19,12 @@ structure Backend :> BACKEND = struct
                     | CFuncall of string * exp_cast list
 
   datatype block_cast = CSeq of block_cast list
+                      | CBlock of block_cast list
                       | CDeclare of ctype * string
                       | CAssign of string * exp_cast
                       | CCond of exp_cast * block_cast * block_cast
 
-  datatype top_cast = CFunction of string * cparam list * ctype * block_cast
+  datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
 
   val count = ref 0
   fun fresh s =
@@ -35,8 +36,15 @@ structure Backend :> BACKEND = struct
 
   fun freshVar () = fresh "r"
 
-  fun curVar () = CVar ("r" ^ (Int.toString (!count)))
-  fun curVarStr () = let val (CVar s) = curVar () in s end
+  fun escapeIdent s = String.concat (map escapeChar (String.explode s))
+  and escapeChar #"+" = "_p"
+    | escapeChar #"-" = "__"
+    | escapeChar #"*" = "_m"
+    | escapeChar #"/" = "_d"
+    | escapeChar #">" = "_g"
+    | escapeChar #"<" = "_l"
+    | escapeChar #"=" = "_e"
+    | escapeChar c = str c
 
   fun convertType (Type.Unit) = Bool
     | convertType (Type.Bool) = Bool
@@ -49,87 +57,67 @@ structure Backend :> BACKEND = struct
     | convertType (Type.U64) = UInt64
     | convertType (Type.I64) = Int64
 
-  fun wrapConstant c t =
-    let val result = freshVar ()
-    in
-        CSeq [
-            CDeclare (t, result),
-            CAssign (result, c)
-        ]
-    end
-
   local
       open AST
   in
-    fun convert TConstUnit = wrapConstant (CConstBool false) Bool
-      | convert (TConstBool b) = wrapConstant (CConstBool b) Bool
-      | convert (TConstInt (i, _)) = wrapConstant (CConstInt i) Int64
-      | convert (TVar (s, t)) = wrapConstant (CVar s) (convertType t)
+    fun convert TConstUnit = (CSeq [], CConstBool false)
+      | convert (TConstBool b) = (CSeq [], CConstBool b)
+      | convert (TConstInt (i, _)) = (CSeq [], CConstInt i)
+      | convert (TVar (s, t)) = (CSeq [], CVar s)
       | convert (TBinop (oper, a, b, t)) =
-        let val a' = convert a
+        let val (ablock, aval) = convert a
+            and (bblock, bval) = convert b
         in
-            let val avar = curVar ()
-            in
-                let val b' = convert b
-                in
-                    let val bvar = curVar ()
-                    in
-                        CSeq [
-                            a',
-                            b',
-                            wrapConstant (CBinop (oper, avar, bvar))
-                                         (convertType t)
-                        ]
-                    end
-                end
-            end
+            (CSeq [
+                  ablock,
+                  bblock
+              ],
+             (CBinop (oper, aval, bval)))
         end
       | convert (TCond (t, c, a, _)) =
-        let val result = freshVar ()
+        let val (tblock, tval) = convert t
+            and (cblock, cval) = convert c
+            and (ablock, aval) = convert a
+            and result = freshVar ()
             and resType = convertType (AST.typeOf c)
         in
-            CSeq [CDeclare (resType, result),
-                  convert t,
-                  CCond (curVar (),
-                         CSeq [
-                             convert c,
-                             CAssign (result, curVar ())
+            (CSeq [
+                  tblock,
+                  CDeclare (resType, result),
+                  CCond (tval,
+                         CBlock [
+                             cblock,
+                             CAssign (result, cval)
                          ],
-                         CSeq [
-                             convert a,
-                             CAssign (result, curVar ())
-                        ]),
-                  CDeclare (resType, freshVar ()),
-                  CAssign (curVarStr (), CVar result)
-                 ]
+                         CBlock [
+                             ablock,
+                             CAssign (result, aval)
+                        ])
+              ],
+             CVar result)
         end
       | convert (TCast (ty, a)) =
-        let val a' = convert a
-            and avar = curVar ()
-            and res = freshVar ()
+        let val (ablock, aval) = convert a
         in
-            CSeq [
-                a',
-                CDeclare (convertType ty, res),
-                CAssign (res, CCast (convertType ty, avar))
-            ]
+            (ablock, CCast (convertType ty, aval))
         end
       | convert (TFuncall (f, args, rt)) =
-        let val args' = map (fn a => (convert a, curVar ())) args
+        let val args' = map (fn a => convert a) args
             and rt' = convertType rt
-            and res = freshVar ()
         in
-            CSeq ((map (fn (c, v) => c) args')
-                  @
-                  [CDeclare (rt', res),
-                   CAssign (res, CFuncall (f, map (fn (c, v) => v) args'))])
+            (CSeq (map (fn (b, v) => b) args'),
+             CFuncall (f, map (fn (b, v) => v) args'))
         end
 
     fun defineFunction (Function.Function (name, params, rt)) tast =
-      CFunction (name,
-                 map (fn (Function.Param (n,t)) => CParam (n, convertType t)) params,
-                 convertType rt,
-                 convert tast)
+      let val (block, retval) = convert tast
+      in
+          CFunction (name,
+                     map (fn (Function.Param (n,t)) => CParam (n, convertType t)) params,
+                     convertType rt,
+                     block,
+                     retval)
+      end
 
     fun binopStr Add = "+"
       | binopStr Sub = "-"
@@ -152,8 +140,12 @@ structure Backend :> BACKEND = struct
     | renderType UInt64 = "uint64_t"
     | renderType Int64 = "int64_t"
 
-  fun sepBy sep (string::nil) = string
-    | sepBy sep strings = foldr (fn (a,b) => a ^ sep ^ b) "" strings
+  local
+      open Substring
+  in
+    fun sepBy sep strings = trimWhitespace (String.concatWith sep strings)
+    and trimWhitespace s = string (dropl (fn c => c = #"\n") (full s))
+  end
 
   fun pad n =
     if n > 0 then
@@ -161,21 +153,29 @@ structure Backend :> BACKEND = struct
     else
         ""
 
+  val indentation = 2
+  fun indent d = d + indentation
+  fun unindent d = d - indentation
+
   fun renderExp (CConstBool true) = "true"
     | renderExp (CConstBool false) = "false"
     | renderExp (CConstInt i) = (if i < 0 then "-" else "") ^ (Int.toString (abs i))
-    | renderExp (CVar s) = s
-    | renderExp (CBinop (oper, a, b)) = "(" ^ (renderExp a) ^ (binopStr oper) ^ (renderExp b) ^ ")"
+    | renderExp (CVar s) = (escapeIdent s)
+    | renderExp (CBinop (oper, a, b)) =
+      "(" ^ (renderExp a) ^ " " ^ (binopStr oper) ^ " " ^ (renderExp b) ^ ")"
     | renderExp (CCast (ty, a)) = "((" ^ (renderType ty) ^ ")(" ^ (renderExp a) ^ "))"
-    | renderExp (CFuncall (f, args)) = f ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
+    | renderExp (CFuncall (f, args)) = (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
-  fun renderBlock (CSeq l) = sepBy "\n" (map renderBlock l)
-    | renderBlock (CDeclare (t, n)) = (renderType t) ^ " " ^ n ^ ";"
-    | renderBlock (CAssign (n, v)) = n ^ " = " ^ (renderExp v) ^ ";"
-    | renderBlock (CCond (t, c, a)) = "if (" ^ (renderExp t) ^ ") {\n" ^ (renderBlock c)
-                                      ^ "\n} else { \n" ^ (renderBlock a) ^ "\n}"
+  fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)
+    | renderBlock' d (CBlock l) = "{\n" ^ (sepBy "\n" (map (renderBlock' d) l)) ^ "\n" ^ (pad (unindent d)) ^ "}"
+    | renderBlock' d (CDeclare (t, n)) = (pad d) ^ (renderType t) ^ " " ^ n ^ ";"
+    | renderBlock' d (CAssign (n, v)) = (pad d) ^ n ^ " = " ^ (renderExp v) ^ ";"
+    | renderBlock' d (CCond (t, c, a)) = (pad d) ^ "if (" ^ (renderExp t) ^ ") " ^ (renderBlock' (indent d) c)
+                                         ^ " else " ^ (renderBlock' (indent d) a)
 
-  fun renderTop (CFunction (name, params, rt, body)) =
-    (renderType rt) ^ " " ^ name ^ "(" ^ (sepBy "," (map renderParam params)) ^ ") {\n" ^ (renderBlock body) ^ "\n  return " ^ (renderExp (curVar ())) ^ ";\n}"
+  fun renderBlock b = renderBlock' (indent 0) b
+
+  fun renderTop (CFunction (name, params, rt, body, retval)) =
+    (renderType rt) ^ " " ^ (escapeIdent name) ^ "(" ^ (sepBy "," (map renderParam params)) ^ ") {\n" ^ (renderBlock body) ^ "\n  return " ^ (renderExp retval) ^ ";\n}"
   and renderParam (CParam (n, t)) = (renderType t) ^ " " ^ n
 end
