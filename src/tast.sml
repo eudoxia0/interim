@@ -121,7 +121,13 @@ structure TAST :> TAST = struct
               if (typeOf a') <> (typeOf b') then
                   raise Fail "Both operands to an arithmetic operation must be of the same type"
               else
-                  TBinop (oper, a', b', typeOf a')
+                  let val t = typeOf a'
+                  in
+                      if (isNumeric t) then
+                          TBinop (oper, a', b', t)
+                      else
+                          raise Fail "Can't perform arithmetic on non-numeric types"
+                  end
           end
       and augmentCompOp oper a b s t f =
           let val a' = augment a s t f
