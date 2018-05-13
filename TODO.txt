@@ -1,14 +1,11 @@
 - Implement deftype
-- Implement floats
 - Implement tuples
 - Implement tuple indexing, creation
+- Implement floats
 - Implement a print function for primitive types
 - Implement progn
 - Implement c/embed
 - Implement let
-- Fix parser: whitespace-prefixed forms
-- Escape function names
-- Clean up the backend so it's less shitty
 
 DONE:
 
@@ -17,3 +14,7 @@ DONE:
 - Implement comments
 - Fix parser: whitespace-only forms
 - Implement the
+- Fix parser: whitespace-prefixed forms
+- Clean up the backend so it's less shitty
+- Indent the C output
+- Escape function and variable names
