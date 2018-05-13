@@ -19,6 +19,7 @@ structure Backend :> BACKEND = struct
                     | CBinop of AST.binop * exp_cast * exp_cast
                     | CCast of ctype * exp_cast
                     | CDeref of exp_cast
+                    | CSizeOf of ctype
                     | CFuncall of string * exp_cast list
 
   datatype block_cast = CSeq of block_cast list
@@ -134,6 +135,15 @@ structure Backend :> BACKEND = struct
         in
             (CSeq [pblock, vblock, CAssign ((CDeref pval), vval)], vval)
         end
+      | convert (TMalloc (t, c)) =
+        let val (cblock, cval) = convert c
+            and ty = convertType t
+        in
+            let val sizecalc = CBinop (AST.Mul, cval, CSizeOf ty)
+            in
+                (CSeq [cblock], CCast (Pointer ty, CFuncall ("malloc", [sizecalc])))
+            end
+        end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
@@ -204,6 +214,7 @@ structure Backend :> BACKEND = struct
       "(" ^ (renderExp a) ^ " " ^ (binopStr oper) ^ " " ^ (renderExp b) ^ ")"
     | renderExp (CCast (ty, a)) = "((" ^ (renderType ty) ^ ")(" ^ (renderExp a) ^ "))"
     | renderExp (CDeref e) = "*" ^ (renderExp e)
+    | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
     | renderExp (CFuncall (f, args)) = (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ")"
 
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)

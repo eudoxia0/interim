@@ -1,7 +1,5 @@
 TODO:
 
-- Implement malloc
-
 DONE:
 
 - Check type of function body matches return type
@@ -21,6 +19,7 @@ DONE:
 - Implement load
 - Implement pointer equality
 - Implement store
+- Implement malloc
 
 WISHLIST:
 

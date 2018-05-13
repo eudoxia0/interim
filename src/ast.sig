@@ -22,6 +22,7 @@ signature AST = sig
                | NullPtr of Parser.sexp
                | Load of ast
                | Store of ast * ast
+               | Malloc of Parser.sexp * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast

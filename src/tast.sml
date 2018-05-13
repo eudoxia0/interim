@@ -13,6 +13,7 @@ structure TAST :> TAST = struct
                 | TNullPtr of Type.ty
                 | TLoad of tast * Type.ty
                 | TStore of tast * tast
+                | TMalloc of Type.ty * tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -35,6 +36,7 @@ structure TAST :> TAST = struct
       | typeOf (TNullPtr t) = RawPointer t
       | typeOf (TLoad (_, t)) = t
       | typeOf (TStore (_, v)) = typeOf v
+      | typeOf (TMalloc (t, _)) = RawPointer t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -120,6 +122,15 @@ structure TAST :> TAST = struct
                                           raise Fail "store: type mismatch"
                                   end
                 | _ => raise Fail "store: first argument must be a pointer"
+          end
+        | augment (Malloc (ty, c)) s t f =
+          let val t' = parseTypeSpecifier ty t
+              and c' = augment c s t f
+          in
+              if (typeOf c' <> U64) then
+                  raise Fail "malloc: allocation count must be u64"
+              else
+                  TMalloc (t', c')
           end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
