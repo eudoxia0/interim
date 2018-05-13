@@ -216,7 +216,7 @@ structure Backend :> BACKEND = struct
       | binopStr Sub = "-"
       | binopStr Mul = "*"
       | binopStr Div = "/"
-      | binopStr Eq = "="
+      | binopStr Eq = "=="
       | binopStr LT = "<"
       | binopStr LEq = "<="
       | binopStr GT = ">"
