@@ -9,6 +9,7 @@ structure Backend :> BACKEND = struct
                  | UInt64
                  | Int64
                  | Pointer of ctype
+                 | Struct of string
 
   datatype cparam = CParam of string * ctype
 
@@ -64,6 +65,7 @@ structure Backend :> BACKEND = struct
     | convertType (Type.U64) = UInt64
     | convertType (Type.I64) = Int64
     | convertType (Type.RawPointer t) = Pointer (convertType t)
+    | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
 
   val unitConstant = CConstBool false
 
@@ -81,6 +83,7 @@ structure Backend :> BACKEND = struct
       | formatStringFor U64 = wrap "PRIu64"
       | formatStringFor I64 = wrap "PRIi64"
       | formatStringFor (RawPointer _) = [CConstString "%p"]
+      | formatStringFor _ = raise Fail "Records cannot be printf'd"
     and wrap s = [CAdjacent [CConstString "%", CVar s]]
   end
 
@@ -236,6 +239,7 @@ structure Backend :> BACKEND = struct
     | renderType UInt64 = "uint64_t"
     | renderType Int64 = "int64_t"
     | renderType (Pointer t) = (renderType t) ^ "*"
+    | renderType (Struct n) = n
 
   local
       open Substring

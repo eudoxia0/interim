@@ -10,8 +10,12 @@ signature TYPE = sig
               | U64
               | I64
               | RawPointer of ty
+              | Record of string * slot list
+       and slot = Slot of string * ty
 
+  val isEquatable : ty -> bool
   val isNumeric : ty -> bool
+  val isPrintable : ty -> bool
 
   type tenv = ty SymTab.symtab
 

@@ -12,6 +12,11 @@ structure Type :> TYPE = struct
               | U64
               | I64
               | RawPointer of ty
+              | Record of string * slot list
+       and slot = Slot of string * ty
+
+  fun isEquatable (Record _) = false
+    | isEquatable _ = true
 
   fun isNumeric U8 = true
     | isNumeric I8 = true
@@ -22,6 +27,9 @@ structure Type :> TYPE = struct
     | isNumeric U64 = true
     | isNumeric I64 = true
     | isNumeric _ = false
+
+  fun isPrintable (Record _) = false
+    | isPrintable _ = true
 
   type tenv = ty symtab
 

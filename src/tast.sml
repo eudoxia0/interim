@@ -145,7 +145,14 @@ structure TAST :> TAST = struct
                   (RawPointer _) => TFree p'
                 | _ => raise Fail "Can't free a non-pointer"
           end
-        | augment (Print v) s t f = TPrint (augment v s t f)
+        | augment (Print v) s t f =
+          let val v' = augment v s t f
+          in
+              if isPrintable (typeOf v') then
+                  TPrint (v')
+              else
+                  raise Fail "Type cannot be printed"
+          end
         | augment (CEmbed (ts, c)) _ t _ =
           TCEmbed (parseTypeSpecifier ts t, c)
         | augment (Funcall (name, args)) s t fenv =
@@ -179,7 +186,10 @@ structure TAST :> TAST = struct
               if (typeOf a') <> (typeOf b') then
                   raise Fail "Both operands to an comparison operation must be of the same type"
               else
-                  TBinop (oper, a', b', Bool)
+                  if isEquatable (typeOf a') then
+                      TBinop (oper, a', b', Bool)
+                  else
+                      raise Fail "Cannot compare objects of this type"
           end
     end
   end
