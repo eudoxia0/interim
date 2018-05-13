@@ -145,7 +145,7 @@ structure Backend :> BACKEND = struct
             and ty = convertType (typeOf v)
             and (bblock, bval) = convert b
         in
-            (CSeq ([vblock] @ [CDeclare (ty, name), CAssign (CVar name, vval)] @ [bblock]),
+            (CSeq [vblock, CDeclare (ty, name), CAssign (CVar name, vval), bblock],
              bval)
         end
       | convert (TAssign (var, v)) =
