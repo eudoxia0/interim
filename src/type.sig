@@ -9,6 +9,7 @@ signature TYPE = sig
               | I32
               | U64
               | I64
+              | RawPointer of ty
 
   val isNumeric : ty -> bool
 

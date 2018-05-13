@@ -1,9 +1,10 @@
 TODO:
 
-- Implement raw pointer types
+- Implement nullptr
 - Implement malloc
 - Implement load
 - Implement store
+- Implement pointer equality
 
 DONE:
 
@@ -19,6 +20,7 @@ DONE:
 - Move the typed AST to its own sig/struct
 - Implement progn
 - Implement let
+- Implement raw pointer types
 
 WISHLIST:
 

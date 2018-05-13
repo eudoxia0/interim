@@ -8,6 +8,7 @@ structure Backend :> BACKEND = struct
                  | Int32
                  | UInt64
                  | Int64
+                 | Pointer of ctype
 
   datatype cparam = CParam of string * ctype
 
@@ -56,6 +57,7 @@ structure Backend :> BACKEND = struct
     | convertType (Type.I32) = Int32
     | convertType (Type.U64) = UInt64
     | convertType (Type.I64) = Int64
+    | convertType (Type.RawPointer t) = Pointer (convertType t)
 
   local
       open TAST
@@ -160,6 +162,7 @@ structure Backend :> BACKEND = struct
     | renderType Int32 = "int32_t"
     | renderType UInt64 = "uint64_t"
     | renderType Int64 = "int64_t"
+    | renderType (Pointer t) = (renderType t) ^ "*"
 
   local
       open Substring

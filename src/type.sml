@@ -11,6 +11,7 @@ structure Type :> TYPE = struct
               | I32
               | U64
               | I64
+              | RawPointer of ty
 
   fun isNumeric U8 = true
     | isNumeric I8 = true
@@ -37,6 +38,7 @@ structure Type :> TYPE = struct
       | parseTypeSpecifier (Symbol "i32") _ = I32
       | parseTypeSpecifier (Symbol "u64") _ = U64
       | parseTypeSpecifier (Symbol "i64") _ = I64
+      | parseTypeSpecifier (SList [Symbol "rawptr", t]) e = RawPointer (parseTypeSpecifier t e)
       | parseTypeSpecifier (Symbol s) e = lookup s e
       | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
   end
