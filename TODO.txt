@@ -3,7 +3,6 @@ TODO:
 - Implement c/embed
 - Implement c/call
 - Implement free
-- Fix function calls
 
 DONE:
 
@@ -26,5 +25,6 @@ DONE:
 - Implement store
 - Implement malloc
 - Implement a print function for primitive types
+- Fix function calls
 
 WISHLIST:
