@@ -45,10 +45,10 @@ structure Parser :> PARSER = struct
   val ws = many whitespaceParser
 
   fun defineSexpParser listParser =
-    choice [pmap Integer integerParser,
-            pmap String quotedString,
-            pmap Symbol symbolParser,
-            listParser]
+    seqR ws (choice [pmap Integer integerParser,
+                     pmap String quotedString,
+                     pmap Symbol symbolParser,
+                     listParser])
 
   val listParser =
       let val (sexpParser: sexp parser, r: sexp parser ref) = wrapper ()
