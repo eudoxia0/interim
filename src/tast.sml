@@ -16,6 +16,7 @@ structure TAST :> TAST = struct
                 | TMalloc of Type.ty * tast
                 | TFree of tast
                 | TPrint of tast
+                | TCEmbed of Type.ty * string
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -41,6 +42,7 @@ structure TAST :> TAST = struct
       | typeOf (TMalloc (t, _)) = RawPointer t
       | typeOf (TFree _) = Unit
       | typeOf (TPrint _) = Unit
+      | typeOf (TCEmbed (t, _)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -144,6 +146,8 @@ structure TAST :> TAST = struct
                 | _ => raise Fail "Can't free a non-pointer"
           end
         | augment (Print v) s t f = TPrint (augment v s t f)
+        | augment (CEmbed (ts, c)) _ t _ =
+          TCEmbed (parseTypeSpecifier ts t, c)
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)

@@ -27,6 +27,7 @@ structure AST :> AST = struct
                | Malloc of Parser.sexp * ast
                | Free of ast
                | Print of ast
+               | CEmbed of Parser.sexp * string
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast
@@ -68,6 +69,8 @@ structure AST :> AST = struct
       | parse (SList [Symbol "malloc", t, c]) e = Malloc (t, parse c e)
       | parse (SList [Symbol "free", p]) e = Free (parse p e)
       | parse (SList [Symbol "print", v]) e = Print (parse v e)
+      | parse (SList [Symbol "c/embed", t, String s]) _ = CEmbed (t, s)
+      | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 

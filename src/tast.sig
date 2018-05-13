@@ -14,6 +14,7 @@ signature TAST = sig
                 | TMalloc of Type.ty * tast
                 | TFree of tast
                 | TPrint of tast
+                | TCEmbed of Type.ty * string
                 | TFuncall of string * tast list * Type.ty
 
   val typeOf : tast -> Type.ty

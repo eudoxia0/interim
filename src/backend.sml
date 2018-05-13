@@ -22,6 +22,7 @@ structure Backend :> BACKEND = struct
                     | CDeref of exp_cast
                     | CSizeOf of ctype
                     | CAdjacent of exp_cast list
+                    | CRaw of string
 
   datatype block_cast = CSeq of block_cast list
                       | CBlock of block_cast list
@@ -185,6 +186,8 @@ structure Backend :> BACKEND = struct
                  unitConstant)
             end
         end
+      | convert (TCEmbed (t, s)) =
+        (CSeq [], CCast (convertType t, CRaw s))
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
@@ -268,6 +271,7 @@ structure Backend :> BACKEND = struct
     | renderExp (CDeref e) = "*" ^ (renderExp e)
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
     | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
+    | renderExp (CRaw s) = s
 
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)
     | renderBlock' d (CBlock l) = "{\n" ^ (sepBy "\n" (map (renderBlock' d) l)) ^ "\n" ^ (pad (unindent d)) ^ "}"
