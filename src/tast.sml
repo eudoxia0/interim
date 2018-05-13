@@ -30,7 +30,7 @@ structure TAST :> TAST = struct
         else
             typeOf (List.last ls)
       | typeOf (TLet (_, _, b)) = typeOf b
-      | typeOf (TNullPtr t) = t
+      | typeOf (TNullPtr t) = RawPointer t
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
