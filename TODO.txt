@@ -26,10 +26,10 @@ DONE:
 - Fix function calls
 - Implement free
 - Implement c/embed
+- Implement record types
 
 WISHLIST:
 
-- Implement record types
 - Implement defrecord
 - Implement record creation
 - Implement slot access
