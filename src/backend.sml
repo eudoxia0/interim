@@ -58,7 +58,7 @@ structure Backend :> BACKEND = struct
     | convertType (Type.I64) = Int64
 
   local
-      open AST
+      open TAST
   in
     fun convert TConstUnit = (CSeq [], CConstBool false)
       | convert (TConstBool b) = (CSeq [], CConstBool b)
@@ -79,7 +79,7 @@ structure Backend :> BACKEND = struct
             and (cblock, cval) = convert c
             and (ablock, aval) = convert a
             and result = freshVar ()
-            and resType = convertType (AST.typeOf c)
+            and resType = convertType (TAST.typeOf c)
         in
             (CSeq [
                   tblock,
@@ -118,7 +118,11 @@ structure Backend :> BACKEND = struct
                      block,
                      retval)
       end
+  end
 
+  local
+      open AST
+  in
     fun binopStr Add = "+"
       | binopStr Sub = "-"
       | binopStr Mul = "*"

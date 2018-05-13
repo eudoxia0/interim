@@ -31,6 +31,9 @@ is
   src/type.sig
   src/type.sml
 
+  src/tast.sig
+  src/tast.sml
+
   src/backend.sig
   src/backend.sml
 
