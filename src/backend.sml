@@ -8,6 +8,8 @@ structure Backend :> BACKEND = struct
                  | Int32
                  | UInt64
                  | Int64
+                 | Struct of slot list
+       and  slot = Slot of string * ctype
 
   datatype cparam = CParam of string * ctype
 
@@ -25,6 +27,11 @@ structure Backend :> BACKEND = struct
                       | CCond of exp_cast * block_cast * block_cast
 
   datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
+
+  fun slotName n = "_r" ^ (Int.toString n)
+
+  fun slotNames size =
+    List.tabulate (size, (fn i => slotName i))
 
   val count = ref 0
   fun fresh s =
@@ -56,6 +63,12 @@ structure Backend :> BACKEND = struct
     | convertType (Type.I32) = Int32
     | convertType (Type.U64) = UInt64
     | convertType (Type.I64) = Int64
+    | convertType (Type.Tuple tys) =
+      if (length tys = 0) then
+          Bool (* Empty tuples are treated like the unit type *)
+      else
+          Struct (ListPair.map (fn (n, t) => Slot (n, convertType t))
+                               (slotNames (length tys), tys))
 
   local
       open TAST
@@ -143,6 +156,10 @@ structure Backend :> BACKEND = struct
     | renderType Int32 = "int32_t"
     | renderType UInt64 = "uint64_t"
     | renderType Int64 = "int64_t"
+    | renderType (Struct slots) =
+      "struct { " ^ (String.concatWith "; " (map renderSlot slots)) ^ "}"
+  and renderSlot (Slot (n, t)) =
+      (escapeIdent n) ^ " " ^ (renderType t)
 
   local
       open Substring

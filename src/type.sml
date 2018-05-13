@@ -11,6 +11,7 @@ structure Type :> TYPE = struct
               | I32
               | U64
               | I64
+              | Tuple of ty list
 
   fun isNumeric U8 = true
     | isNumeric I8 = true
@@ -37,6 +38,8 @@ structure Type :> TYPE = struct
       | parseTypeSpecifier (Symbol "i32") _ = I32
       | parseTypeSpecifier (Symbol "u64") _ = U64
       | parseTypeSpecifier (Symbol "i64") _ = I64
+      | parseTypeSpecifier (SList ((Symbol "tup")::rest)) e =
+        Tuple (map (fn exp => parseTypeSpecifier exp e) rest)
       | parseTypeSpecifier (Symbol s) e = lookup s e
       | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
   end

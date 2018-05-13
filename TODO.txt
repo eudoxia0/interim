@@ -1,5 +1,4 @@
 - Implement deftype
-- Implement tuples
 - Implement tuple indexing, creation
 - Implement floats
 - Implement a print function for primitive types
@@ -18,3 +17,5 @@ DONE:
 - Clean up the backend so it's less shitty
 - Indent the C output
 - Escape function and variable names
+- Move the typed AST to its own sig/struct
+- Implement tuple types
