@@ -1,6 +1,5 @@
 TODO:
 
-- Implement nullptr
 - Implement malloc
 - Implement load
 - Implement store
@@ -21,6 +20,7 @@ DONE:
 - Implement progn
 - Implement let
 - Implement raw pointer types
+- Implement nullptr
 
 WISHLIST:
 
