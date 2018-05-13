@@ -1,5 +1,4 @@
 - Implement deftype
-- Implement floats
 - Implement a print function for primitive types
 - Implement progn
 - Implement c/embed
