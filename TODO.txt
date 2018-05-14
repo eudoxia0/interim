@@ -1,8 +1,7 @@
 TODO:
 
-- Implement defrecord
-- Implement record creation
-- Implement slot access
+- Implement regions
+- Region pointers
 
 DONE:
 
@@ -38,7 +37,3 @@ WISHLIST:
 - Implement macros
 - Forbid mutating function arguments
 - Implement function declarations
-- Implement disjunctions
-- Implement defdisjunction
-- Implement disjunction creation
-- Implement case
