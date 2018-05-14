@@ -19,6 +19,7 @@ structure TAST :> TAST = struct
                 | TPrint of tast
                 | TCEmbed of Type.ty * string
                 | TCCall of string * Type.ty * tast list
+                | TWhile of tast * tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -47,6 +48,7 @@ structure TAST :> TAST = struct
       | typeOf (TPrint _) = Unit
       | typeOf (TCEmbed (t, _)) = t
       | typeOf (TCCall (_, t, _)) = t
+      | typeOf (TWhile _) = Unit
       | typeOf (TFuncall (_, _, t)) = t
 
     fun matchTypes (params: param list) (args: tast list) =
@@ -175,6 +177,15 @@ structure TAST :> TAST = struct
               and args = map (fn a => augment a s t f) args
           in
               TCCall (n, t, args)
+          end
+        | augment (While (test, body)) s t f =
+          let val test' = augment test s t f
+              and body' = augment body s t f
+          in
+              if typeOf test' <> Bool then
+                  raise Fail "The test of a while loop must be a boolean expression"
+              else
+                  TWhile (test', body')
           end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv

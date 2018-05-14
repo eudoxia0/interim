@@ -28,6 +28,7 @@ signature AST = sig
                | Print of ast
                | CEmbed of Parser.sexp * string
                | CCall of string * Parser.sexp * ast list
+               | While of ast * ast
                | Funcall of string * ast list
 
   datatype top_ast = Defun of Function.func * ast

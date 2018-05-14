@@ -30,6 +30,7 @@ structure Backend :> BACKEND = struct
                       | CDeclare of ctype * string
                       | CAssign of exp_cast * exp_cast
                       | CCond of exp_cast * block_cast * block_cast
+                      | CWhile of exp_cast * block_cast
                       | CFuncall of string option * string * exp_cast list
 
   datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
@@ -214,6 +215,12 @@ structure Backend :> BACKEND = struct
                      end
              end
         end
+      | convert (TWhile (t, b)) =
+        let val (tblock, tval) = convert t
+            and (bblock, _) = convert b
+        in
+            (CSeq [tblock, CWhile (tval, bblock)], unitConstant)
+        end
       | convert (TFuncall (f, args, rt)) =
 
         let val args' = map (fn a => convert a) args
@@ -307,6 +314,8 @@ structure Backend :> BACKEND = struct
     | renderBlock' d (CAssign (var, v)) = (pad d) ^ (renderExp var) ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock' d (CCond (t, c, a)) = (pad d) ^ "if (" ^ (renderExp t) ^ ") " ^ (renderBlock' (indent d) c)
                                          ^ " else " ^ (renderBlock' (indent d) a)
+    | renderBlock' d (CWhile (t, b)) =
+      (pad d) ^ "while (" ^ (renderExp t) ^ ") {\n" ^ (renderBlock' (indent d) b) ^ "\n" ^ (pad d) ^ "}"
     | renderBlock' d (CFuncall (res, f, args)) =
       (pad d) ^ (renderRes res) ^ (escapeIdent f) ^ "(" ^ (sepBy "," (map renderExp args)) ^ ");"
   and renderRes (SOME res) = (escapeIdent res) ^ " = "
