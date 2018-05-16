@@ -1,6 +1,5 @@
 TODO:
 
-- Simplify integer types
 - Implement address-of
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings, newline handling (print vs println)
@@ -39,6 +38,7 @@ DONE:
 - Implement c/call
 - Implement assignment
 - Implement while loop
+- Simplify integer types
 
 WISHLIST:
 
