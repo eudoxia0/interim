@@ -1,7 +1,15 @@
 TODO:
 
+- Simplify integer types
+- Implement address-of
+- Flexible typing for integer literals (lit_ty, litTypeOf)
+- Printing strings, newline handling (print vs println)
+- Mutability of variables
 - Implement regions
+- Function type specifier type (region parameter)
+- Concretize function parameters
 - Region pointers
+- Implement letregion
 
 DONE:
 
@@ -37,3 +45,6 @@ WISHLIST:
 - Implement macros
 - Forbid mutating function arguments
 - Implement function declarations
+- Not equal binop
+- (print s_0 s_1 ... s_n) => (progn (print s_0) (print s_1) (print s_n))
+- Not function on booleans
