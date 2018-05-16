@@ -1,16 +1,11 @@
 signature TYPE = sig
   datatype ty = Unit
               | Bool
-              | U8
-              | I8
-              | U16
-              | I16
-              | U32
-              | I32
-              | U64
-              | I64
+              | Int of signedness * bit_width
               | RawPointer of ty
               | Record of string * slot list
+       and signedness = Signed | Unsigned
+       and bit_width = Word8 | Word16 | Word32 | Word64
        and slot = Slot of string * ty
 
   val isEquatable : ty -> bool

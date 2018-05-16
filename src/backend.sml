@@ -55,34 +55,40 @@ structure Backend :> BACKEND = struct
     | escapeChar #"=" = "_e"
     | escapeChar c = str c
 
+  local
+    open Type
+  in
+    fun convertIntType Unsigned Word8 = UInt8
+      | convertIntType Signed   Word8 = Int8
+      | convertIntType Unsigned Word16 = UInt16
+      | convertIntType Signed   Word16 = Int16
+      | convertIntType Unsigned Word32 = UInt32
+      | convertIntType Signed   Word32 = Int32
+      | convertIntType Unsigned Word64 = UInt64
+      | convertIntType Signed   Word64 = Int64
+  end
+
   fun convertType (Type.Unit) = Bool
     | convertType (Type.Bool) = Bool
-    | convertType (Type.U8) = UInt8
-    | convertType (Type.I8) = Int8
-    | convertType (Type.U16) = UInt16
-    | convertType (Type.I16) = Int16
-    | convertType (Type.U32) = UInt32
-    | convertType (Type.I32) = Int32
-    | convertType (Type.U64) = UInt64
-    | convertType (Type.I64) = Int64
+    | convertType (Type.Int (s, w)) = convertIntType s w
     | convertType (Type.RawPointer t) = Pointer (convertType t)
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
 
   val unitConstant = CConstBool false
 
   local
-      open Type
+    open Type
   in
     fun formatStringFor Unit = [CConstString "nil"]
       | formatStringFor Bool = raise Fail "bool can't be printf'd"
-      | formatStringFor U8 = wrap "PRIu8"
-      | formatStringFor I8 = wrap "PRIi8"
-      | formatStringFor U16 = wrap "PRIu16"
-      | formatStringFor I16 = wrap "PRIi16"
-      | formatStringFor U32 = wrap "PRIu32"
-      | formatStringFor I32 = wrap "PRIi32"
-      | formatStringFor U64 = wrap "PRIu64"
-      | formatStringFor I64 = wrap "PRIi64"
+      | formatStringFor (Int (Unsigned, Word8)) = wrap "PRIu8"
+      | formatStringFor (Int (Signed,   Word8)) = wrap "PRIi8"
+      | formatStringFor (Int (Unsigned, Word16)) = wrap "PRIu16"
+      | formatStringFor (Int (Signed,   Word16)) = wrap "PRIi16"
+      | formatStringFor (Int (Unsigned, Word32)) = wrap "PRIu32"
+      | formatStringFor (Int (Signed,   Word32)) = wrap "PRIi32"
+      | formatStringFor (Int (Unsigned, Word64)) = wrap "PRIu64"
+      | formatStringFor (Int (Signed,   Word64)) = wrap "PRIi64"
       | formatStringFor (RawPointer _) = [CConstString "%p"]
       | formatStringFor _ = raise Fail "Records cannot be printf'd"
     and wrap s = [CAdjacent [CConstString "%", CVar s]]

@@ -26,6 +26,8 @@ structure TAST :> TAST = struct
       open Type
       open Function
   in
+    val defaultIntType = Int (Signed, Word64)
+
     fun typeOf TConstUnit = Unit
       | typeOf (TConstBool _) = Bool
       | typeOf (TConstInt (_, t)) = t
@@ -64,7 +66,7 @@ structure TAST :> TAST = struct
     in
       fun augment ConstUnit _ _ _ = TConstUnit
         | augment (ConstBool b) _ _ _ = TConstBool b
-        | augment (ConstInt i) _ _ _ = TConstInt (i, I64)
+        | augment (ConstInt i) _ _ _ = TConstInt (i, defaultIntType)
         | augment (ConstString s) _ _ _ = raise Fail "STRINGS ARE NOT SUPPORTED YET"
         | augment (Var s) stack _ _ = TVar (s, bindType (lookup s stack))
         | augment (Binop (Add, a, b)) s t f = augmentArithOp Add a b s t f
@@ -150,7 +152,7 @@ structure TAST :> TAST = struct
           let val t' = parseTypeSpecifier ty t
               and c' = augment c s t f
           in
-              if (typeOf c' <> U64) then
+              if (typeOf c' <> Int (Unsigned, Word64)) then
                   raise Fail "malloc: allocation count must be u64"
               else
                   TMalloc (t', c')
