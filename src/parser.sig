@@ -4,5 +4,5 @@ signature PARSER = sig
                 | Symbol of string
                 | SList of sexp list
 
-  val parseString : string -> sexp
+  val parseString : string -> sexp * ParsimonyStringInput.input
 end

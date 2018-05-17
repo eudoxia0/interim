@@ -34,7 +34,7 @@ structure Interim :> INTERIM = struct
               print "> ";
               let val s = readUntilBlank ()
               in
-                  let val sexp = Parser.parseString s
+                  let val (sexp, _) = Parser.parseString s
                   in
                       let val ast = AST.parseToplevel sexp tenv
                       in
