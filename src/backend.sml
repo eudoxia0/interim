@@ -103,6 +103,7 @@ structure Backend :> BACKEND = struct
     fun convert TConstUnit = (CSeq [], unitConstant)
       | convert (TConstBool b) = (CSeq [], CConstBool b)
       | convert (TConstInt (i, t)) = (CSeq [], CCast (convertType t, CConstInt i))
+      | convert (TConstString s) = (CSeq [], CConstString s)
       | convert (TVar (s, t)) = (CSeq [], CVar s)
       | convert (TBinop (oper, a, b, t)) =
         let val (ablock, aval) = convert a

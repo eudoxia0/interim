@@ -4,6 +4,7 @@ structure TAST :> TAST = struct
   datatype tast = TConstUnit
                 | TConstBool of bool
                 | TConstInt of int * Type.ty
+                | TConstString of string
                 | TVar of string * Type.ty
                 | TBinop of AST.binop * tast * tast * Type.ty
                 | TCond of tast * tast * tast * Type.ty
@@ -32,6 +33,7 @@ structure TAST :> TAST = struct
     fun typeOf TConstUnit = Unit
       | typeOf (TConstBool _) = Bool
       | typeOf (TConstInt (_, t)) = t
+      | typeOf (TConstString _) = RawPointer (Int (Unsigned, Word8))
       | typeOf (TVar (_, t)) = t
       | typeOf (TBinop (_, _, _, t)) = t
       | typeOf (TCond (_, _, _, t)) = t
@@ -69,7 +71,7 @@ structure TAST :> TAST = struct
       fun augment ConstUnit _ _ _ = TConstUnit
         | augment (ConstBool b) _ _ _ = TConstBool b
         | augment (ConstInt i) _ _ _ = TConstInt (i, defaultIntType)
-        | augment (ConstString s) _ _ _ = raise Fail "STRINGS ARE NOT SUPPORTED YET"
+        | augment (ConstString s) _ _ _ = TConstString s
         | augment (Var s) stack _ _ = TVar (s, bindType (lookup s stack))
         | augment (Binop (Add, a, b)) s t f = augmentArithOp Add a b s t f
         | augment (Binop (Sub, a, b)) s t f = augmentArithOp Sub a b s t f

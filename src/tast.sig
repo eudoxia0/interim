@@ -2,6 +2,7 @@ signature TAST = sig
   datatype tast = TConstUnit
                 | TConstBool of bool
                 | TConstInt of int * Type.ty
+                | TConstString of string
                 | TVar of string * Type.ty
                 | TBinop of AST.binop * tast * tast * Type.ty
                 | TCond of tast * tast * tast * Type.ty
