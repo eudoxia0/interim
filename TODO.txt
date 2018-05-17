@@ -1,6 +1,5 @@
 TODO:
 
-- Make function bodies an implicit progn
 - Add toplevel C include statement
 - Implement regions
 - Function type specifier type (region parameter)
@@ -43,6 +42,7 @@ DONE:
 - Print newline handling (print vs println)
 - Printing strings
 - Not equal binop
+- Make function bodies an implicit progn
 
 WISHLIST:
 
