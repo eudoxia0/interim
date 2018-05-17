@@ -2,7 +2,6 @@ TODO:
 
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings
-- Print newline handling (print vs println)
 - Mutability of variables
 - Implement regions
 - Function type specifier type (region parameter)
@@ -42,6 +41,7 @@ DONE:
 - Implement address-of
 - Keep track of variable mutability
 - Forbid mutating function arguments or immutable vars
+- Print newline handling (print vs println)
 
 WISHLIST:
 
