@@ -1,8 +1,6 @@
 TODO:
 
-- Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings
-- Mutability of variables
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
@@ -50,3 +48,5 @@ WISHLIST:
 - Not equal binop
 - (print s_0 s_1 ... s_n) => (progn (print s_0) (print s_1) (print s_n))
 - Not function on booleans
+- Flexible typing for integer literals (lit_ty, litTypeOf)
+- Let with support for immutable variables
