@@ -1,0 +1,4 @@
+(defun main () i32
+  (progn
+    (println "Hello, world!")
+    (the i32 0)))
