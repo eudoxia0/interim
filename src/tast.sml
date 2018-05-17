@@ -109,7 +109,7 @@ structure TAST :> TAST = struct
         | augment (Let (name, v, body)) s t f =
           let val v' = augment v s t f
           in
-              let val s' = bind (name, (Binding (name, typeOf v'))) s
+              let val s' = bind (name, (Binding (name, typeOf v', Mutable))) s
               in
                   TLet (name,
                         v',
@@ -119,7 +119,7 @@ structure TAST :> TAST = struct
         | augment (Assign (var, v)) s t f =
           let val v' = augment v s t f
           in
-              let val (Binding (_, ty)) = lookup var s
+              let val (Binding (_, ty, _)) = lookup var s
               in
                   if typeOf v' = ty then
                       TAssign (var, v')
@@ -167,7 +167,7 @@ structure TAST :> TAST = struct
                 | _ => raise Fail "Can't free a non-pointer"
           end
         | augment (AddressOf v) s t f =
-          let val (Binding (_, ty)) = lookup v s
+          let val (Binding (_, ty, _)) = lookup v s
           in
               TAddressOf (v, ty)
           end
