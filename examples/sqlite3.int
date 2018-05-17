@@ -1,0 +1,12 @@
+(defun main () i32
+  (progn
+    (let ((null (nullptr u64))
+          (db null))
+      (c/call "sqlite3_open" i32 ":memory:" (address-of db))
+      (if (= db null)
+          (progn
+            (println "Failed to open database :(")
+            (the i32 -1))
+          (progn
+            (println "Opened database!")
+            (the i32 1))))))
