@@ -5,7 +5,6 @@ TODO:
 - Concretize function parameters
 - Region pointers
 - Implement letregion
-- Not equal binop
 
 DONE:
 
@@ -41,6 +40,7 @@ DONE:
 - Forbid mutating function arguments or immutable vars
 - Print newline handling (print vs println)
 - Printing strings
+- Not equal binop
 
 WISHLIST:
 
