@@ -55,3 +55,4 @@ WISHLIST:
 - Let with support for immutable variables
 - define-symbol-macro
 - Implement concrete defrecord
+- Cond macro
