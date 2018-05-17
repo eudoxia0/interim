@@ -1,6 +1,8 @@
 TODO:
 
+- Separate compiler from REPL code
 - Add batch compilation
+- Compile to a CLI executable using MLton
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
