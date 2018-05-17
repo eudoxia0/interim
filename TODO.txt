@@ -1,6 +1,5 @@
 TODO:
 
-- Forbid mutating function arguments or immutable vars
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings, newline handling (print vs println)
 - Mutability of variables
@@ -41,6 +40,7 @@ DONE:
 - Simplify integer types
 - Implement address-of
 - Keep track of variable mutability
+- Forbid mutating function arguments or immutable vars
 
 WISHLIST:
 
