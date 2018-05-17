@@ -57,6 +57,11 @@ structure Interim :> INTERIM = struct
                                                repl' (tenv, fenv')
                                            end
                                    end
+                               end
+                             | (AST.CInclude s) =>
+                               let
+                               in
+                                   repl' (tenv, fenv)
                                end)
                       end
                   end  handle Fail s => print ("Error: " ^ s ^ "\n");

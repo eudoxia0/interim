@@ -36,6 +36,7 @@ signature AST = sig
                    | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
+                   | CInclude of string
 
   val parse : Parser.sexp -> Type.tenv -> ast
   val parseToplevel : Parser.sexp -> Type.tenv -> top_ast

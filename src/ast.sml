@@ -38,6 +38,7 @@ structure AST :> AST = struct
                    | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
+                   | CInclude of string
 
   local
     open Parser
@@ -95,6 +96,9 @@ structure AST :> AST = struct
                                 map (fn p => parseParam p e) params,
                                 Type.parseTypeSpecifier rt e),
              parse (SList (Symbol "progn" :: body)) e)
+      | parseToplevel (SList (Symbol "defun" :: _)) _ = raise Fail "Bad defun"
+      | parseToplevel (SList [Symbol "c/include", String s]) _ = CInclude s
+      | parseToplevel (SList (Symbol "c/include" :: _)) _ = raise Fail "Bad c/include"
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
   end
 end
