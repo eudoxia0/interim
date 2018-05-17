@@ -1,6 +1,5 @@
 TODO:
 
-- Implement address-of
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings, newline handling (print vs println)
 - Mutability of variables
@@ -39,6 +38,7 @@ DONE:
 - Implement assignment
 - Implement while loop
 - Simplify integer types
+- Implement address-of
 
 WISHLIST:
 
