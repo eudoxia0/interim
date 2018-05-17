@@ -27,6 +27,7 @@ structure AST :> AST = struct
                | Store of ast * ast
                | Malloc of Parser.sexp * ast
                | Free of ast
+               | AddressOf of string
                | Print of ast
                | CEmbed of Parser.sexp * string
                | CCall of string * Parser.sexp * ast list
@@ -72,6 +73,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol "store", p, v]) e = Store (parse p e, parse v e)
       | parse (SList [Symbol "malloc", t, c]) e = Malloc (t, parse c e)
       | parse (SList [Symbol "free", p]) e = Free (parse p e)
+      | parse (SList [Symbol "address-of", Symbol v]) _ = AddressOf v
       | parse (SList [Symbol "print", v]) e = Print (parse v e)
       | parse (SList [Symbol "c/embed", t, String s]) _ = CEmbed (t, s)
       | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"

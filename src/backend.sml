@@ -21,6 +21,7 @@ structure Backend :> BACKEND = struct
                     | CBinop of AST.binop * exp_cast * exp_cast
                     | CCast of ctype * exp_cast
                     | CDeref of exp_cast
+                    | CAddressOf of exp_cast
                     | CSizeOf of ctype
                     | CAdjacent of exp_cast list
                     | CRaw of string
@@ -188,6 +189,8 @@ structure Backend :> BACKEND = struct
         in
             (CSeq [pblock, CFuncall (NONE, "free", [pval])], unitConstant)
         end
+      | convert (TAddressOf (v, _)) =
+        (CSeq [], CAddressOf (CVar v))
       | convert (TPrint v) =
         let val (vblock, vval) = convert v
             and ty = typeOf v
@@ -310,6 +313,7 @@ structure Backend :> BACKEND = struct
       "(" ^ (renderExp a) ^ " " ^ (binopStr oper) ^ " " ^ (renderExp b) ^ ")"
     | renderExp (CCast (ty, a)) = "((" ^ (renderType ty) ^ ")(" ^ (renderExp a) ^ "))"
     | renderExp (CDeref e) = "*" ^ (renderExp e)
+    | renderExp (CAddressOf e) = "&" ^ (renderExp e)
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
     | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
     | renderExp (CRaw s) = s

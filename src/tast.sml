@@ -16,6 +16,7 @@ structure TAST :> TAST = struct
                 | TStore of tast * tast
                 | TMalloc of Type.ty * tast
                 | TFree of tast
+                | TAddressOf of string * Type.ty
                 | TPrint of tast
                 | TCEmbed of Type.ty * string
                 | TCCall of string * Type.ty * tast list
@@ -47,6 +48,7 @@ structure TAST :> TAST = struct
       | typeOf (TStore (_, v)) = typeOf v
       | typeOf (TMalloc (t, _)) = RawPointer t
       | typeOf (TFree _) = Unit
+      | typeOf (TAddressOf (_, t)) = RawPointer t
       | typeOf (TPrint _) = Unit
       | typeOf (TCEmbed (t, _)) = t
       | typeOf (TCCall (_, t, _)) = t
@@ -163,6 +165,11 @@ structure TAST :> TAST = struct
               case (typeOf p') of
                   (RawPointer _) => TFree p'
                 | _ => raise Fail "Can't free a non-pointer"
+          end
+        | augment (AddressOf v) s t f =
+          let val (Binding (_, ty)) = lookup v s
+          in
+              TAddressOf (v, ty)
           end
         | augment (Print v) s t f =
           let val v' = augment v s t f

@@ -14,6 +14,7 @@ signature TAST = sig
                 | TStore of tast * tast
                 | TMalloc of Type.ty * tast
                 | TFree of tast
+                | TAddressOf of string * Type.ty
                 | TPrint of tast
                 | TCEmbed of Type.ty * string
                 | TCCall of string * Type.ty * tast list
