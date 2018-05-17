@@ -90,11 +90,11 @@ structure AST :> AST = struct
     fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
 
-    fun parseToplevel (SList [Symbol "defun", Symbol name, SList params, rt, body]) e =
+    fun parseToplevel (SList (Symbol "defun" :: Symbol name :: SList params :: rt :: body)) e =
       Defun (Function.Function (name,
                                 map (fn p => parseParam p e) params,
                                 Type.parseTypeSpecifier rt e),
-             parse body e)
+             parse (SList (Symbol "progn" :: body)) e)
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
   end
 end
