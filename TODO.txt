@@ -1,6 +1,6 @@
 TODO:
 
-- Keep track of variable mutability
+- Forbid mutating function arguments or immutable vars
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings, newline handling (print vs println)
 - Mutability of variables
@@ -40,11 +40,11 @@ DONE:
 - Implement while loop
 - Simplify integer types
 - Implement address-of
+- Keep track of variable mutability
 
 WISHLIST:
 
 - Implement macros
-- Forbid mutating function arguments
 - Implement function declarations
 - Not equal binop
 - (print s_0 s_1 ... s_n) => (progn (print s_0) (print s_1) (print s_n))
