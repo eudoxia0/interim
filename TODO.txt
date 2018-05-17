@@ -1,6 +1,5 @@
 TODO:
 
-- Printing strings
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
@@ -40,6 +39,7 @@ DONE:
 - Keep track of variable mutability
 - Forbid mutating function arguments or immutable vars
 - Print newline handling (print vs println)
+- Printing strings
 
 WISHLIST:
 
