@@ -119,12 +119,15 @@ structure TAST :> TAST = struct
         | augment (Assign (var, v)) s t f =
           let val v' = augment v s t f
           in
-              let val (Binding (_, ty, _)) = lookup var s
+              let val (Binding (_, ty, m)) = lookup var s
               in
-                  if typeOf v' = ty then
-                      TAssign (var, v')
+                  if m = Mutable then
+                      if typeOf v' = ty then
+                          TAssign (var, v')
+                      else
+                          raise Fail ("Cannot assign to variable '" ^ var ^ "': wrong type")
                   else
-                      raise Fail ("Cannot assign to variable '" ^ var ^ "': wrong type")
+                      raise Fail ("Cannot assign to immutable variable '" ^ var ^ "'")
               end
           end
         | augment (NullPtr t) _ tenv _ =
