@@ -5,21 +5,22 @@
       (c/call "sqlite3_open" i32 ":memory:" (address-of db))
       (if (= db null)
           (progn
-            (println "Failed to open database :(")
+            (println "Failed to open database")
             (the i32 -1))
           (progn
             (println "Opened database!")
             (println "Creating table...")
             (let ((rc (c/call "sqlite3_exec"
                               i32
-                              (address-of db)
-                              "CREATE TABLE pairs (x INTEGER PRIMARY KEY, y INTEGER)"
+                              db
+                              "CREATE TABLE pairs (x INTEGER PRIMARY KEY, y INTEGER);"
                               0
                               0
                               0)))
               (if (<> rc (c/embed i32 "SQLITE_OK"))
                   (progn
-                    (println "Failed to create table :(")
+                    (print "Failed to create table, code: ")
+                    (println rc)
                     (the i32 -1))
                   (progn
                     (println "Successfully created table!")
