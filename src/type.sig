@@ -2,6 +2,7 @@ signature TYPE = sig
   datatype ty = Unit
               | Bool
               | Int of signedness * bit_width
+              | Str
               | RawPointer of ty
               | Record of string * slot list
        and signedness = Signed | Unsigned

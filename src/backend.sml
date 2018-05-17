@@ -72,6 +72,7 @@ structure Backend :> BACKEND = struct
   fun convertType (Type.Unit) = Bool
     | convertType (Type.Bool) = Bool
     | convertType (Type.Int (s, w)) = convertIntType s w
+    | convertType (Type.Str) = Pointer UInt8
     | convertType (Type.RawPointer t) = Pointer (convertType t)
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
 
@@ -90,6 +91,7 @@ structure Backend :> BACKEND = struct
       | formatStringFor (Int (Signed,   Word32)) n = wrap "PRIi32" n
       | formatStringFor (Int (Unsigned, Word64)) n = wrap "PRIu64" n
       | formatStringFor (Int (Signed,   Word64)) n = wrap "PRIi64" n
+      | formatStringFor Str n = [CConstString ("%s" ^ (newline n))]
       | formatStringFor (RawPointer _) n = [CConstString ("%p" ^ (newline n))]
       | formatStringFor _ _ = raise Fail "Records cannot be printf'd"
     and wrap s n = [CAdjacent [CConstString "%", CVar s, CConstString (newline n)]]

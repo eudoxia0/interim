@@ -4,6 +4,7 @@ structure Type :> TYPE = struct
   datatype ty = Unit
               | Bool
               | Int of signedness * bit_width
+              | Str
               | RawPointer of ty
               | Record of string * slot list
        and signedness = Signed | Unsigned
@@ -34,6 +35,7 @@ structure Type :> TYPE = struct
       | parseTypeSpecifier (Symbol "i32") _ = Int (Signed, Word32)
       | parseTypeSpecifier (Symbol "u64") _ = Int (Unsigned, Word64)
       | parseTypeSpecifier (Symbol "i64") _ = Int (Signed, Word64)
+      | parseTypeSpecifier (Symbol "str") _ = Str
       | parseTypeSpecifier (SList [Symbol "rawptr", t]) e = RawPointer (parseTypeSpecifier t e)
       | parseTypeSpecifier (Symbol s) e = lookup s e
       | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
