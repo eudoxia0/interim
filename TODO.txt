@@ -1,11 +1,11 @@
 TODO:
 
+- Add batch compilation
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
 - Region pointers
 - Implement letregion
-- Add batch compilation
 
 DONE:
 
@@ -53,3 +53,4 @@ WISHLIST:
 - Not function on booleans
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Let with support for immutable variables
+- define-symbol-macro
