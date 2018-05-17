@@ -9,4 +9,18 @@
             (the i32 -1))
           (progn
             (println "Opened database!")
-            (the i32 1))))))
+            (println "Creating table...")
+            (let ((rc (c/call "sqlite3_exec"
+                              i32
+                              (address-of db)
+                              "CREATE TABLE pairs (x INTEGER PRIMARY KEY, y INTEGER)"
+                              0
+                              0
+                              0)))
+              (if (<> rc (c/embed i32 "SQLITE_OK"))
+                  (progn
+                    (println "Failed to create table :(")
+                    (the i32 -1))
+                  (progn
+                    (println "Successfully created table!")
+                    (the i32 1)))))))))
