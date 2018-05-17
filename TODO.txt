@@ -1,5 +1,7 @@
 TODO:
 
+- Make function bodies an implicit progn
+- Add toplevel C include statement
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
