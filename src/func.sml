@@ -6,7 +6,10 @@ structure Function :> FUNCTION = struct
 
   type fenv = func SymTab.symtab
 
-  datatype binding = Binding of string * Type.ty
+  datatype mutability = Mutable
+                      | Immutable
+
+  datatype binding = Binding of string * Type.ty * mutability
   type stack = binding SymTab.symtab
 
   fun bindType (Binding (s, t)) = t
