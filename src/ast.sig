@@ -26,11 +26,13 @@ signature AST = sig
                | Malloc of Parser.sexp * ast
                | Free of ast
                | AddressOf of string
-               | Print of ast
+               | Print of ast * newline
                | CEmbed of Parser.sexp * string
                | CCall of string * Parser.sexp * ast list
                | While of ast * ast
                | Funcall of string * ast list
+       and newline = Newline
+                   | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
 

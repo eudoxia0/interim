@@ -9,8 +9,12 @@ structure Interim :> INTERIM = struct
           "#include <stdio.h>",
           "#include <stdlib.h>",
           "",
-          "int interim_print_bool(bool v) {",
-          "  return printf(v ? \"true\" : \"false\");",
+          "int interim_print_bool(bool v, bool nl) {",
+          "  if (nl) {",
+          "    return printf(v ? \"true\\n\" : \"false\\n\");",
+          "  } else {",
+          "    return printf(v ? \"true\" : \"false\");",
+          "  }",
           "}",
           ""
       ]

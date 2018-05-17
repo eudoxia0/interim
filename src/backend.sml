@@ -80,19 +80,21 @@ structure Backend :> BACKEND = struct
   local
     open Type
   in
-    fun formatStringFor Unit = [CConstString "nil"]
-      | formatStringFor Bool = raise Fail "bool can't be printf'd"
-      | formatStringFor (Int (Unsigned, Word8)) = wrap "PRIu8"
-      | formatStringFor (Int (Signed,   Word8)) = wrap "PRIi8"
-      | formatStringFor (Int (Unsigned, Word16)) = wrap "PRIu16"
-      | formatStringFor (Int (Signed,   Word16)) = wrap "PRIi16"
-      | formatStringFor (Int (Unsigned, Word32)) = wrap "PRIu32"
-      | formatStringFor (Int (Signed,   Word32)) = wrap "PRIi32"
-      | formatStringFor (Int (Unsigned, Word64)) = wrap "PRIu64"
-      | formatStringFor (Int (Signed,   Word64)) = wrap "PRIi64"
-      | formatStringFor (RawPointer _) = [CConstString "%p"]
-      | formatStringFor _ = raise Fail "Records cannot be printf'd"
-    and wrap s = [CAdjacent [CConstString "%", CVar s]]
+    fun formatStringFor Unit n = [CConstString ("nil" ^ (newline n))]
+      | formatStringFor Bool n = raise Fail "bool can't be printf'd"
+      | formatStringFor (Int (Unsigned, Word8)) n = wrap "PRIu8" n
+      | formatStringFor (Int (Signed,   Word8)) n = wrap "PRIi8" n
+      | formatStringFor (Int (Unsigned, Word16)) n = wrap "PRIu16" n
+      | formatStringFor (Int (Signed,   Word16)) n = wrap "PRIi16" n
+      | formatStringFor (Int (Unsigned, Word32)) n = wrap "PRIu32" n
+      | formatStringFor (Int (Signed,   Word32)) n = wrap "PRIi32" n
+      | formatStringFor (Int (Unsigned, Word64)) n = wrap "PRIu64" n
+      | formatStringFor (Int (Signed,   Word64)) n = wrap "PRIi64" n
+      | formatStringFor (RawPointer _) n = [CConstString ("%p" ^ (newline n))]
+      | formatStringFor _ _ = raise Fail "Records cannot be printf'd"
+    and wrap s n = [CAdjacent [CConstString "%", CVar s, CConstString (newline n)]]
+    and newline AST.Newline = "\\n"
+      | newline AST.NoNewline = ""
   end
 
   local
@@ -191,14 +193,19 @@ structure Backend :> BACKEND = struct
         end
       | convert (TAddressOf (v, _)) =
         (CSeq [], CAddressOf (CVar v))
-      | convert (TPrint v) =
+      | convert (TPrint (v, n)) =
         let val (vblock, vval) = convert v
             and ty = typeOf v
         in
             let val printer = if ty = Type.Bool then
-                                  CFuncall (NONE, "interim_print_bool", [vval])
+                                  let val nl = (case n of
+                                                   AST.Newline => CConstBool true
+                                                 | AST.NoNewline => CConstBool false)
+                                  in
+                                      CFuncall (NONE, "interim_print_bool", [vval, nl])
+                                  end
                               else
-                                  CFuncall (NONE, "printf", (formatStringFor ty) @ [vval])
+                                  CFuncall (NONE, "printf", (formatStringFor ty n) @ [vval])
             in
                 (CSeq [vblock, printer],
                  unitConstant)

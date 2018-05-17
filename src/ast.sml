@@ -28,11 +28,13 @@ structure AST :> AST = struct
                | Malloc of Parser.sexp * ast
                | Free of ast
                | AddressOf of string
-               | Print of ast
+               | Print of ast * newline
                | CEmbed of Parser.sexp * string
                | CCall of string * Parser.sexp * ast list
                | While of ast * ast
                | Funcall of string * ast list
+       and newline = Newline
+                   | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
 
@@ -74,7 +76,8 @@ structure AST :> AST = struct
       | parse (SList [Symbol "malloc", t, c]) e = Malloc (t, parse c e)
       | parse (SList [Symbol "free", p]) e = Free (parse p e)
       | parse (SList [Symbol "address-of", Symbol v]) _ = AddressOf v
-      | parse (SList [Symbol "print", v]) e = Print (parse v e)
+      | parse (SList [Symbol "print", v]) e = Print (parse v e, NoNewline)
+      | parse (SList [Symbol "println", v]) e = Print (parse v e, Newline)
       | parse (SList [Symbol "c/embed", t, String s]) _ = CEmbed (t, s)
       | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"
       | parse (SList (Symbol "c/call" :: String n :: t :: args)) e = CCall (n, t, map (fn a => parse a e) args)
