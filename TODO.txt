@@ -1,11 +1,11 @@
 TODO:
 
-- Add toplevel C include statement
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
 - Region pointers
 - Implement letregion
+- Add batch compilation
 
 DONE:
 
@@ -43,6 +43,7 @@ DONE:
 - Printing strings
 - Not equal binop
 - Make function bodies an implicit progn
+- Add toplevel C include statement
 
 WISHLIST:
 
