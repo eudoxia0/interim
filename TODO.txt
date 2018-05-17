@@ -1,5 +1,6 @@
 TODO:
 
+- Keep track of variable mutability
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Printing strings, newline handling (print vs println)
 - Mutability of variables
