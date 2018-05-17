@@ -4,6 +4,5 @@
       (+ (fib (- n 1)) (fib (- n 2)))))
 
 (defun main () i32
-  (progn
-    (println (fib 30))
-    (the i32 0)))
+  (println (fib 30))
+  (the i32 0))
