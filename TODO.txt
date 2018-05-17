@@ -54,3 +54,4 @@ WISHLIST:
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Let with support for immutable variables
 - define-symbol-macro
+- Implement concrete defrecord
