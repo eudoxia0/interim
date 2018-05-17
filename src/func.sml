@@ -12,14 +12,14 @@ structure Function :> FUNCTION = struct
   datatype binding = Binding of string * Type.ty * mutability
   type stack = binding SymTab.symtab
 
-  fun bindType (Binding (s, t)) = t
+  fun bindType (Binding (s, t, _)) = t
 
   fun funcName (Function (n, _, _)) = n
 
   fun funcRT (Function (_, _, r)) = r
 
   fun funcStack (Function (_, params, _)) =
-    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t)) (toStack rest acc)
+    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t, Immutable)) (toStack rest acc)
           | toStack nil acc = acc
 
     in
