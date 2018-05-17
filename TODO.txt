@@ -1,7 +1,8 @@
 TODO:
 
 - Flexible typing for integer literals (lit_ty, litTypeOf)
-- Printing strings, newline handling (print vs println)
+- Printing strings
+- Print newline handling (print vs println)
 - Mutability of variables
 - Implement regions
 - Function type specifier type (region parameter)
