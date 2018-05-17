@@ -4,6 +4,7 @@ signature AST = sig
                  | Mul
                  | Div
                  | Eq
+                 | NEq
                  | LT
                  | LEq
                  | GT

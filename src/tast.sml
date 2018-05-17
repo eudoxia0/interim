@@ -78,6 +78,7 @@ structure TAST :> TAST = struct
         | augment (Binop (Mul, a, b)) s t f = augmentArithOp Mul a b s t f
         | augment (Binop (Div, a, b)) s t f = augmentArithOp Div a b s t f
         | augment (Binop (Eq, a, b)) s t f = augmentCompOp Eq a b s t f
+        | augment (Binop (NEq, a, b)) s t f = augmentCompOp NEq a b s t f
         | augment (Binop (LT, a, b)) s t f = augmentCompOp LT a b s t f
         | augment (Binop (LEq, a, b)) s t f = augmentCompOp LEq a b s t f
         | augment (Binop (GT, a, b)) s t f = augmentCompOp GT a b s t f

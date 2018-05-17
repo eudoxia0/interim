@@ -273,6 +273,7 @@ structure Backend :> BACKEND = struct
       | binopStr Mul = "*"
       | binopStr Div = "/"
       | binopStr Eq = "=="
+      | binopStr NEq = "!="
       | binopStr LT = "<"
       | binopStr LEq = "<="
       | binopStr GT = ">"

@@ -6,6 +6,7 @@ structure AST :> AST = struct
                  | Mul
                  | Div
                  | Eq
+                 | NEq
                  | LT
                  | LEq
                  | GT
@@ -52,6 +53,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol "*", a, b]) e = Binop (Mul, parse a e, parse b e)
       | parse (SList [Symbol "/", a, b]) e = Binop (Div, parse a e, parse b e)
       | parse (SList [Symbol "=", a, b]) e = Binop (Eq, parse a e, parse b e)
+      | parse (SList [Symbol "<>", a, b]) e = Binop (NEq, parse a e, parse b e)
       | parse (SList [Symbol "<", a, b]) e = Binop (LT, parse a e, parse b e)
       | parse (SList [Symbol "<=", a, b]) e = Binop (LEq, parse a e, parse b e)
       | parse (SList [Symbol ">", a, b]) e = Binop (GT, parse a e, parse b e)
