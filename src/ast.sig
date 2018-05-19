@@ -34,6 +34,7 @@ signature AST = sig
                | CCall of string * Parser.sexp * ast list
                | While of ast * ast
                | LetRegion of Type.region * ast
+               | MakeRecord of string * (string * ast) list
                | Funcall of string * ast list
        and newline = Newline
                    | NoNewline
