@@ -1,8 +1,6 @@
 TODO:
 
-- Separate compiler from REPL code
-- Add batch compilation
-- Compile to a CLI executable using MLton
+- Flexible types for the null constant
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
@@ -46,6 +44,10 @@ DONE:
 - Not equal binop
 - Make function bodies an implicit progn
 - Add toplevel C include statement
+- Separate compiler from REPL code
+- Add batch compilation
+- Compile to a CLI executable using MLton
+- Build examples using Makefile
 
 WISHLIST:
 
