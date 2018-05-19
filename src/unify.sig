@@ -1,3 +1,0 @@
-signature UNIFY = sig
-
-end
