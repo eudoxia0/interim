@@ -59,7 +59,9 @@ structure Function :> FUNCTION = struct
       if (length params <> length types) then
           raise Fail "Wrong argument count"
       else
-          ListPair.map concretize (params, types)
+          case ListPair.map concretize (params, types) of
+              AssignList l => raise Fail "TO BE DONE"
+            | AssignFailure => raise Fail "Argument types did not match parameter types"
 
   fun funcStack (Function (_, params, _)) =
     let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t, Immutable)) (toStack rest acc)
