@@ -37,7 +37,7 @@ structure Type :> TYPE = struct
   type tenv = ty symtab
 
   local
-      open Parser
+    open Parser
   in
     fun parseTypeSpecifier (Symbol "unit") _ = Unit
       | parseTypeSpecifier (Symbol "bool") _ = Bool
