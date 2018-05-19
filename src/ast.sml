@@ -89,7 +89,7 @@ structure AST :> AST = struct
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 
-    fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseTypeSpecifier t e)
+    fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseParamTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
 
     fun parseToplevel (SList (Symbol "defun" :: Symbol name :: SList params :: rt :: body)) e =
