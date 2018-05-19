@@ -1,15 +1,16 @@
 structure Function :> FUNCTION = struct
   open SymTab
+  open Type
 
-  datatype param = Param of string * Type.ty
-  datatype func = Function of string * param list * Type.ty
+  datatype param = Param of string * pty
+  datatype func = Function of string * param list * ty
 
   type fenv = func SymTab.symtab
 
   datatype mutability = Mutable
                       | Immutable
 
-  datatype binding = Binding of string * Type.ty * mutability
+  datatype binding = Binding of string * ty * mutability
   type stack = binding SymTab.symtab
 
   fun bindType (Binding (s, t, _)) = t
@@ -25,6 +26,33 @@ structure Function :> FUNCTION = struct
     in
         toStack params empty
     end
+
+  datatype assignment = Assignment of string * region
+
+  type assignments = assignment list
+
+  fun concretize (params: param list) (types: ty list): assignments =
+    List.concat (ListPair.map concretizeParam (params, types))
+  and concretizeParam (Param (name, pty), ty): assignments = []
+
+  fun matchType Unit PUnit = SOME Unit
+    | matchType Bool PBool = SOME Bool
+    | matchType (Int (s, w)) (PInt (s', w')) =
+      if (s = s') andalso (w = w') then
+          SOME (Int (s, w))
+      else
+          NONE
+    | matchType Str PStr = SOME Str
+    | matchType (RawPointer t) (PRawPointer t') =
+      (case (matchType t t') of
+           SOME t => SOME (RawPointer t)
+         | NONE => NONE)
+    | matchType (Record slots) _ = raise Fail "RECORDS NOT SUPPORTED"
+    | matchType (RegionType (Region (i, s))) (RegionParam s') =
+      if s = s' then
+          SOME (RegionType (Region (i, s)))
+      else
+          NONE
 
   fun matchParams params types =
       if (length params <> length types) then

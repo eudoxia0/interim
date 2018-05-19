@@ -15,7 +15,12 @@ signature TYPE = sig
   val isNumeric : ty -> bool
   val isPrintable : ty -> bool
 
-  type pty
+  datatype pty = PUnit
+               | PBool
+               | PInt of signedness * bit_width
+               | PStr
+               | PRawPointer of pty
+               | RegionParam of string
 
   val toParamType : ty -> pty
 

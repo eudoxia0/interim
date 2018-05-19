@@ -1,5 +1,5 @@
 signature FUNCTION = sig
-  datatype param = Param of string * Type.ty
+  datatype param = Param of string * Type.pty
   datatype func = Function of string * param list * Type.ty
 
   type fenv = func SymTab.symtab
@@ -15,6 +15,8 @@ signature FUNCTION = sig
   val funcName : func -> string
   val funcRT : func -> Type.ty
   val funcStack : func -> stack
+
+  val matchType : Type.pty -> Type.ty -> Type.ty option
 
   val matchParams : param list -> Type.ty list -> bool
 end
