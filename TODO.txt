@@ -1,12 +1,7 @@
 TODO:
 
-- Define region type
-- Add code to initialize regions
-- Add code to free regions
-- Emit region initialization call
-- Emit region free call
-- Region pointer types
-- Region operation: allocate in region
+- Region-tagged pointer types
+- Region operation: allocate value in region
 
 DONE:
 
@@ -55,6 +50,11 @@ DONE:
 - Implement letregion
 - Function type specifier type (region parameter)
 - Concretize function parameters
+- Define region type
+- Add code to initialize regions
+- Add code to free regions
+- Emit region initialization call
+- Emit region free call
 
 WISHLIST:
 
