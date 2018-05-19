@@ -267,7 +267,6 @@ structure Backend :> BACKEND = struct
             end
         end
       | convert (TFuncall (f, args, rt)) =
-
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
             and res = freshVar ()
