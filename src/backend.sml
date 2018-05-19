@@ -368,7 +368,7 @@ structure Backend :> BACKEND = struct
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
     | renderExp (CStructInitializer inits) =
       "{ "
-      ^ (String.concatWith " " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " " ^ (renderExp e)) inits))
+      ^ (String.concatWith " " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " = " ^ (renderExp e)) inits))
       ^ " }"
     | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
     | renderExp (CRaw s) = s
