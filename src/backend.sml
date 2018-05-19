@@ -249,6 +249,12 @@ structure Backend :> BACKEND = struct
         in
             (CSeq [tblock, CWhile (tval, bblock)], unitConstant)
         end
+      | convert (TLetRegion (r, b)) =
+        let val (bblock, bval) = convert b
+        in
+            (CSeq [bblock],
+             bval)
+        end
       | convert (TFuncall (f, args, rt)) =
 
         let val args' = map (fn a => convert a) args
