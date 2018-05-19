@@ -29,7 +29,7 @@ structure TAST :> TAST = struct
       open Type
       open Function
   in
-    val defaultIntType = Int (Signed, Word64)
+    val defaultIntType = Int (Signed, Word32)
 
     fun typeOf TConstUnit = Unit
       | typeOf (TConstBool _) = Bool

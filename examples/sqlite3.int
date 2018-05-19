@@ -7,7 +7,7 @@
 
 (defun die ((msg str)) unit
   (println msg)
-  (c/call "exit" unit (the i32 -1)))
+  (c/call "exit" unit -1))
 
 (defun main () i32
   (let ((null (nullptr u64))
@@ -29,4 +29,4 @@
                 (die "Failed to create table, code: ")
                 (progn
                   (println "Successfully created table!")))))))
-  (the i32 0))
+  0)

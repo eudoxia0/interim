@@ -8,4 +8,4 @@
 (defun main () i32
   (print "fib(30) = ")
   (println (fib 30))
-  (the i32 0))
+  0)
