@@ -3,6 +3,7 @@ structure Function :> FUNCTION = struct
   open Type
 
   datatype param = Param of string * pty
+  datatype conc_param = ConcParam of string * Type.ty
   datatype func = Function of string * param list * ty
 
   type fenv = func SymTab.symtab
@@ -23,6 +24,11 @@ structure Function :> FUNCTION = struct
 
   datatype assignments = AssignList of assignment list
                        | AssignFailure
+
+  fun getRegion (name: string) (l: assignment list): region option =
+    case List.find (fn (Assignment (n', _)) => name = n') l of
+        SOME (Assignment (_, r)) => SOME r
+      | NONE => NONE
 
   val emptyAssign = AssignList []
 
@@ -55,6 +61,20 @@ structure Function :> FUNCTION = struct
   fun concretize (params: param list) (types: ty list): assignments =
     List.foldl concatAssignments AssignFailure (ListPair.map concretizeParam (params, types))
 
+  fun subst (params: param list) (l: assignment list): conc_param list =
+    ListPair.map substParam (params, l)
+  and substParam (Param (name, pty), assign) =
+    ConcParam (name, substType pty assign)
+  and substType PUnit _ = Unit
+    | substType PBool _ = Bool
+    | substType (PInt i) _ = Int i
+    | substType PStr _ = Str
+    | substType (PRawPointer t) a = RawPointer (substType t a)
+    | substType (RegionParam name) a =
+      case getRegion name a of
+          SOME r => r
+        | NONE => raise Fail "Region parameter not present in assignments"
+
   fun matchParams params types =
       if (length params <> length types) then
           raise Fail "Wrong argument count"
@@ -67,7 +87,7 @@ structure Function :> FUNCTION = struct
                                       if (length rpnames) <> (Set.size nameset) then
                                           raise Fail "There are duplicate assignments to region parameters"
                                       else
-                                          raise Fail "TO BE DONE"
+                                          subst params l
                                   end
                               end
             | AssignFailure => raise Fail "Argument types did not match parameter types"
