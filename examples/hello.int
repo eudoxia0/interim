@@ -1,4 +1,5 @@
+;; -*- mode: lisp -*-
+
 (defun main () i32
-  (progn
-    (println "Hello, world!")
-    (the i32 0)))
+  (println "Hello, world!")
+  (the i32 0))
