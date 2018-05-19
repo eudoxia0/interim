@@ -1,14 +1,28 @@
 ;; -*- mode: lisp -*-
 
 (defrecord person
+  (name str)
   (age i32))
 
-(defun make-person ((age i32)) person
-  (record person (age age)))
+(defun make-person ((name str) (age i32)) person
+  (record person
+          (name name)
+          (age age)))
+
+(defun person-name ((p person)) str
+  (slot p name))
 
 (defun person-age ((p person)) i32
   (slot p age))
 
+(defun print-person ((p person)) unit
+  (print "#<person name: ")
+  (print (person-name p))
+  (print ", age: ")
+  (print (person-age p))
+  (println ">"))
+
 (defun main () i32
-  (make-person 21)
+  (let ((p (make-person "John Smith" 21)))
+    (print-person p))
   0)
