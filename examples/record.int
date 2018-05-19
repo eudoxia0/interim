@@ -1,0 +1,11 @@
+;; -*- mode: lisp -*-
+
+(defrecord person
+  (age i32))
+
+(defun make-person ((age i32)) person
+  (record person (age age)))
+
+(defun main () i32
+  (make-person 21)
+  0)
