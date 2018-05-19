@@ -62,8 +62,8 @@ structure Function :> FUNCTION = struct
     List.foldl concatAssignments AssignFailure (ListPair.map concretizeParam (params, types))
 
   fun subst (params: param list) (l: assignment list): conc_param list =
-    ListPair.map substParam (params, l)
-  and substParam (Param (name, pty), assign) =
+    map (substParam l) params
+  and substParam a (Param (name, pty)) =
     ConcParam (name, substType pty assign)
   and substType PUnit _ = Unit
     | substType PBool _ = Bool
