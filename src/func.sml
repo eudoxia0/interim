@@ -54,13 +54,18 @@ structure Function :> FUNCTION = struct
         AssignList l => AssignList l
       | AssignFailure => AssignFailure
 
-  fun concatAssignments ((AssignList l), (AssignList l')) = AssignList (l @ l')
-    | concatAssignments ((AssignList _), AssignFailure) = AssignFailure
-    | concatAssignments (AssignFailure, (AssignList _)) = AssignFailure
-    | concatAssignments (AssignFailure, AssignFailure) = AssignFailure
+  fun concatAssignments (AssignList l) (AssignList l') = AssignList (l @ l')
+    | concatAssignments (AssignList _) AssignFailure = AssignFailure
+    | concatAssignments AssignFailure (AssignList _) = AssignFailure
+    | concatAssignments AssignFailure AssignFailure = AssignFailure
 
   fun concretize (params: param list) (types: ty list): assignments =
-    List.foldl concatAssignments AssignFailure (ListPair.map concretizeParam (params, types))
+    let fun concat' (a::b::rest) = concatAssignments a (concat' (b::rest))
+          | concat' [a] = a
+          | concat' [] = AssignList []
+    in
+        concat' (ListPair.map concretizeParam (params, types))
+    end
 
   fun subst (params: param list) (l: assignment list): conc_param list =
     map (substParam l) params
