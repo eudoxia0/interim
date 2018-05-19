@@ -100,5 +100,4 @@ structure Function :> FUNCTION = struct
     in
         toStack' params empty
     end
-
 end

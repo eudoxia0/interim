@@ -198,10 +198,14 @@ structure TAST :> TAST = struct
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)
           in
-              if Function.matchParams params (map typeOf targs) then
-                  TFuncall (name, targs, rt)
-              else
-                  raise Fail "Argument types don't match parameter types"
+              let val cparams = Function.matchParams params (map typeOf targs)
+              in
+                  if ListPair.all (fn (ConcParam (_, t), t') => t = t')
+                                  (cparams, (map typeOf targs)) then
+                      TFuncall (name, targs, rt)
+                  else
+                      raise Fail "Argument types don't match"
+              end
           end
       and augmentArithOp oper a b s t f =
           let val a' = augment a s t f
