@@ -22,6 +22,20 @@ structure Type :> TYPE = struct
   fun isPrintable (Record _) = false
     | isPrintable _ = true
 
+  fun tyToString Unit = "unit"
+    | tyToString Bool = "bool"
+    | tyToString (Int (s, w)) = (signednessStr s) ^ (widthStr w)
+    | tyToString Str = "str"
+    | tyToString (RawPointer t) = "(rawptr " ^ (tyToString t) ^ ")"
+    | tyToString (Record (name, _)) = name
+    | tyToString (RegionType (Region (_, name))) = "(region " ^ name ^ ")"
+  and signednessStr Signed = "i"
+    | signednessStr Unsigned = "u"
+  and widthStr Word8 = "8"
+    | widthStr Word16 = "16"
+    | widthStr Word32 = "32"
+    | widthStr Word64 = "64"
+
   datatype pty = PUnit
                | PBool
                | PInt of signedness * bit_width

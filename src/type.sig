@@ -14,6 +14,7 @@ signature TYPE = sig
   val isEquatable : ty -> bool
   val isNumeric : ty -> bool
   val isPrintable : ty -> bool
+  val tyToString : ty -> string
 
   datatype pty = PUnit
                | PBool
