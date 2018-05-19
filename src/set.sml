@@ -3,11 +3,8 @@ structure Set :> SET = struct
 
   val empty = []
 
-  fun member x nil = false
-    | member x (y::ys) = (x = y) orelse member x ys
-
   fun add set elem =
-    if member elem set then
+    if Util.member elem set then
         set
     else
         elem :: set
