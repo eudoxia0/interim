@@ -10,7 +10,7 @@ structure Backend :> BACKEND = struct
                  | Int64
                  | Pointer of ctype
                  | Struct of string
-                 | NamedType of string
+                 | RegionType
 
   datatype cparam = CParam of string * ctype
 
@@ -76,14 +76,14 @@ structure Backend :> BACKEND = struct
     | convertType (Type.Str) = Pointer UInt8
     | convertType (Type.RawPointer t) = Pointer (convertType t)
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
-    | convertType (Type.RegionType _) = NamedType "interim_region_t"
+    | convertType (Type.RegionType _) = RegionType
 
   fun convertParamType (Type.PUnit) = Bool
     | convertParamType (Type.PBool) = Bool
     | convertParamType (Type.PInt (s, w)) = convertIntType s w
     | convertParamType (Type.PStr) = Pointer UInt8
     | convertParamType (Type.PRawPointer t) = Pointer (convertParamType t)
-    | convertParamType (Type.RegionParam _) = NamedType "interim_region_t"
+    | convertParamType (Type.RegionParam _) = RegionType
 
   val unitConstant = CConstBool false
 
@@ -252,8 +252,13 @@ structure Backend :> BACKEND = struct
       | convert (TLetRegion (r, b)) =
         let val (bblock, bval) = convert b
         in
-            (CSeq [bblock],
-             bval)
+            let fun regionName (Type.Region (id, name)) =
+                  "region_" ^ name ^ "_" ^ (Int.toString id)
+            in
+                (CSeq [CDeclare (RegionType, regionName r),
+                       bblock],
+                 bval)
+            end
         end
       | convert (TFuncall (f, args, rt)) =
 
@@ -306,7 +311,7 @@ structure Backend :> BACKEND = struct
     | renderType Int64 = "int64_t"
     | renderType (Pointer t) = (renderType t) ^ "*"
     | renderType (Struct n) = n
-    | renderType (NamedType s) = (escapeIdent s)
+    | renderType RegionType = "interim_region_t"
 
   local
       open Substring
