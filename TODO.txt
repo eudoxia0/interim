@@ -1,6 +1,5 @@
 TODO:
 
-- Implement record creation
 - Implement record access
 - Region-tagged pointer types
 - Region operation: allocate value in region
@@ -60,6 +59,7 @@ DONE:
 - Rename address-of to c/address-of
 - Change the default int type to i32
 - Implement concrete defrecord
+- Implement record creation
 
 WISHLIST:
 
