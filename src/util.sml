@@ -17,4 +17,7 @@ structure Util :> UTIL = struct
         TextIO.output (stream, str) handle e => (TextIO.closeOut stream; raise e);
         TextIO.closeOut stream
     end
+
+  fun member x nil = false
+    | member x (y::ys) = (x = y) orelse member x ys
 end
