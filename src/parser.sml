@@ -68,5 +68,5 @@ structure Parser :> PARSER = struct
   fun parseString s =
     case (run sexpParser (ParsimonyStringInput.fromString s)) of
         (Success r) => r
-      | (Failure (_, _, msg)) => raise Fail ("Bad parse: " ^ msg)
+      | f => raise Fail ("Bad parse: " ^ (explain f))
 end
