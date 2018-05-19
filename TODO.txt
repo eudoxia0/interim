@@ -61,3 +61,6 @@ WISHLIST:
 - Cond macro
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Flexible types for the null constant
+- Print types
+- Print forms
+- Better errors
