@@ -1,6 +1,5 @@
 TODO:
 
-- Implement record access
 - Region-tagged pointer types
 - Region operation: allocate value in region
 
@@ -60,6 +59,7 @@ DONE:
 - Change the default int type to i32
 - Implement concrete defrecord
 - Implement record creation
+- Implement record access
 
 WISHLIST:
 
