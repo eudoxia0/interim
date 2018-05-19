@@ -238,13 +238,20 @@ structure TAST :> TAST = struct
           let val a' = augment a s t f
               and b' = augment b s t f
           in
-              if (typeOf a') <> (typeOf b') then
-                  raise Fail "Both operands to an comparison operation must be of the same type"
-              else
-                  if isEquatable (typeOf a') then
-                      TBinop (oper, a', b', Bool)
+              let val ta = typeOf a'
+                  and tb = typeOf b'
+              in
+                  if ta <> tb then
+                      raise Fail ("Both operands to an comparison operation must be of the same type. Types: "
+                                  ^ (tyToString ta)
+                                  ^ " and "
+                                  ^ (tyToString tb))
                   else
-                      raise Fail "Cannot compare objects of this type"
+                      if isEquatable ta then
+                          TBinop (oper, a', b', Bool)
+                      else
+                          raise Fail ("Cannot compare objects of this type: " ^ (tyToString ta))
+              end
           end
     end
   end
