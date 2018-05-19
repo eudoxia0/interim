@@ -18,7 +18,9 @@ structure Interim :> INTERIM = struct
               in
                   let val c' = Compiler.compileString c s
                   in
-                      print "Compiled\n";
+                      print "Code:\n";
+                      print (Compiler.compilerCode c');
+                      print "\n";
                       repl' c'
                   end handle Fail s => print ("Error: " ^ s ^ "\n");
               repl' c

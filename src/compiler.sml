@@ -1,7 +1,7 @@
 structure Compiler :> COMPILER = struct
   open SymTab
 
-  type compiler = Type.tenv * Function.fenv * string
+  datatype compiler = Compiler of Type.tenv * Function.fenv * string
 
   val prelude = String.concatWith "\n" [
           "#include <stdbool.h>",
@@ -16,14 +16,28 @@ structure Compiler :> COMPILER = struct
           "    return printf(v ? \"true\" : \"false\");",
           "  }",
           "}",
+          "",
+          "bool interim_not(bool v) {",
+          "  return !v;",
+          "}",
           ""
       ]
-  val emptyCompiler = (empty, empty, prelude)
 
-  fun compilerTypeEnv (t, _, _) = t
-  fun compilerCode (_, _, c) = c
+  local
+    open Function
+    open Type
+  in
+    val emptyCompiler =
+        let val interim_not = Function ("interim_not", [Param ("v", Bool)], Bool)
+        in
+            Compiler (empty, bind ("interim_not", interim_not) empty, prelude)
+        end
+  end
 
-  fun compileAST (tenv, fenv, code) ast =
+  fun compilerTypeEnv (Compiler (t, _, _)) = t
+  fun compilerCode (Compiler (_, _, c)) = c
+
+  fun compileAST (Compiler (tenv, fenv, code)) ast =
     (case ast of
          (AST.Defun (func, ast)) =>
          let val fenv' = bind (Function.funcName func, func) fenv
@@ -35,14 +49,14 @@ structure Compiler :> COMPILER = struct
                  else
                      let val code' = Backend.defineFunction func tast
                      in
-                         (tenv, fenv', code ^ (Backend.renderTop code'))
+                         Compiler (tenv, fenv', code ^ (Backend.renderTop code'))
                      end
              end
          end
        | (AST.CInclude s) =>
          let val incl = "\n#include <" ^ s ^ ">\n\n"
          in
-             (tenv, fenv, code ^ incl)
+             Compiler (tenv, fenv, code ^ incl)
          end)
 
   fun compileString c s =

@@ -85,6 +85,7 @@ structure AST :> AST = struct
       | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"
       | parse (SList (Symbol "c/call" :: String n :: t :: args)) e = CCall (n, t, map (fn a => parse a e) args)
       | parse (SList (Symbol "while" :: t :: body)) e = While (parse t e, Progn (map (fn c => parse c e) body))
+      | parse (SList [Symbol "not", v]) e = Funcall ("interim_not", [parse v e])
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
 
