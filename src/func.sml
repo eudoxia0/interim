@@ -64,7 +64,7 @@ structure Function :> FUNCTION = struct
   fun subst (params: param list) (l: assignment list): conc_param list =
     map (substParam l) params
   and substParam a (Param (name, pty)) =
-    ConcParam (name, substType pty assign)
+    ConcParam (name, substType pty a)
   and substType PUnit _ = Unit
     | substType PBool _ = Bool
     | substType (PInt i) _ = Int i
@@ -92,12 +92,13 @@ structure Function :> FUNCTION = struct
                               end
             | AssignFailure => raise Fail "Argument types did not match parameter types"
 
-  fun funcStack (Function (_, params, _)) =
-    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t, Immutable)) (toStack rest acc)
-          | toStack nil acc = acc
+  fun toStack params =
+    let fun toStack' (ConcParam (n,t)::rest) acc = bind (n, Binding (n, t, Immutable))
+                                                        (toStack' rest acc)
+          | toStack' nil acc = acc
 
     in
-        toStack params empty
+        toStack' params empty
     end
 
 end

@@ -18,5 +18,5 @@ signature FUNCTION = sig
 
   val matchParams : param list -> Type.ty list -> conc_param list
 
-  val funcStack : func -> stack
+  val toStack : conc_param list -> stack
 end
