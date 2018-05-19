@@ -3,12 +3,14 @@ Library
   structure SymTab
   signature PARSER
   structure Parser
+  signature TYPE
+  structure Type
+  signature UNIFY
+  structure Unify
   signature FUNCTION
   structure Function
   signature AST
   structure AST
-  signature TYPE
-  structure Type
   signature TAST
   structure TAST
   signature BACKEND
@@ -31,6 +33,9 @@ is
 
   src/type.sig
   src/type.sml
+
+  src/unify.sig
+  src/unify.sml
 
   src/func.sig
   src/func.sml
