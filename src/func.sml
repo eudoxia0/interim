@@ -25,4 +25,12 @@ structure Function :> FUNCTION = struct
     in
         toStack params empty
     end
+
+  fun matchParams params types =
+      if (length params <> length types) then
+          raise Fail "Wrong argument count"
+      else
+          ListPair.all (fn (pt, at) => pt = at)
+                       ((map (fn (Param (n, t)) => t) params),
+                        types)
 end
