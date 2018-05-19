@@ -1,9 +1,5 @@
 TODO:
 
-- Implement letregion
-- Function type specifier type (region parameter)
-- Concretize function parameters
-
 DONE:
 
 - Check type of function body matches return type
@@ -48,6 +44,9 @@ DONE:
 - Not function on booleans
 - Implement regions
 - Region pointers
+- Implement letregion
+- Function type specifier type (region parameter)
+- Concretize function parameters
 
 WISHLIST:
 
