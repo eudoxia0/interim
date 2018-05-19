@@ -1,27 +1,32 @@
+;; -*- mode: lisp -*-
+;; Compile with:
+;;   interim sqlite3.int sqlite3.c
+;; Compile that with:
+;;   clang -lsqlite3 sqlite3.c
+(c/include "sqlite3.h")
+
+(defun die ((msg str)) unit
+  (println msg)
+  (c/call "exit" unit (the i32 -1)))
+
 (defun main () i32
-  (progn
-    (let ((null (nullptr u64))
-          (db null))
-      (c/call "sqlite3_open" i32 ":memory:" (address-of db))
-      (if (= db null)
-          (progn
-            (println "Failed to open database")
-            (the i32 -1))
-          (progn
-            (println "Opened database!")
-            (println "Creating table...")
-            (let ((rc (c/call "sqlite3_exec"
-                              i32
-                              db
-                              "CREATE TABLE pairs (x INTEGER PRIMARY KEY, y INTEGER);"
-                              0
-                              0
-                              0)))
-              (if (<> rc (c/embed i32 "SQLITE_OK"))
-                  (progn
-                    (print "Failed to create table, code: ")
-                    (println rc)
-                    (the i32 -1))
-                  (progn
-                    (println "Successfully created table!")
-                    (the i32 1)))))))))
+  (let ((null (nullptr u64))
+        (db null))
+    (c/call "sqlite3_open" i32 ":memory:" (address-of db))
+    (if (= db null)
+        (die "Failed to open database")
+        (progn
+          (println "Opened database!")
+          (println "Creating table...")
+          (let ((rc (c/call "sqlite3_exec"
+                            i32
+                            db
+                            "CREATE TABLE pairs (x INTEGER PRIMARY KEY, y INTEGER);"
+                            0
+                            0
+                            0)))
+            (if (<> rc (c/embed i32 "SQLITE_OK"))
+                (die "Failed to create table, code: ")
+                (progn
+                  (println "Successfully created table!")))))))
+  (the i32 0))
