@@ -1,5 +1,7 @@
 TODO:
 
+- Not function on booleans
+- Flexible typing for integer literals (lit_ty, litTypeOf)
 - Flexible types for the null constant
 - Implement regions
 - Function type specifier type (region parameter)
@@ -53,9 +55,8 @@ WISHLIST:
 
 - Implement macros
 - Implement function declarations
+- Prevent defining a function twice
 - (print s_0 s_1 ... s_n) => (progn (print s_0) (print s_1) (print s_n))
-- Not function on booleans
-- Flexible typing for integer literals (lit_ty, litTypeOf)
 - Let with support for immutable variables
 - define-symbol-macro
 - Implement concrete defrecord
