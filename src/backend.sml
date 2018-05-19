@@ -255,9 +255,14 @@ structure Backend :> BACKEND = struct
             let fun regionName (Type.Region (id, name)) =
                   "region_" ^ name ^ "_" ^ (Int.toString id)
             in
-                (CSeq [CDeclare (RegionType, regionName r),
-                       bblock],
-                 bval)
+                let val name = regionName r
+                in
+                    (CSeq [CDeclare (RegionType, name),
+                           CFuncall (NONE, "interim_region_create", [CAddressOf (CVar name)]),
+                           bblock,
+                           CFuncall (NONE, "interim_region_free", [CAddressOf (CVar name)])],
+                     bval)
+                end
             end
         end
       | convert (TFuncall (f, args, rt)) =
