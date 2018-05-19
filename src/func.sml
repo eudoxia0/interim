@@ -41,7 +41,11 @@ structure Function :> FUNCTION = struct
           AssignFailure
     | matchType PStr Str = emptyAssign
     | matchType (PRawPointer t) (RawPointer t') = matchType t t'
-    | matchType _ (Record _) = raise Fail "RECORDS NOT SUPPORTED"
+    | matchType (PRecord (n, _)) (Record (n', _)) =
+      if n = n' then
+          emptyAssign
+      else
+          AssignFailure
     | matchType (RegionParam p) (RegionType (Region (i, p'))) =
       if p = p' then
           AssignList [Assignment (p, Region (i, p))]
