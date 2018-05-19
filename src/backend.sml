@@ -373,11 +373,11 @@ structure Backend :> BACKEND = struct
     | renderExp (CAddressOf e) = "&" ^ (renderExp e)
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
     | renderExp (CStructInitializer (name, inits)) =
-      "("
+      "(("
       ^ (escapeIdent name)
       ^ ") { "
       ^ (String.concatWith " " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " = " ^ (renderExp e)) inits))
-      ^ " }"
+      ^ " })"
     | renderExp (CStructAccess (r, slot)) =
       (renderExp r)
       ^ "."
