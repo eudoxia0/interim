@@ -25,6 +25,7 @@ structure Backend :> BACKEND = struct
                     | CAddressOf of exp_cast
                     | CSizeOf of ctype
                     | CStructInitializer of string * (string * exp_cast) list
+                    | CStructAccess of exp_cast * string
                     | CAdjacent of exp_cast list
                     | CRaw of string
 
@@ -277,6 +278,11 @@ structure Backend :> BACKEND = struct
                                                (slot_names,
                                                 map (fn (_, v) => v) args))))
         end
+      | convert (TSlotAccess (r, s, _)) =
+        let val (rblock, rval) = convert r
+        in
+            (rblock, CStructAccess (rval, s))
+        end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
             and rt' = convertType rt
@@ -372,6 +378,10 @@ structure Backend :> BACKEND = struct
       ^ ") { "
       ^ (String.concatWith " " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " = " ^ (renderExp e)) inits))
       ^ " }"
+    | renderExp (CStructAccess (r, slot)) =
+      (renderExp r)
+      ^ "."
+      ^ (escapeIdent slot)
     | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
     | renderExp (CRaw s) = s
 
