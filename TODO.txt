@@ -1,5 +1,7 @@
 TODO:
 
+- Implement record creation
+- Implement record access
 - Region-tagged pointer types
 - Region operation: allocate value in region
 
