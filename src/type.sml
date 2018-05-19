@@ -7,10 +7,11 @@ structure Type :> TYPE = struct
               | Str
               | RawPointer of ty
               | Record of string * slot list
-              | Region of int * string
+              | Region of region
        and signedness = Signed | Unsigned
        and bit_width = Word8 | Word16 | Word32 | Word64
        and slot = Slot of string * ty
+       and region = Region of int * string
 
   fun isEquatable (Record _) = false
     | isEquatable _ = true
