@@ -14,9 +14,8 @@ signature FUNCTION = sig
 
   val funcName : func -> string
   val funcRT : func -> Type.ty
-  val funcStack : func -> stack
-
-  val matchType : Type.pty -> Type.ty -> Type.ty option
 
   val matchParams : param list -> Type.ty list -> bool
+
+  val funcStack : func -> stack
 end

@@ -19,40 +19,41 @@ structure Function :> FUNCTION = struct
 
   fun funcRT (Function (_, _, r)) = r
 
-  fun funcStack (Function (_, params, _)) =
-    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t, Immutable)) (toStack rest acc)
-          | toStack nil acc = acc
-
-    in
-        toStack params empty
-    end
-
   datatype assignment = Assignment of string * region
 
-  type assignments = assignment list
+  datatype assignments = AssignList of assignment list
+                       | AssignFailure
+
+  val emptyAssign = AssignList []
+
+  fun matchType PUnit Unit = emptyAssign
+    | matchType PBool Bool = emptyAssign
+    | matchType (PInt (s, w)) (Int (s', w')) =
+      if (s = s') andalso (w = w') then
+          emptyAssign
+      else
+          AssignFailure
+    | matchType PStr Str = emptyAssign
+    | matchType (PRawPointer t) (RawPointer t') = matchType t t'
+    | matchType _ (Record _) = raise Fail "RECORDS NOT SUPPORTED"
+    | matchType (RegionParam p) (RegionType (Region (i, p'))) =
+      if p = p' then
+          AssignList [Assignment (p, Region (i, p))]
+      else
+          AssignFailure
+
+  fun concretizeParam (Param (_, pty), ty): assignments =
+    case (matchType pty ty) of
+        AssignList l => AssignList l
+      | AssignFailure => AssignFailure
+
+  fun concatAssignments (AssignList l) (AssignList l') = AssignList (l @ l')
+    | concatAssignments (AssignList _) AssignFailure = AssignFailure
+    | concatAssignments AssignFailure (AssignList _) = AssignFailure
+    | concatAssignments AssignFailure AssignFailure = AssignFailure
 
   fun concretize (params: param list) (types: ty list): assignments =
-    List.concat (ListPair.map concretizeParam (params, types))
-  and concretizeParam (Param (name, pty), ty): assignments = []
-
-  fun matchType Unit PUnit = SOME Unit
-    | matchType Bool PBool = SOME Bool
-    | matchType (Int (s, w)) (PInt (s', w')) =
-      if (s = s') andalso (w = w') then
-          SOME (Int (s, w))
-      else
-          NONE
-    | matchType Str PStr = SOME Str
-    | matchType (RawPointer t) (PRawPointer t') =
-      (case (matchType t t') of
-           SOME t => SOME (RawPointer t)
-         | NONE => NONE)
-    | matchType (Record slots) _ = raise Fail "RECORDS NOT SUPPORTED"
-    | matchType (RegionType (Region (i, s))) (RegionParam s') =
-      if s = s' then
-          SOME (RegionType (Region (i, s)))
-      else
-          NONE
+    concatAssignments (ListPair.map concretizeParam (params, types))
 
   fun matchParams params types =
       if (length params <> length types) then
@@ -61,4 +62,13 @@ structure Function :> FUNCTION = struct
           ListPair.all (fn (pt, at) => pt = at)
                        ((map (fn (Param (n, t)) => t) params),
                         types)
+
+  fun funcStack (Function (_, params, _)) =
+    let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t, Immutable)) (toStack rest acc)
+          | toStack nil acc = acc
+
+    in
+        toStack params empty
+    end
+
 end
