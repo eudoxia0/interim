@@ -57,6 +57,7 @@ DONE:
 - Emit region free call
 - Rename address-of to c/address-of
 - Change the default int type to i32
+- Implement concrete defrecord
 
 WISHLIST:
 
@@ -66,7 +67,6 @@ WISHLIST:
 - (print s_0 s_1 ... s_n) => (progn (print s_0) (print s_1) (print s_n))
 - Let with support for immutable variables
 - define-symbol-macro
-- Implement concrete defrecord
 - Cond macro
 - Flexible typing for integer literals (lit_ty, litTypeOf)
 - Flexible types for the null constant
