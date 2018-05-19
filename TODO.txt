@@ -1,10 +1,8 @@
 TODO:
 
-- Implement regions
+- Implement letregion
 - Function type specifier type (region parameter)
 - Concretize function parameters
-- Region pointers
-- Implement letregion
 
 DONE:
 
@@ -48,6 +46,8 @@ DONE:
 - Compile to a CLI executable using MLton
 - Build examples using Makefile
 - Not function on booleans
+- Implement regions
+- Region pointers
 
 WISHLIST:
 
