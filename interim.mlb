@@ -7,6 +7,9 @@ src/util.sml
 src/symtab.sig
 src/symtab.sml
 
+src/set.sig
+src/set.sml
+
 src/parser.sig
 src/parser.sml
 
