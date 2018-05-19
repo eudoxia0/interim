@@ -377,7 +377,7 @@ structure Backend :> BACKEND = struct
       "(("
       ^ (escapeIdent name)
       ^ ") { "
-      ^ (String.concatWith " " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " = " ^ (renderExp e)) inits))
+      ^ (String.concatWith ", " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " = " ^ (renderExp e)) inits))
       ^ " })"
     | renderExp (CStructAccess (r, slot)) =
       (renderExp r)
