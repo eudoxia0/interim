@@ -33,12 +33,21 @@ structure AST :> AST = struct
                | CEmbed of Parser.sexp * string
                | CCall of string * Parser.sexp * ast list
                | While of ast * ast
+               | LetRegion of Type.region * ast
                | Funcall of string * ast list
        and newline = Newline
                    | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
                    | CInclude of string
+
+  val count = ref 0
+  fun freshRegionId () =
+    let
+    in
+        count := !count + 1;
+        !count
+    end
 
   local
     open Parser
@@ -85,6 +94,8 @@ structure AST :> AST = struct
       | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"
       | parse (SList (Symbol "c/call" :: String n :: t :: args)) e = CCall (n, t, map (fn a => parse a e) args)
       | parse (SList (Symbol "while" :: t :: body)) e = While (parse t e, Progn (map (fn c => parse c e) body))
+      | parse (SList (Symbol "letregion" :: Symbol name :: rest)) e =
+        LetRegion (Type.Region (freshRegionId (), name), Progn (map (fn c => parse c e) rest))
       | parse (SList [Symbol "not", v]) e = Funcall ("interim_not", [parse v e])
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
