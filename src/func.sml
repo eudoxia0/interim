@@ -76,6 +76,7 @@ structure Function :> FUNCTION = struct
     | substType (PInt i) _ = Int i
     | substType PStr _ = Str
     | substType (PRawPointer t) a = RawPointer (substType t a)
+    | substType (PRecord d) _ = Record d
     | substType (RegionParam name) a =
       case getRegion name a of
           SOME r => RegionType r
@@ -103,6 +104,7 @@ structure Function :> FUNCTION = struct
     | regionParams (PInt _) = []
     | regionParams PStr = []
     | regionParams (PRawPointer t) = regionParams t
+    | regionParams (PRecord _) = []
     | regionParams (RegionParam name) = [name]
 
   fun getIndex elem list =
@@ -115,6 +117,7 @@ structure Function :> FUNCTION = struct
     | forciblyConcretizeType' (PInt i) _ = Int i
     | forciblyConcretizeType' PStr _ = Str
     | forciblyConcretizeType' (PRawPointer t) e = RawPointer (forciblyConcretizeType' t e)
+    | forciblyConcretizeType' (PRecord d) _ = Record d
     | forciblyConcretizeType' (RegionParam name) e = RegionType (Region (getIndex name e, name))
 
   fun forciblyConcretizeType pt =

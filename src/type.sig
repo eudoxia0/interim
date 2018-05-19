@@ -21,6 +21,7 @@ signature TYPE = sig
                | PInt of signedness * bit_width
                | PStr
                | PRawPointer of pty
+               | PRecord of string * slot list
                | RegionParam of string
 
   val toParamType : ty -> pty

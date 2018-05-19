@@ -41,6 +41,7 @@ structure Type :> TYPE = struct
                | PInt of signedness * bit_width
                | PStr
                | PRawPointer of pty
+               | PRecord of string * slot list
                | RegionParam of string
 
   fun toParamType Unit = PUnit
