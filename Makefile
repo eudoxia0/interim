@@ -2,13 +2,18 @@ SML := sml
 SMLFLAGS := -Cprint.depth=10
 MLTON := mlton
 
+BIN := interim
+
 CM_FILE := interim.cm
+MLB_FILE := interim.mlb
 
 VENDOR_DIR := vendor
 PARSIMONY := $(VENDOR_DIR)/parsimony
 PARSIMONY_URL := https://github.com/eudoxia0/parsimony.git
 
 SRC := src/*.sig src/*.sml
+
+.PHONY: examples
 
 all: compile
 
@@ -21,5 +26,17 @@ $(PARSIMONY): $(VENDOR_DIR)
 compile: $(SRC) $(PARSIMONY)
 	$(SML) $(SMLFLAGS) -m $(CM_FILE)
 
+$(BIN): $(SRC) $(PARSIMONY)
+	$(MLTON) $(MLB_FILE)
+
+examples: $(BIN)
+	./$(BIN) examples/hello.int   examples/hello.c
+	./$(BIN) examples/fib.int     examples/fib.c
+	./$(BIN) examples/sqlite3.int examples/sqlite3.c
+	$(CC) examples/hello.c -o examples/hello
+	$(CC) examples/fib.c -o examples/fib
+	$(CC) examples/sqlite3.c -o examples/sqldemo -lsqlite3
+
 clean:
 	rm -rf $(VENDOR_DIR)
+	rm $(BIN)
