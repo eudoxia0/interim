@@ -47,6 +47,7 @@ structure Function :> FUNCTION = struct
           AssignList [Assignment (p, Region (i, p))]
       else
           AssignFailure
+    | matchType _ _ = AssignFailure
 
   fun concretizeParam (Param (_, pty), ty): assignments =
     case (matchType pty ty) of
@@ -92,13 +93,12 @@ structure Function :> FUNCTION = struct
                               end
             | AssignFailure => raise Fail "Argument types did not match parameter types"
 
-  fun regionsParams PUnit = []
-    | regionsParams PBool = []
-    | regionsParams (PInt _) = []
-    | regionsParams PStr = []
-    | regionsParams (PRawPointer t) = regionParams t
-    | regionsParams (PRecord _) = raise Fail "Records not supported yet"
-    | regionsParams (RegionParam name) = [name]
+  fun regionParams PUnit = []
+    | regionParams PBool = []
+    | regionParams (PInt _) = []
+    | regionParams PStr = []
+    | regionParams (PRawPointer t) = regionParams t
+    | regionParams (RegionParam name) = [name]
 
   fun getIndex elem list =
     case (Util.position elem list) of
@@ -110,8 +110,7 @@ structure Function :> FUNCTION = struct
     | forciblyConcretizeType' (PInt i) _ = Int i
     | forciblyConcretizeType' PStr _ = Str
     | forciblyConcretizeType' (PRawPointer t) e = RawPointer (forciblyConcretizeType' t e)
-    | forciblyConcretizeType' (PRecord _) _ = raise Fail "Records not supported yet"
-    | forciblyConcretizeType' (RegionParam name) e = Region (getIndex name e, name)
+    | forciblyConcretizeType' (RegionParam name) e = RegionType (Region (getIndex name e, name))
 
   fun forciblyConcretizeType pt =
     forciblyConcretizeType' pt (regionParams pt)
