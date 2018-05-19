@@ -12,7 +12,7 @@
 (defun main () i32
   (let ((null (nullptr u64))
         (db null))
-    (c/call "sqlite3_open" i32 ":memory:" (address-of db))
+    (c/call "sqlite3_open" i32 ":memory:" (c/address-of db))
     (if (= db null)
         (die "Failed to open database")
         (progn

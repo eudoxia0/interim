@@ -55,6 +55,7 @@ DONE:
 - Add code to free regions
 - Emit region initialization call
 - Emit region free call
+- Rename address-of to c/address-of
 
 WISHLIST:
 
