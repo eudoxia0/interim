@@ -2,4 +2,4 @@
 
 (defun main () i32
   (letregion rho
-    (the i32 0)))
+    0))
