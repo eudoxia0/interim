@@ -1,6 +1,8 @@
 Library
   signature SYMTAB
   structure SymTab
+  signature SET
+  structure Set
   signature PARSER
   structure Parser
   signature TYPE
@@ -25,6 +27,9 @@ is
 
   src/symtab.sig
   src/symtab.sml
+
+  src/set.sig
+  src/set.sml
 
   src/parser.sig
   src/parser.sml
