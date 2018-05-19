@@ -5,4 +5,5 @@ signature UTIL = sig
   val writeStringToFile : path -> string -> unit
 
   val member : ''a -> ''a list -> bool
+  val position : ''a -> ''a list -> int option
 end
