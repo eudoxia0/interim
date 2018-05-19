@@ -86,6 +86,7 @@ structure Backend :> BACKEND = struct
     | convertParamType (Type.PInt (s, w)) = convertIntType s w
     | convertParamType (Type.PStr) = Pointer UInt8
     | convertParamType (Type.PRawPointer t) = Pointer (convertParamType t)
+    | convertParamType (Type.PRecord (n, _)) = Struct (escapeIdent n)
     | convertParamType (Type.RegionParam _) = RegionType
 
   val unitConstant = CConstBool false

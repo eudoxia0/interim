@@ -49,7 +49,7 @@ structure Type :> TYPE = struct
     | toParamType (Int i) = PInt i
     | toParamType Str = PStr
     | toParamType (RawPointer t) = PRawPointer (toParamType t)
-    | toParamType (Record _) = raise Fail "Records not supported yet"
+    | toParamType (Record d) = PRecord d
     | toParamType (RegionType _) = raise Fail "Can't do this"
 
   type tenv = ty symtab
