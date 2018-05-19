@@ -7,6 +7,7 @@ structure Type :> TYPE = struct
               | Str
               | RawPointer of ty
               | Record of string * slot list
+              | Region of string
        and signedness = Signed | Unsigned
        and bit_width = Word8 | Word16 | Word32 | Word64
        and slot = Slot of string * ty
@@ -33,6 +34,7 @@ structure Type :> TYPE = struct
     | toParamType Str = PStr
     | toParamType (RawPointer t) = PRawPointer (toParamType t)
     | toParamType (Record _) = raise Fail "Records not supported yet"
+    | toParamType (Region _) = raise Fail "Can't do this"
 
   type tenv = ty symtab
 

@@ -10,6 +10,7 @@ structure Backend :> BACKEND = struct
                  | Int64
                  | Pointer of ctype
                  | Struct of string
+                 | NamedType of string
 
   datatype cparam = CParam of string * ctype
 
@@ -75,6 +76,7 @@ structure Backend :> BACKEND = struct
     | convertType (Type.Str) = Pointer UInt8
     | convertType (Type.RawPointer t) = Pointer (convertType t)
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
+    | convertType (Type.Region _) = NamedType "interim_region_t"
 
   val unitConstant = CConstBool false
 
@@ -291,6 +293,7 @@ structure Backend :> BACKEND = struct
     | renderType Int64 = "int64_t"
     | renderType (Pointer t) = (renderType t) ^ "*"
     | renderType (Struct n) = n
+    | renderType (NamedType s) = (escapeIdent s)
 
   local
       open Substring
