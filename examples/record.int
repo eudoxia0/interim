@@ -6,6 +6,9 @@
 (defun make-person ((age i32)) person
   (record person (age age)))
 
+(defun person-age ((p person)) i32
+  (slot p age))
+
 (defun main () i32
   (make-person 21)
   0)
