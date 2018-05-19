@@ -13,7 +13,12 @@ signature TYPE = sig
   val isNumeric : ty -> bool
   val isPrintable : ty -> bool
 
+  type pty
+
+  val toParamType : ty -> pty
+
   type tenv = ty SymTab.symtab
 
   val parseTypeSpecifier : Parser.sexp -> tenv -> ty
+  val parseParamTypeSpecifier : Parser.sexp -> tenv -> pty
 end

@@ -20,6 +20,20 @@ structure Type :> TYPE = struct
   fun isPrintable (Record _) = false
     | isPrintable _ = true
 
+  datatype pty = PUnit
+               | PBool
+               | PInt of signedness * bit_width
+               | PStr
+               | PRawPointer of pty
+               | RegionParam of string
+
+  fun toParamType Unit = PUnit
+    | toParamType Bool = PBool
+    | toParamType (Int i) = PInt i
+    | toParamType Str = PStr
+    | toParamType (RawPointer t) = PRawPointer (toParamType t)
+    | toParamType (Record _) = raise Fail "Records not supported yet"
+
   type tenv = ty symtab
 
   local
@@ -39,5 +53,8 @@ structure Type :> TYPE = struct
       | parseTypeSpecifier (SList [Symbol "rawptr", t]) e = RawPointer (parseTypeSpecifier t e)
       | parseTypeSpecifier (Symbol s) e = lookup s e
       | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
+
+    fun parseParamTypeSpecifier (SList [Symbol "region", Symbol p]) _ = RegionParam p
+      | parseParamTypeSpecifier f e = toParamType (parseTypeSpecifier f e)
   end
 end
