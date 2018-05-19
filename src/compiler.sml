@@ -9,6 +9,8 @@ structure Compiler :> COMPILER = struct
           "#include <stdio.h>",
           "#include <stdlib.h>",
           "",
+          "typedef struct {} interim_region_t;",
+          "",
           "int interim_print_bool(bool v, bool nl) {",
           "  if (nl) {",
           "    return printf(v ? \"true\\n\" : \"false\\n\");",
