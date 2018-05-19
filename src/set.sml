@@ -14,6 +14,6 @@ structure Set :> SET = struct
 
   fun size set = List.length set
 
-  fun fromList (x::xs) = add x (fromList xs)
+  fun fromList (x::xs) = add (fromList xs) x
     | fromList nil = empty
 end
