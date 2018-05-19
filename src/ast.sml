@@ -46,6 +46,7 @@ structure AST :> AST = struct
                | While of ast * ast
                | LetRegion of Type.region * ast
                | MakeRecord of string * (string * ast) list
+               | SlotAccess of ast * string
                | Funcall of string * ast list
        and newline = Newline
                    | NoNewline
@@ -111,6 +112,7 @@ structure AST :> AST = struct
         LetRegion (Type.Region (freshRegionId (), name), Progn (map (fn c => parse c e) rest))
       | parse (SList [Symbol "not", v]) e = Funcall ("interim_not", [parse v e])
       | parse (SList (Symbol "record" :: Symbol name :: slots)) e = MakeRecord (name, map (parseSlot e) slots)
+      | parse (SList [Symbol "slot", r, Symbol slot]) e = SlotAccess (parse r e, slot)
       | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
       | parse _ _ = raise Fail "Bad expression"
     and parseSlot e (SList [Symbol name, exp]) = (name, parse exp e)

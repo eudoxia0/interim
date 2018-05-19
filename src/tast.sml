@@ -24,6 +24,7 @@ structure TAST :> TAST = struct
                 | TWhile of tast * tast
                 | TLetRegion of Type.region * tast
                 | TMakeRecord of Type.ty * string * (string * tast) list
+                | TSlotAccess of tast * string * Type.ty
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -59,6 +60,7 @@ structure TAST :> TAST = struct
       | typeOf (TWhile _) = Unit
       | typeOf (TLetRegion (_, e)) = typeOf e
       | typeOf (TMakeRecord (t, _, _)) = t
+      | typeOf (TSlotAccess (_, _, t)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     local
@@ -214,6 +216,15 @@ structure TAST :> TAST = struct
               case ty of
                   (Record (name, _)) => TMakeRecord (ty, name, map (fn (n,e) => (n, augment e s t f)) slots)
                 | _ => raise Fail "Type does not name a record"
+          end
+        | augment (SlotAccess (r, slot)) s t f =
+          let val r' = augment r s t f
+          in
+              case typeOf r' of
+                  (Record (name, slots)) => (case List.find (fn (Slot (n, _)) => slot = n) slots of
+                                                 SOME (Slot (n, t)) => TSlotAccess (r', slot, t)
+                                               | NONE => raise Fail "No slot with this name")
+                | _ => raise Fail "Not a record"
           end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
