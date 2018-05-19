@@ -1,8 +1,6 @@
 TODO:
 
 - Not function on booleans
-- Flexible typing for integer literals (lit_ty, litTypeOf)
-- Flexible types for the null constant
 - Implement regions
 - Function type specifier type (region parameter)
 - Concretize function parameters
@@ -61,3 +59,5 @@ WISHLIST:
 - define-symbol-macro
 - Implement concrete defrecord
 - Cond macro
+- Flexible typing for integer literals (lit_ty, litTypeOf)
+- Flexible types for the null constant
