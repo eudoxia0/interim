@@ -66,6 +66,14 @@ structure Compiler :> COMPILER = struct
                      end
              end
          end
+       | (AST.Defrecord (name, slots)) =>
+         let val ty = Type.Record (name, map (fn (n, t) => Type.Slot (n, t)) slots)
+         in
+             let val tenv' = bind (name, ty) tenv
+             in
+                 Compiler (tenv', fenv, code)
+             end
+         end
        | (AST.CInclude s) =>
          let val incl = "\n#include <" ^ s ^ ">\n\n"
          in
