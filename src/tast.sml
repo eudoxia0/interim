@@ -242,7 +242,9 @@ structure TAST :> TAST = struct
                   and tb = typeOf b'
               in
                   if ta <> tb then
-                      raise Fail ("Both operands to an comparison operation must be of the same type. Types: "
+                      raise Fail ("Both operands to "
+                                  ^ (binopName oper)
+                                  ^ " must be of the same type. Types: "
                                   ^ (tyToString ta)
                                   ^ " and "
                                   ^ (tyToString tb))
