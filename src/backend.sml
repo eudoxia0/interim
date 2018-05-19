@@ -76,7 +76,14 @@ structure Backend :> BACKEND = struct
     | convertType (Type.Str) = Pointer UInt8
     | convertType (Type.RawPointer t) = Pointer (convertType t)
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
-    | convertType (Type.Region _) = NamedType "interim_region_t"
+    | convertType (Type.RegionType _) = NamedType "interim_region_t"
+
+  fun convertParamType (Type.PUnit) = Bool
+    | convertParamType (Type.PBool) = Bool
+    | convertParamType (Type.PInt (s, w)) = convertIntType s w
+    | convertParamType (Type.PStr) = Pointer UInt8
+    | convertParamType (Type.PRawPointer t) = Pointer (convertParamType t)
+    | convertParamType (Type.RegionParam _) = NamedType "interim_region_t"
 
   val unitConstant = CConstBool false
 
@@ -260,7 +267,7 @@ structure Backend :> BACKEND = struct
       let val (block, retval) = convert tast
       in
           CFunction (name,
-                     map (fn (Function.Param (n,t)) => CParam (n, convertType t)) params,
+                     map (fn (Function.Param (n,t)) => CParam (n, convertParamType t)) params,
                      convertType rt,
                      block,
                      retval)

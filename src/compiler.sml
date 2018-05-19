@@ -28,7 +28,7 @@ structure Compiler :> COMPILER = struct
     open Type
   in
     val emptyCompiler =
-        let val interim_not = Function ("interim_not", [Param ("v", Bool)], Bool)
+        let val interim_not = Function ("interim_not", [Param ("v", PBool)], Bool)
         in
             Compiler (empty, bind ("interim_not", interim_not) empty, prelude)
         end
