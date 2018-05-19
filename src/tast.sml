@@ -26,8 +26,8 @@ structure TAST :> TAST = struct
                 | TFuncall of string * tast list * Type.ty
 
   local
-      open Type
-      open Function
+    open Type
+    open Function
   in
     val defaultIntType = Int (Signed, Word32)
 
@@ -60,7 +60,7 @@ structure TAST :> TAST = struct
       | typeOf (TFuncall (_, _, t)) = t
 
     local
-        open AST
+      open AST
     in
       fun augment ConstUnit _ _ _ = TConstUnit
         | augment (ConstBool b) _ _ _ = TConstBool b
