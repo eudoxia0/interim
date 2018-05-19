@@ -36,7 +36,7 @@ structure Backend :> BACKEND = struct
                       | CFuncall of string option * string * exp_cast list
 
   datatype top_cast = CFunction of string * cparam list * ctype * block_cast * exp_cast
-                    | CTypeDef of string * ctype
+                    | CStructDef of string * (string * ctype) list
 
   val count = ref 0
   fun fresh s =
@@ -290,7 +290,8 @@ structure Backend :> BACKEND = struct
                      retval)
       end
 
-    fun defineType name ty = CTypeDef (name, convertType ty)
+    fun defineStruct name slots =
+      CStructDef (name, map (fn (Type.Slot (n, t)) => (n, convertType t)) slots)
   end
 
   local
@@ -375,7 +376,9 @@ structure Backend :> BACKEND = struct
 
   fun renderTop (CFunction (name, params, rt, body, retval)) =
     (renderType rt) ^ " " ^ (escapeIdent name) ^ "(" ^ (sepBy "," (map renderParam params)) ^ ") {\n" ^ (renderBlock body) ^ "\n  return " ^ (renderExp retval) ^ ";\n}"
-    | renderTop (CTypeDef (name, ty)) =
-      "typedef " ^ (renderType ty) ^ " " ^ name ^ ";\n"
+    | renderTop (CStructDef (name, slots)) =
+      "typedef struct { "
+      ^ (String.concatWith " " (map (fn (n, t) => (renderType t) ^ " " ^ (escapeIdent n) ^ ";") slots))
+      ^ " } " ^ (escapeIdent name) ^ ";\n"
   and renderParam (CParam (n, t)) = (renderType t) ^ " " ^ n
 end

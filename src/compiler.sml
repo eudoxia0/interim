@@ -67,13 +67,16 @@ structure Compiler :> COMPILER = struct
              end
          end
        | (AST.Defrecord (name, slots)) =>
-         let val ty = Type.Record (name, map (fn (n, t) => Type.Slot (n, t)) slots)
+         let val slots = map (fn (n, t) => Type.Slot (n, t)) slots
          in
-             let val tenv' = bind (name, ty) tenv
+             let val ty = Type.Record (name, slots)
              in
-                 let val typedef = Backend.defineType name ty
+                 let val tenv' = bind (name, ty) tenv
                  in
-                     Compiler (tenv', fenv, code ^ (Backend.renderTop typedef))
+                     let val typedef = Backend.defineStruct name slots
+                     in
+                         Compiler (tenv', fenv, code ^ (Backend.renderTop typedef))
+                     end
                  end
              end
          end
