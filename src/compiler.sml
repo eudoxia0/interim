@@ -42,7 +42,10 @@ structure Compiler :> COMPILER = struct
          (AST.Defun (func, ast)) =>
          let val fenv' = bind (Function.funcName func, func) fenv
          in
-             let val tast = TAST.augment ast (Function.funcStack func) tenv fenv'
+             let val tast = TAST.augment ast
+                                         (Function.toStack func)
+                                         tenv
+                                         fenv'
              in
                  if (TAST.typeOf tast) <> Function.funcRT func then
                      raise Fail "Return type does not match type of body"

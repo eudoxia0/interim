@@ -92,8 +92,32 @@ structure Function :> FUNCTION = struct
                               end
             | AssignFailure => raise Fail "Argument types did not match parameter types"
 
-  fun toStack params =
-    let fun toStack' (ConcParam (n,t)::rest) acc = bind (n, Binding (n, t, Immutable))
+  fun regionsParams PUnit = []
+    | regionsParams PBool = []
+    | regionsParams (PInt _) = []
+    | regionsParams PStr = []
+    | regionsParams (PRawPointer t) = regionParams t
+    | regionsParams (PRecord _) = raise Fail "Records not supported yet"
+    | regionsParams (RegionParam name) = [name]
+
+  fun getIndex elem list =
+    case (Util.position elem list) of
+        SOME p => p
+      | NONE => raise Fail "Shouldn't happen"
+
+  fun forciblyConcretizeType' PUnit _ = Unit
+    | forciblyConcretizeType' PBool _ = Bool
+    | forciblyConcretizeType' (PInt i) _ = Int i
+    | forciblyConcretizeType' PStr _ = Str
+    | forciblyConcretizeType' (PRawPointer t) e = RawPointer (forciblyConcretizeType' t e)
+    | forciblyConcretizeType' (PRecord _) _ = raise Fail "Records not supported yet"
+    | forciblyConcretizeType' (RegionParam name) e = Region (getIndex name e, name)
+
+  fun forciblyConcretizeType pt =
+    forciblyConcretizeType' pt (regionParams pt)
+
+  fun toStack (Function (_, params, _)) =
+    let fun toStack' (Param (n,t)::rest) acc = bind (n, Binding (n, forciblyConcretizeType t, Immutable))
                                                         (toStack' rest acc)
           | toStack' nil acc = acc
 
