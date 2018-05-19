@@ -72,7 +72,7 @@ structure Function :> FUNCTION = struct
     | substType (PRawPointer t) a = RawPointer (substType t a)
     | substType (RegionParam name) a =
       case getRegion name a of
-          SOME r => r
+          SOME r => RegionType r
         | NONE => raise Fail "Region parameter not present in assignments"
 
   fun matchParams params types =
