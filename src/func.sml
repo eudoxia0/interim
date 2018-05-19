@@ -62,7 +62,13 @@ structure Function :> FUNCTION = struct
           case concretize params types of
               AssignList l => let val rpnames = map (fn (Assignment (n, _)) => n) l
                               in
-                                  raise Fail "DERP"
+                                  let val nameset = Set.fromList rpnames
+                                  in
+                                      if (length rpnames) <> (Set.size nameset) then
+                                          raise Fail "There are duplicate assignments to region parameters"
+                                      else
+                                          raise Fail "TO BE DONE"
+                                  end
                               end
             | AssignFailure => raise Fail "Argument types did not match parameter types"
 
