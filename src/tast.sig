@@ -21,7 +21,7 @@ signature TAST = sig
                 | TCCall of string * Type.ty * tast list
                 | TWhile of tast * tast
                 | TLetRegion of Type.region * tast
-                | TMakeRecord of Type.ty * (string * tast) list
+                | TMakeRecord of Type.ty * string * (string * tast) list
                 | TFuncall of string * tast list * Type.ty
 
   val typeOf : tast -> Type.ty

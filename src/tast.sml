@@ -23,7 +23,7 @@ structure TAST :> TAST = struct
                 | TCCall of string * Type.ty * tast list
                 | TWhile of tast * tast
                 | TLetRegion of Type.region * tast
-                | TMakeRecord of Type.ty * (string * tast) list
+                | TMakeRecord of Type.ty * string * (string * tast) list
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -58,7 +58,7 @@ structure TAST :> TAST = struct
       | typeOf (TCCall (_, t, _)) = t
       | typeOf (TWhile _) = Unit
       | typeOf (TLetRegion (_, e)) = typeOf e
-      | typeOf (TMakeRecord (t, _)) = t
+      | typeOf (TMakeRecord (t, _, _)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
     local
@@ -212,7 +212,7 @@ structure TAST :> TAST = struct
           let val ty = lookup name t
           in
               case ty of
-                  (Record (name, _)) => TMakeRecord (ty, map (fn (n,e) => (n, augment e s t f)) slots)
+                  (Record (name, _)) => TMakeRecord (ty, name, map (fn (n,e) => (n, augment e s t f)) slots)
                 | _ => raise Fail "Type does not name a record"
           end
         | augment (Funcall (name, args)) s t fenv =

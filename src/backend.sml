@@ -24,7 +24,7 @@ structure Backend :> BACKEND = struct
                     | CDeref of exp_cast
                     | CAddressOf of exp_cast
                     | CSizeOf of ctype
-                    | CStructInitializer of (string * exp_cast) list
+                    | CStructInitializer of string * (string * exp_cast) list
                     | CAdjacent of exp_cast list
                     | CRaw of string
 
@@ -267,15 +267,15 @@ structure Backend :> BACKEND = struct
                 end
             end
         end
-      | convert (TMakeRecord (ty, slots)) =
+      | convert (TMakeRecord (ty, name, slots)) =
         let val args = map (fn (_, e) => convert e) slots
             and slot_names = map (fn (n, _) => n) slots
         in
             (CSeq (map (fn (b, _) => b) args),
-             CCast ((convertType ty),
-                    (CStructInitializer (ListPair.map (fn (name, v) => (name, v))
-                                                      (slot_names,
-                                                       map (fn (_, v) => v) args)))))
+             CStructInitializer (name,
+                                 (ListPair.map (fn (name, v) => (name, v))
+                                               (slot_names,
+                                                map (fn (_, v) => v) args))))
         end
       | convert (TFuncall (f, args, rt)) =
         let val args' = map (fn a => convert a) args
@@ -366,8 +366,10 @@ structure Backend :> BACKEND = struct
     | renderExp (CDeref e) = "*" ^ (renderExp e)
     | renderExp (CAddressOf e) = "&" ^ (renderExp e)
     | renderExp (CSizeOf t) = "sizeof(" ^ (renderType t) ^ ")"
-    | renderExp (CStructInitializer inits) =
-      "{ "
+    | renderExp (CStructInitializer (name, inits)) =
+      "("
+      ^ (escapeIdent name)
+      ^ ") { "
       ^ (String.concatWith " " (map (fn (n, e) => "." ^ (escapeIdent n) ^ " = " ^ (renderExp e)) inits))
       ^ " }"
     | renderExp (CAdjacent l) = String.concatWith " " (map renderExp l)
