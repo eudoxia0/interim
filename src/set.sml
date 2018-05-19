@@ -13,4 +13,7 @@ structure Set :> SET = struct
         elem :: set
 
   fun size set = List.length set
+
+  fun fromList (x::xs) = add x (fromList xs)
+    | fromList nil = empty
 end
