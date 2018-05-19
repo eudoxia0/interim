@@ -20,6 +20,7 @@ signature TAST = sig
                 | TCEmbed of Type.ty * string
                 | TCCall of string * Type.ty * tast list
                 | TWhile of tast * tast
+                | TLetRegion of Type.region * tast
                 | TFuncall of string * tast list * Type.ty
 
   val typeOf : tast -> Type.ty

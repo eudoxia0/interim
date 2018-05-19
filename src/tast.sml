@@ -22,6 +22,7 @@ structure TAST :> TAST = struct
                 | TCEmbed of Type.ty * string
                 | TCCall of string * Type.ty * tast list
                 | TWhile of tast * tast
+                | TLetRegion of Type.region * tast
                 | TFuncall of string * tast list * Type.ty
 
   local
@@ -55,6 +56,7 @@ structure TAST :> TAST = struct
       | typeOf (TCEmbed (t, _)) = t
       | typeOf (TCCall (_, t, _)) = t
       | typeOf (TWhile _) = Unit
+      | typeOf (TLetRegion (_, e)) = typeOf e
       | typeOf (TFuncall (_, _, t)) = t
 
     local
@@ -193,6 +195,16 @@ structure TAST :> TAST = struct
                   raise Fail "The test of a while loop must be a boolean expression"
               else
                   TWhile (test', body')
+          end
+        | augment (LetRegion (Region (id, name), body)) s t f =
+          let val r = Region (id, name) in
+              let val stack = bind (name, (Binding (name, RegionType r, Immutable))) s
+              in
+                  let val body' = augment body stack t f
+                  in
+                      TLetRegion (r, body')
+                  end
+              end
           end
         | augment (Funcall (name, args)) s t fenv =
           let val (Function (_, params, rt)) = lookup name fenv
