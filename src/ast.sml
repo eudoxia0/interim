@@ -12,6 +12,17 @@ structure AST :> AST = struct
                  | GT
                  | GEq
 
+  fun binopName Add = "+"
+    | binopName Sub = "-"
+    | binopName Mul = "*"
+    | binopName Div = "/"
+    | binopName Eq = "="
+    | binopName NEq = "<>"
+    | binopName LT = "<"
+    | binopName LEq = "<="
+    | binopName GT = ">"
+    | binopName GEq = ">="
+
   datatype ast = ConstUnit
                | ConstBool of bool
                | ConstInt of int

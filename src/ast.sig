@@ -10,6 +10,8 @@ signature AST = sig
                  | GT
                  | GEq
 
+  val binopName : binop -> string
+
   datatype ast = ConstUnit
                | ConstBool of bool
                | ConstInt of int
