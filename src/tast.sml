@@ -57,14 +57,6 @@ structure TAST :> TAST = struct
       | typeOf (TWhile _) = Unit
       | typeOf (TFuncall (_, _, t)) = t
 
-    fun matchTypes (params: param list) (args: tast list) =
-      if (length params <> length args) then
-          raise Fail "Wrong parameter count"
-      else
-          ListPair.all (fn (pt, at) => pt = at)
-                       ((map (fn (Function.Param (n,t)) => t) params),
-                        (map typeOf args))
-
     local
         open AST
     in
@@ -206,7 +198,7 @@ structure TAST :> TAST = struct
           let val (Function (_, params, rt)) = lookup name fenv
               and targs = (map (fn e => augment e s t fenv) args)
           in
-              if matchTypes params targs then
+              if Function.matchParams params (map typeOf targs) then
                   TFuncall (name, targs, rt)
               else
                   raise Fail "Argument types don't match parameter types"
