@@ -52,16 +52,14 @@ structure Function :> FUNCTION = struct
     | concatAssignments (AssignFailure, (AssignList _)) = AssignFailure
     | concatAssignments (AssignFailure, AssignFailure) = AssignFailure
 
-  fun concretize (params: param list) (types: ty list): assignments =
+  fun concretize (params: param list, types: ty list): assignments =
     List.foldl concatAssignments AssignFailure (ListPair.map concretizeParam (params, types))
 
   fun matchParams params types =
       if (length params <> length types) then
           raise Fail "Wrong argument count"
       else
-          ListPair.all (fn (pt, at) => pt = at)
-                       ((map (fn (Param (n, t)) => t) params),
-                        types)
+          ListPair.map concretize (params, types)
 
   fun funcStack (Function (_, params, _)) =
     let fun toStack (Param (n,t)::rest) acc = bind (n, Binding (n, t, Immutable)) (toStack rest acc)
