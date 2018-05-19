@@ -71,7 +71,10 @@ structure Compiler :> COMPILER = struct
          in
              let val tenv' = bind (name, ty) tenv
              in
-                 Compiler (tenv', fenv, code)
+                 let val typedef = Backend.defineType name ty
+                 in
+                     Compiler (tenv', fenv, code ^ (Backend.renderTop typedef))
+                 end
              end
          end
        | (AST.CInclude s) =>
