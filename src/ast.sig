@@ -39,6 +39,7 @@ signature AST = sig
                    | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
+                   | Defrecord of string * (string * Type.ty) list
                    | CInclude of string
 
   val parse : Parser.sexp -> Type.tenv -> ast

@@ -50,6 +50,7 @@ structure AST :> AST = struct
                    | NoNewline
 
   datatype top_ast = Defun of Function.func * ast
+                   | Defrecord of string * (string * Type.ty) list
                    | CInclude of string
 
   val count = ref 0
@@ -120,8 +121,12 @@ structure AST :> AST = struct
                                 Type.parseTypeSpecifier rt e),
              parse (SList (Symbol "progn" :: body)) e)
       | parseToplevel (SList (Symbol "defun" :: _)) _ = raise Fail "Bad defun"
+      | parseToplevel (SList (Symbol "defrecord" :: Symbol name :: slots)) e =
+        Defrecord (name, (map (parseSlot e) slots))
       | parseToplevel (SList [Symbol "c/include", String s]) _ = CInclude s
       | parseToplevel (SList (Symbol "c/include" :: _)) _ = raise Fail "Bad c/include"
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
+    and parseSlot e (SList [Symbol name, tys]) = (name, Type.parseTypeSpecifier tys e)
+      | parseSlot e _ = raise Fail "Bad defrecord slot"
   end
 end
