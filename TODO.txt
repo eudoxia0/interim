@@ -1,5 +1,13 @@
 TODO:
 
+- Define region type
+- Add code to initialize regions
+- Add code to free regions
+- Emit region initialization call
+- Emit region free call
+- Region pointer types
+- Region operation: allocate in region
+
 DONE:
 
 - Check type of function body matches return type
