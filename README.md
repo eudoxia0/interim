@@ -127,6 +127,15 @@ $ make interim
 
 The only dependency is [Parsimony][parsimony], a parser combinator library.
 
+## Design
+
+Being a technology demonstrator, Interim lacks many features of real languages:
+modules, macros, higher-order functions, and higher-order types are not
+implemented since the focus is on region-based memory management.
+
+As the name implies, Interim is a stepping stone or proof of concept for a
+larger, more sophisticated language.
+
 ## Bibliography
 
 - Grossman, Dan, Greg Morrisett, Trevor Jim, Michael Hicks, Yanling Wang, and
