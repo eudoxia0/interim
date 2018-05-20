@@ -296,11 +296,12 @@ structure Backend :> BACKEND = struct
         let val (vblock, vval) = convert v
             and cr = CAddressOf (CVar (regionName r))
             and res = freshVar ()
-            and cty = convertType (typeOf v)
+            and cty = Pointer (convertType (typeOf v))
         in
             (CSeq [vblock,
                    CDeclare (cty, res),
-                   CFuncall (SOME res, "interim_region_allocate", [cr, CSizeOf cty])],
+                   CFuncall (SOME res, "interim_region_allocate", [cr, CSizeOf cty]),
+                   CAssign (CDeref (CVar res), vval)],
              CVar res)
         end
       | convert (TNullableCase (p, var, nnc, nc, t)) =
