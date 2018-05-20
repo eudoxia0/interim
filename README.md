@@ -13,8 +13,8 @@ management can both simple to implement and easy to learn and use.
 
 Memory safety is achieved by preventing three classes of errors:
 
-- `NULL pointers`
-- Double `free()`.
+- `NULL` pointers
+- Double `free()`
 - Use after `free()` (dangling pointers)
 
 Preventing `NULL` pointers is easy: we use an option type (called `Maybe` in
