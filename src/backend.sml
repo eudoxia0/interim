@@ -77,6 +77,7 @@ structure Backend :> BACKEND = struct
     | escapeChar #">" = "_g"
     | escapeChar #"<" = "_l"
     | escapeChar #"=" = "_e"
+    | escapeChar #"'" = "_q"
     | escapeChar c = str c
 
   local
@@ -136,7 +137,7 @@ structure Backend :> BACKEND = struct
   end
 
   fun regionName (Type.Region (id, name)) =
-    "region_" ^ name ^ "_" ^ (Int.toString id)
+    "region_" ^ (escapeIdent name) ^ "_" ^ (Int.toString id)
 
   local
       open TAST
@@ -421,7 +422,7 @@ structure Backend :> BACKEND = struct
 
   fun renderBlock' d (CSeq l) = sepBy "\n" (map (renderBlock' d) l)
     | renderBlock' d (CBlock l) = "{\n" ^ (sepBy "\n" (map (renderBlock' d) l)) ^ "\n" ^ (pad (unindent d)) ^ "}"
-    | renderBlock' d (CDeclare (t, n)) = (pad d) ^ (renderType t) ^ " " ^ n ^ ";"
+    | renderBlock' d (CDeclare (t, n)) = (pad d) ^ (renderType t) ^ " " ^ (escapeIdent n) ^ ";"
     | renderBlock' d (CAssign (var, v)) = (pad d) ^ (renderExp var) ^ " = " ^ (renderExp v) ^ ";"
     | renderBlock' d (CCond (t, c, a)) = (pad d) ^ "if (" ^ (renderExp t) ^ ") " ^ (renderBlock' (indent d) c)
                                          ^ " else " ^ (renderBlock' (indent d) a)
