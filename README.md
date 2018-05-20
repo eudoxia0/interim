@@ -9,6 +9,25 @@ memory management is [Rust][rust], which is notoriously tough to learn. Interim
 was built to prove that sound, GC-free, compile-time memory management can be
 implemented in a way that's both simple to build and easy to learn and use.
 
+## Overview of Regions
+
+Memory safety is achieved by preventing three classes of errors:
+
+- `NULL pointers`
+- Double `free()`.
+- Use after `free()`.
+
+Preventing `NULL` pointers is easy: we use an option type (called `Maybe` in
+Haskell). In the case of Interim, we have a special pointer type called
+`nullable` which represents a pointer which is potentially `NULL`. The
+`nullable/case` construct can be used to extract a never-`NULL` pointer in a
+safe way.
+
+Preventing double and use after `free()` errors is harder, and this is where
+regions come in.
+
+Pointers are tagged with the region they belong to.
+
 ## Examples
 
 ### Hello World
