@@ -35,9 +35,23 @@ Consider this code:
         nil))))
 ~~~
 
-Here, we're defining a region `rho`, allocating an integer in that region, then
-defining a region `rho'`, and allocating another integer in that region. Now
-notice what happens if we try to store `p'` in `p`:
+What we're doing here is:
+
+1. Defining a region `rho`. Regions are both lexical objects and run-time values.
+2. Defining a variable `p`, whose initial value is the result of allocating the
+   number 10 in the region `rho`.
+
+   An `allocate` call takes a value of type `T` and a region indentifier,
+   allocates enough memory in the region to hold that value, and returns a
+   pointer to it. The result pointer has the type `(nullable T R)`, where `T` is
+   the type of the value we're allocating and `R` is the region identifier.
+
+3. Defining a new region `rho'`.
+4. Defining a new variable `p'`, whose initial value is `(allocate rho' 12)`,
+   that is, the result of allocating the value `12` in the region `rho'`.
+5. Finally, return `nil`.
+
+Now notice what happens if we try to store `p'` in `p`:
 
 ~~~lisp
 (letregion rho
