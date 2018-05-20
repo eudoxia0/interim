@@ -65,15 +65,15 @@ structure TAST :> TAST = struct
       | typeOf (TSlotAccess (_, _, t)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
-    datatype context = Context of Function.stack * Type.tenv * Function.fenv
+    datatype context = Context of Function.stack * Type.tenv * Function.fenv * Type.renv
 
-    fun mkContext s t f = Context (s, t, f)
+    fun mkContext s t f r = Context (s, t, f, r)
 
-    fun ctxStack (Context (s, _, _)) = s
-    fun ctxTenv (Context (_, t, _)) = t
-    fun ctxFenv (Context (_, _, f)) = f
+    fun ctxStack (Context (s, _, _, _)) = s
+    fun ctxTenv (Context (_, t, _, _)) = t
+    fun ctxFenv (Context (_, _, f, _)) = f
 
-    fun newStack (Context (s, t, f)) s' = Context (s', t, f)
+    fun newStack (Context (s, t, f, r)) s' = Context (s', t, f, r)
 
     local
       open AST
