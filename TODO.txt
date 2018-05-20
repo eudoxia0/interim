@@ -1,6 +1,8 @@
 TODO:
 
 - Nullable pointer types
+- allocate should return a nullable pointer
+- Implement nullable/case
 
 DONE:
 
