@@ -8,6 +8,7 @@ structure Type :> TYPE = struct
               | RawPointer of ty
               | Record of string * slot list
               | RegionType of region
+              | RegionPointer of ty * region
        and signedness = Signed | Unsigned
        and bit_width = Word8 | Word16 | Word32 | Word64
        and slot = Slot of string * ty
@@ -29,6 +30,7 @@ structure Type :> TYPE = struct
     | tyToString (RawPointer t) = "(rawptr " ^ (tyToString t) ^ ")"
     | tyToString (Record (name, _)) = name
     | tyToString (RegionType (Region (_, name))) = "(region " ^ name ^ ")"
+    | tyToString (RegionPointer (ty, (Region (_, name)))) = "(pointer " ^ (tyToString ty) ^ " " ^ name ^ ")"
   and signednessStr Signed = "i"
     | signednessStr Unsigned = "u"
   and widthStr Word8 = "8"
@@ -43,6 +45,7 @@ structure Type :> TYPE = struct
                | PRawPointer of pty
                | PRecord of string * slot list
                | RegionParam of string
+               | PRegionPointer of ty * string
 
   fun toParamType Unit = PUnit
     | toParamType Bool = PBool

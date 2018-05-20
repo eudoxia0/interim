@@ -6,6 +6,7 @@ signature TYPE = sig
               | RawPointer of ty
               | Record of string * slot list
               | RegionType of region
+              | RegionPointer of ty * region
        and signedness = Signed | Unsigned
        and bit_width = Word8 | Word16 | Word32 | Word64
        and slot = Slot of string * ty
@@ -23,6 +24,7 @@ signature TYPE = sig
                | PRawPointer of pty
                | PRecord of string * slot list
                | RegionParam of string
+               | PRegionPointer of ty * string
 
   val toParamType : ty -> pty
 
