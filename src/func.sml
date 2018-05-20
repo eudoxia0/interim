@@ -51,6 +51,13 @@ structure Function :> FUNCTION = struct
           AssignList [Assignment (p, Region (i, p))]
       else
           AssignFailure
+    | matchType (PRegionPointer (ty', p')) (RegionPointer (ty, (Region (i, p)))) =
+      (case matchType ty' ty of
+           AssignList l => if p = p' then
+                               AssignList ((Assignment (p, Region (i, p))) :: l)
+                           else
+                               AssignFailure
+         | AssignFailure => AssignFailure)
     | matchType _ _ = AssignFailure
 
   fun concretizeParam (Param (_, pty), ty): assignments =
@@ -82,8 +89,12 @@ structure Function :> FUNCTION = struct
     | substType (PRawPointer t) a = RawPointer (substType t a)
     | substType (PRecord d) _ = Record d
     | substType (RegionParam name) a =
+      (case getRegion name a of
+           SOME r => RegionType r
+         | NONE => raise Fail "Region parameter not present in assignments")
+    | substType (PRegionPointer (t, name)) a =
       case getRegion name a of
-          SOME r => RegionType r
+          SOME r => RegionPointer (substType t a, r)
         | NONE => raise Fail "Region parameter not present in assignments"
 
   fun matchParams params types =
@@ -110,6 +121,7 @@ structure Function :> FUNCTION = struct
     | regionParams (PRawPointer t) = regionParams t
     | regionParams (PRecord _) = []
     | regionParams (RegionParam name) = [name]
+    | regionParams (PRegionPointer (_, name)) = [name]
 
   fun getIndex elem list =
     case (Util.position elem list) of
@@ -123,6 +135,8 @@ structure Function :> FUNCTION = struct
     | forciblyConcretizeType' (PRawPointer t) e = RawPointer (forciblyConcretizeType' t e)
     | forciblyConcretizeType' (PRecord d) _ = Record d
     | forciblyConcretizeType' (RegionParam name) e = RegionType (Region (getIndex name e, name))
+    | forciblyConcretizeType' (PRegionPointer (ty, name)) e =
+      RegionPointer (forciblyConcretizeType' ty e, (Region (getIndex name e, name)))
 
   fun forciblyConcretizeType pt =
     forciblyConcretizeType' pt (regionParams pt)
