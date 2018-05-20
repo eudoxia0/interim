@@ -3,8 +3,8 @@
 (defun main () i32
   (letregion rho
     (let ((p (allocate rho 10)))
-      (letregion rho2
-        (let ((p2 (allocate rho2 12)))
+      (letregion rho'
+        (let ((p' (allocate rho' 12)))
           ;; Will not work:
           ;;(<- p p2)
           0)))))
