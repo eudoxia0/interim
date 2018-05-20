@@ -29,6 +29,14 @@ $ make interim
 
 ## Bibliography
 
+- Grossman, Dan, Greg Morrisett, Trevor Jim, Michael Hicks, Yanling Wang, and
+  James Cheney. ["Region-based memory management in Cyclone."][region-cyclone]
+  ACM Sigplan Notices 37, no. 5 (2002): 282-293.
+
+- Swamy, Nikhil, Michael Hicks, Greg Morrisett, Dan Grossman, and Trevor
+  Jim. ["Safe manual memory management in Cyclone."][safe-mem] Science of
+  Computer Programming 62, no. 2 (2006): 122-144.
+
 ## License
 
 Copyright 2018 Fernando Borretti.
@@ -37,6 +45,8 @@ Licensed under the GPLv3 license. See the COPYING file for details.
 
 The only dependency is [Parsimony][parsimony], a parser combinator library.
 
-[region]: http://www.cs.umd.edu/projects/PL/cyclone/scp.pdf
 [rust]: https://www.rust-lang.org/en-US/
 [parsimony]: https://github.com/eudoxia0/parsimony
+
+[region-cyclone]: https://www.cs.umd.edu/projects/cyclone/papers/cyclone-regions.pdf
+[safe-mem]: http://www.cs.umd.edu/projects/PL/cyclone/scp.pdf
