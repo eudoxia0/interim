@@ -93,6 +93,22 @@ Output:
 fib(30) = 832040
 ~~~
 
+### Regions
+
+~~~lisp
+(defun main () i32
+  (letregion rho
+    (let ((p (allocate rho 10)))
+      (case p
+        ((not-null p')
+         (print "Allocated successfully! Value: ")
+         (println (load p'))
+         0)
+        (null
+         (println "Out of memory!")
+         -1)))))
+~~~
+
 ## Building
 
 You need MLton, git and make to build Interim. On Ubuntu:
