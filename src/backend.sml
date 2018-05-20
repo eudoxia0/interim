@@ -80,6 +80,7 @@ structure Backend :> BACKEND = struct
     | convertType (Type.RawPointer t) = Pointer (convertType t)
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
     | convertType (Type.RegionType _) = RegionType
+    | convertType (Type.RegionPointer (t, _)) = Pointer (convertType t)
 
   fun convertParamType (Type.PUnit) = Bool
     | convertParamType (Type.PBool) = Bool
@@ -88,6 +89,7 @@ structure Backend :> BACKEND = struct
     | convertParamType (Type.PRawPointer t) = Pointer (convertParamType t)
     | convertParamType (Type.PRecord (n, _)) = Struct (escapeIdent n)
     | convertParamType (Type.RegionParam _) = RegionType
+    | convertParamType (Type.PRegionPointer (t, _)) = Pointer (convertParamType t)
 
   val unitConstant = CConstBool false
 

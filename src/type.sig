@@ -24,7 +24,7 @@ signature TYPE = sig
                | PRawPointer of pty
                | PRecord of string * slot list
                | RegionParam of string
-               | PRegionPointer of ty * string
+               | PRegionPointer of pty * string
 
   val toParamType : ty -> pty
 

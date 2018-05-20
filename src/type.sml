@@ -45,7 +45,7 @@ structure Type :> TYPE = struct
                | PRawPointer of pty
                | PRecord of string * slot list
                | RegionParam of string
-               | PRegionPointer of ty * string
+               | PRegionPointer of pty * string
 
   fun toParamType Unit = PUnit
     | toParamType Bool = PBool
@@ -54,6 +54,7 @@ structure Type :> TYPE = struct
     | toParamType (RawPointer t) = PRawPointer (toParamType t)
     | toParamType (Record d) = PRecord d
     | toParamType (RegionType _) = raise Fail "Can't do this"
+    | toParamType (RegionPointer _)  = raise Fail "Can't do this"
 
   type tenv = ty symtab
 
@@ -76,6 +77,7 @@ structure Type :> TYPE = struct
       | parseTypeSpecifier _ _ = raise Fail "Bad type specifier"
 
     fun parseParamTypeSpecifier (SList [Symbol "region", Symbol p]) _ = RegionParam p
+      | parseParamTypeSpecifier (SList [Symbol "pointer", ty, Symbol p]) e = PRegionPointer (parseParamTypeSpecifier ty e, p)
       | parseParamTypeSpecifier f e = toParamType (parseTypeSpecifier f e)
   end
 end
