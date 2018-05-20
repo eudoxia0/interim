@@ -23,9 +23,8 @@ Haskell). In the case of Interim, we have a special pointer type called
 `nullable/case` construct can be used to extract a never-`NULL` pointer in a
 safe way.
 
-Preventing double and use after `free()` errors is harder, and this is where
-regions come in.
-
+Preventing double `free()` and use after `free()` errors is harder, and this is
+where regions come in.
 
 Consider this code:
 
@@ -52,7 +51,8 @@ notice what happens if we try to store `p'` in `p`:
 The compiler will fail with
 
 ~~~
-Cannot assign to variable 'p': the type of the variable is (nullable i32 rho), while the type of the expression is (nullable i32 rho')
+Cannot assign to variable 'p': the type of the variable is (nullable i32 rho),
+while the type of the expression is (nullable i32 rho')
 ~~~
 
 This is the key to preventing double `free()` errors: _pointers are tagged with
