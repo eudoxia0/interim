@@ -1,6 +1,5 @@
 TODO:
 
-- Region-tagged pointer types
 - Region operation: allocate value in region
 
 DONE:
@@ -60,6 +59,7 @@ DONE:
 - Implement concrete defrecord
 - Implement record creation
 - Implement record access
+- Region-tagged pointer types
 
 WISHLIST:
 
