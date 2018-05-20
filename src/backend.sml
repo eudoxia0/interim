@@ -279,7 +279,7 @@ structure Backend :> BACKEND = struct
             (CSeq [vblock,
                    CDeclare (cty, res),
                    CFuncall (SOME res, "interim_region_allocate", [cr, CSizeOf cty])],
-             vval)
+             CVar res)
         end
       | convert (TMakeRecord (ty, name, slots)) =
         let val args = map (fn (_, e) => convert e) slots
