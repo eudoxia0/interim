@@ -28,5 +28,8 @@ signature TAST = sig
 
   val typeOf : tast -> Type.ty
 
-  val augment : AST.ast -> Function.stack -> Type.tenv -> Function.fenv -> tast
+  type context
+  val mkContext : Function.stack -> Type.tenv -> Function.fenv -> context
+
+  val augment : AST.ast -> context -> tast
 end

@@ -65,26 +65,36 @@ structure TAST :> TAST = struct
       | typeOf (TSlotAccess (_, _, t)) = t
       | typeOf (TFuncall (_, _, t)) = t
 
+    datatype context = Context of Function.stack * Type.tenv * Function.fenv
+
+    fun mkContext s t f = Context (s, t, f)
+
+    fun ctxStack (Context (s, _, _)) = s
+    fun ctxTenv (Context (_, t, _)) = t
+    fun ctxFenv (Context (_, _, f)) = f
+
+    fun newStack (Context (s, t, f)) s' = Context (s', t, f)
+
     local
       open AST
     in
-      fun augment ConstUnit _ _ _ = TConstUnit
-        | augment (ConstBool b) _ _ _ = TConstBool b
-        | augment (ConstInt i) _ _ _ = TConstInt (i, defaultIntType)
-        | augment (ConstString s) _ _ _ = TConstString s
-        | augment (Var s) stack _ _ = TVar (s, bindType (lookup s stack))
-        | augment (Binop (Add, a, b)) s t f = augmentArithOp Add a b s t f
-        | augment (Binop (Sub, a, b)) s t f = augmentArithOp Sub a b s t f
-        | augment (Binop (Mul, a, b)) s t f = augmentArithOp Mul a b s t f
-        | augment (Binop (Div, a, b)) s t f = augmentArithOp Div a b s t f
-        | augment (Binop (Eq, a, b)) s t f = augmentCompOp Eq a b s t f
-        | augment (Binop (NEq, a, b)) s t f = augmentCompOp NEq a b s t f
-        | augment (Binop (LT, a, b)) s t f = augmentCompOp LT a b s t f
-        | augment (Binop (LEq, a, b)) s t f = augmentCompOp LEq a b s t f
-        | augment (Binop (GT, a, b)) s t f = augmentCompOp GT a b s t f
-        | augment (Binop (GEq, a, b)) s t f = augmentCompOp GEq a b s t f
-        | augment (Cast (ty, a)) s t f =
-          let val a' = augment a s t f
+      fun augment ConstUnit _ = TConstUnit
+        | augment (ConstBool b) _ = TConstBool b
+        | augment (ConstInt i) _ = TConstInt (i, defaultIntType)
+        | augment (ConstString s) _ = TConstString s
+        | augment (Var s) c = TVar (s, bindType (lookup s (ctxStack c)))
+        | augment (Binop (Add, a, b)) c = augmentArithOp Add a b c
+        | augment (Binop (Sub, a, b)) c = augmentArithOp Sub a b c
+        | augment (Binop (Mul, a, b)) c = augmentArithOp Mul a b c
+        | augment (Binop (Div, a, b)) c = augmentArithOp Div a b c
+        | augment (Binop (Eq, a, b)) c = augmentCompOp Eq a b c
+        | augment (Binop (NEq, a, b)) c = augmentCompOp NEq a b c
+        | augment (Binop (LT, a, b)) c = augmentCompOp LT a b c
+        | augment (Binop (LEq, a, b)) c = augmentCompOp LEq a b c
+        | augment (Binop (GT, a, b)) c = augmentCompOp GT a b c
+        | augment (Binop (GEq, a, b)) c = augmentCompOp GEq a b c
+        | augment (Cast (ty, a)) c =
+          let val a' = augment a c
           in
               if (Type.isNumeric ty) then
                   if (Type.isNumeric (typeOf a')) then
@@ -94,35 +104,36 @@ structure TAST :> TAST = struct
               else
                   raise Fail "Casting to this type is not supported"
           end
-        | augment (Cond (test, c, a)) s t f =
-          let val test' = augment test s t f
-              and c' = augment c s t f
-              and a' = augment a s t f
+        | augment (Cond (test, cons, alt)) c =
+          let val test' = augment test c
+              and cons' = augment cons c
+              and alt' = augment alt c
           in
               if (typeOf test') <> Bool then
                   raise Fail "The test in an if must be of boolean type"
               else
-                  if (typeOf c') <> (typeOf a') then
+                  if (typeOf cons') <> (typeOf alt') then
                       raise Fail "The consequent and the alternate must have the same type"
                   else
-                      TCond (test', c', a', typeOf c')
+                      TCond (test', cons', alt', typeOf cons')
           end
-        | augment (Progn exps) s t f =
-          TProgn (map (fn a => augment a s t f) exps)
-        | augment (Let (name, v, body)) s t f =
-          let val v' = augment v s t f
+        | augment (Progn exps) c =
+          TProgn (map (fn a => augment a c) exps)
+        | augment (Let (name, v, body)) c =
+          let val v' = augment v c
           in
-              let val s' = bind (name, (Binding (name, typeOf v', Mutable))) s
+              let val s' = bind (name, (Binding (name, typeOf v', Mutable)))
+                                (ctxStack c)
               in
                   TLet (name,
                         v',
-                        augment body s' t f)
+                        augment body (newStack c s'))
               end
           end
-        | augment (Assign (var, v)) s t f =
-          let val v' = augment v s t f
+        | augment (Assign (var, v)) c =
+          let val v' = augment v c
           in
-              let val (Binding (_, ty, m)) = lookup var s
+              let val (Binding (_, ty, m)) = lookup var (ctxStack c)
               in
                   if m = Mutable then
                       if typeOf v' = ty then
@@ -133,18 +144,18 @@ structure TAST :> TAST = struct
                       raise Fail ("Cannot assign to immutable variable '" ^ var ^ "'")
               end
           end
-        | augment (NullPtr t) _ tenv _ =
-          TNullPtr (parseTypeSpecifier t tenv)
-        | augment (Load e) s t f =
-          let val e' = augment e s t f
+        | augment (NullPtr t) c =
+          TNullPtr (parseTypeSpecifier t (ctxTenv c))
+        | augment (Load e) c =
+          let val e' = augment e c
           in
               case (typeOf e') of
                   RawPointer t => TLoad (e', t)
                 | _ => raise Fail "load: not a pointer"
           end
-        | augment (Store (p, v)) s t f =
-          let val p' = augment p s t f
-              and v' = augment v s t f
+        | augment (Store (p, v)) c =
+          let val p' = augment p c
+              and v' = augment v c
           in
               case (typeOf p') of
                   RawPointer t => let val ty = typeOf v'
@@ -156,83 +167,84 @@ structure TAST :> TAST = struct
                                   end
                 | _ => raise Fail "store: first argument must be a pointer"
           end
-        | augment (Malloc (ty, c)) s t f =
-          let val t' = parseTypeSpecifier ty t
-              and c' = augment c s t f
+        | augment (Malloc (ty, s)) c =
+          let val t' = parseTypeSpecifier ty (ctxTenv c)
+              and s' = augment s c
           in
-              if (typeOf c' <> Int (Unsigned, Word64)) then
+              if (typeOf s' <> Int (Unsigned, Word64)) then
                   raise Fail "malloc: allocation count must be u64"
               else
-                  TMalloc (t', c')
+                  TMalloc (t', s')
           end
-        | augment (Free p) s t f =
-          let val p' = augment p s t f
+        | augment (Free p) c =
+          let val p' = augment p c
           in
               case (typeOf p') of
                   (RawPointer _) => TFree p'
                 | _ => raise Fail "Can't free a non-pointer"
           end
-        | augment (AddressOf v) s t f =
-          let val (Binding (_, ty, _)) = lookup v s
+        | augment (AddressOf v) c =
+          let val (Binding (_, ty, _)) = lookup v (ctxStack c)
           in
               TAddressOf (v, ty)
           end
-        | augment (Print (v, n)) s t f =
-          let val v' = augment v s t f
+        | augment (Print (v, n)) c =
+          let val v' = augment v c
           in
               if isPrintable (typeOf v') then
                   TPrint (v', n)
               else
                   raise Fail "Type cannot be printed"
           end
-        | augment (CEmbed (ts, c)) _ t _ =
-          TCEmbed (parseTypeSpecifier ts t, c)
-        | augment (CCall (n, ts, args)) s t f =
-          let val t = parseTypeSpecifier ts t
-              and args = map (fn a => augment a s t f) args
+        | augment (CEmbed (ts, code)) c =
+          TCEmbed (parseTypeSpecifier ts (ctxTenv c), code)
+        | augment (CCall (n, ts, args)) c =
+          let val ty = parseTypeSpecifier ts (ctxTenv c)
+              and args = map (fn a => augment a c) args
           in
-              TCCall (n, t, args)
+              TCCall (n, ty, args)
           end
-        | augment (While (test, body)) s t f =
-          let val test' = augment test s t f
-              and body' = augment body s t f
+        | augment (While (test, body)) c =
+          let val test' = augment test c
+              and body' = augment body c
           in
               if typeOf test' <> Bool then
                   raise Fail "The test of a while loop must be a boolean expression"
               else
                   TWhile (test', body')
           end
-        | augment (LetRegion (Region (id, name), body)) s t f =
+        | augment (LetRegion (Region (id, name), body)) c =
           let val r = Region (id, name) in
-              let val stack = bind (name, (Binding (name, RegionType r, Immutable))) s
+              let val stack = bind (name, (Binding (name, RegionType r, Immutable)))
+                                   (ctxStack c)
               in
-                  let val body' = augment body stack t f
+                  let val body' = augment body (newStack c stack)
                   in
                       TLetRegion (r, body')
                   end
               end
           end
-        | augment (Allocate (name, v)) s t f =
+        | augment (Allocate (name, v)) c =
           raise Fail "Unknown region name"
-        | augment (MakeRecord (name, slots)) s t f =
-          let val ty = lookup name t
+        | augment (MakeRecord (name, slots)) c =
+          let val ty = lookup name (ctxTenv c)
           in
               case ty of
-                  (Record (name, _)) => TMakeRecord (ty, name, map (fn (n,e) => (n, augment e s t f)) slots)
+                  (Record (name, _)) => TMakeRecord (ty, name, map (fn (n,e) => (n, augment e c)) slots)
                 | _ => raise Fail "Type does not name a record"
           end
-        | augment (SlotAccess (r, slot)) s t f =
-          let val r' = augment r s t f
+        | augment (SlotAccess (r, slot)) c =
+          let val r' = augment r c
           in
               case typeOf r' of
                   (Record (name, slots)) => (case List.find (fn (Slot (n, _)) => slot = n) slots of
-                                                 SOME (Slot (n, t)) => TSlotAccess (r', slot, t)
+                                                 SOME (Slot (n, ty)) => TSlotAccess (r', slot, ty)
                                                | NONE => raise Fail "No slot with this name")
                 | _ => raise Fail "Not a record"
           end
-        | augment (Funcall (name, args)) s t fenv =
-          let val (Function (_, params, rt)) = lookup name fenv
-              and targs = (map (fn e => augment e s t fenv) args)
+        | augment (Funcall (name, args)) c =
+          let val (Function (_, params, rt)) = lookup name (ctxFenv c)
+              and targs = (map (fn e => augment e c) args)
           in
               let val cparams = Function.matchParams params (map typeOf targs)
               in
@@ -243,9 +255,9 @@ structure TAST :> TAST = struct
                       raise Fail "Argument types don't match"
               end
           end
-      and augmentArithOp oper a b s t f =
-          let val a' = augment a s t f
-              and b' = augment b s t f
+      and augmentArithOp oper a b ctx =
+          let val a' = augment a ctx
+              and b' = augment b ctx
           in
               if (typeOf a') <> (typeOf b') then
                   raise Fail "Both operands to an arithmetic operation must be of the same type"
@@ -258,9 +270,9 @@ structure TAST :> TAST = struct
                           raise Fail "Can't perform arithmetic on non-numeric types"
                   end
           end
-      and augmentCompOp oper a b s t f =
-          let val a' = augment a s t f
-              and b' = augment b s t f
+      and augmentCompOp oper a b ctx =
+          let val a' = augment a ctx
+              and b' = augment b ctx
           in
               let val ta = typeOf a'
                   and tb = typeOf b'
