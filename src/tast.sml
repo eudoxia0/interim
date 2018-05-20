@@ -72,8 +72,7 @@ structure TAST :> TAST = struct
     fun ctxStack (Context (s, _, _, _)) = s
     fun ctxTenv (Context (_, t, _, _)) = t
     fun ctxFenv (Context (_, _, f, _)) = f
-
-    fun newStack (Context (s, t, f, r)) s' = Context (s', t, f, r)
+    fun ctxRenv (Context (_, _, _, r)) = r
 
     local
       open AST
@@ -127,7 +126,7 @@ structure TAST :> TAST = struct
               in
                   TLet (name,
                         v',
-                        augment body (newStack c s'))
+                        augment body (mkContext s' (ctxTenv c) (ctxFenv c) (ctxRenv c)))
               end
           end
         | augment (Assign (var, v)) c =
@@ -217,8 +216,13 @@ structure TAST :> TAST = struct
           let val r = Region (id, name) in
               let val stack = bind (name, (Binding (name, RegionType r, Immutable)))
                                    (ctxStack c)
+                  and renv = bind (name, r)
+                                  (ctxRenv c)
               in
-                  let val body' = augment body (newStack c stack)
+                  let val body' = augment body (mkContext stack
+                                                          (ctxTenv c)
+                                                          (ctxFenv c)
+                                                          renv)
                   in
                       TLetRegion (r, body')
                   end
