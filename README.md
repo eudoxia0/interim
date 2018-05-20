@@ -64,6 +64,8 @@ freed automatically when exiting the region's body.
 
 ## Examples
 
+For more examples, look in the `examples/` directory.
+
 ### Hello World
 
 ~~~lisp
@@ -127,6 +129,12 @@ Then:
 
 ~~~bash
 $ make interim
+~~~
+
+After building, try
+
+~~~bash
+$ make examples
 ~~~
 
 ### Dependencies
