@@ -37,6 +37,10 @@ $ make interim
   Jim. ["Safe manual memory management in Cyclone."][safe-mem] Science of
   Computer Programming 62, no. 2 (2006): 122-144.
 
+- Gay, David, and Alex
+  Aiken. [Memory management with explicit regions][explicit]. Vol. 33,
+  no. 5. ACM, 1998.
+
 ## License
 
 Copyright 2018 Fernando Borretti.
@@ -50,3 +54,4 @@ The only dependency is [Parsimony][parsimony], a parser combinator library.
 
 [region-cyclone]: https://www.cs.umd.edu/projects/cyclone/papers/cyclone-regions.pdf
 [safe-mem]: http://www.cs.umd.edu/projects/PL/cyclone/scp.pdf
+[explicit]: http://titanium.cs.berkeley.edu/papers/gay-thesis.pdf
