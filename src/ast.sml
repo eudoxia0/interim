@@ -121,17 +121,19 @@ structure AST :> AST = struct
     fun parseParam (SList [Symbol n, t]) e = Function.Param (n, Type.parseParamTypeSpecifier t e)
       | parseParam _ _ = raise Fail "Bad parameter"
 
-    fun parseToplevel (SList (Symbol "defun" :: Symbol name :: SList params :: rt :: body)) e =
-      Defun (Function.Function (name,
-                                map (fn p => parseParam p e) params,
-                                Type.parseTypeSpecifier rt e),
-             parse (SList (Symbol "progn" :: body)) e)
-      | parseToplevel (SList (Symbol "defun" :: _)) _ = raise Fail "Bad defun"
-      | parseToplevel (SList (Symbol "defrecord" :: Symbol name :: slots)) e =
-        Defrecord (name, (map (parseSlot e) slots))
-      | parseToplevel (SList [Symbol "c/include", String s]) _ = CInclude s
-      | parseToplevel (SList (Symbol "c/include" :: _)) _ = raise Fail "Bad c/include"
+    fun parseToplevel (SList (Symbol f :: rest)) e = parseTopL f rest e
       | parseToplevel _ _ = raise Fail "Bad toplevel node"
+    and parseTopL "defun" (Symbol name :: SList params :: rt :: body) e =
+        Defun (Function.Function (name,
+                                  map (fn p => parseParam p e) params,
+                                  Type.parseTypeSpecifier rt e),
+               parse (SList (Symbol "progn" :: body)) e)
+      | parseTopL "defun" _ _ = raise Fail "Bad defun"
+      | parseTopL "defrecord" (Symbol name :: slots) e =
+        Defrecord (name, (map (parseSlot e) slots))
+      | parseTopL "c/include" [String s] _ = CInclude s
+      | parseTopL "c/include" _ _ = raise Fail "Bad c/include"
+      | parseTopL _ _ _ = raise Fail "Bad toplevel definition"
     and parseSlot e (SList [Symbol name, tys]) = (name, Type.parseTypeSpecifier tys e)
       | parseSlot e _ = raise Fail "Bad defrecord slot"
   end
