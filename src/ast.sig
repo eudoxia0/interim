@@ -54,6 +54,7 @@ signature AST = sig
                | While of ast * ast
                | LetRegion of Type.region * ast
                | Allocate of string * ast
+               | NullableCase of ast * string * ast * ast
                | MakeRecord of string * (string * ast) list
                | SlotAccess of ast * string
                | Funcall of string * ast list

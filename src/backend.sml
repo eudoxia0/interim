@@ -303,6 +303,30 @@ structure Backend :> BACKEND = struct
                    CFuncall (SOME res, "interim_region_allocate", [cr, CSizeOf cty])],
              CVar res)
         end
+      | convert (TNullableCase (p, var, nnc, nc, t)) =
+        let val (pblock, pval) = convert p
+            and (nncblock, nncval) = convert nnc
+            and (ncblock, ncval) = convert nc
+            and result = freshVar ()
+            and resType = convertType t
+        in
+            (CSeq [
+                  pblock,
+                  CDeclare (resType, result),
+                  CCond (CBinop (AST.NEq, pval, CConstNull),
+                         CBlock [
+                             CDeclare (convertType (typeOf p), escapeIdent var),
+                             CAssign (CVar var, pval),
+                             nncblock,
+                             CAssign (CVar result, nncval)
+                         ],
+                         CBlock [
+                             ncblock,
+                             CAssign (CVar result, ncval)
+                        ])
+              ],
+             CVar result)
+        end
       | convert (TMakeRecord (ty, name, slots)) =
         let val args = map (fn (_, e) => convert e) slots
             and slot_names = map (fn (n, _) => n) slots

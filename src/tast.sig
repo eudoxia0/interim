@@ -41,6 +41,7 @@ signature TAST = sig
                 | TWhile of tast * tast
                 | TLetRegion of Type.region * tast
                 | TAllocate of Type.region * tast
+                | TNullableCase of tast * string * tast * tast * Type.ty
                 | TMakeRecord of Type.ty * string * (string * tast) list
                 | TSlotAccess of tast * string * Type.ty
                 | TFuncall of string * tast list * Type.ty
