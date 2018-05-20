@@ -138,7 +138,12 @@ structure TAST :> TAST = struct
                       if typeOf v' = ty then
                           TAssign (var, v')
                       else
-                          raise Fail ("Cannot assign to variable '" ^ var ^ "': wrong type")
+                          raise Fail ("Cannot assign to variable '"
+                                      ^ var
+                                      ^ "': the type of the variable is "
+                                      ^ (tyToString ty)
+                                      ^ ", while the type of the expression is"
+                                      ^ (tyToString (typeOf v')))
                   else
                       raise Fail ("Cannot assign to immutable variable '" ^ var ^ "'")
               end
