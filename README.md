@@ -109,6 +109,12 @@ fib(30) = 832040
          -1)))))
 ~~~
 
+Output:
+
+~~~
+Allocated successfully! Value: 10
+~~~
+
 ## Building
 
 You need MLton, git and make to build Interim. On Ubuntu:
