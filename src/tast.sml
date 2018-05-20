@@ -23,6 +23,7 @@ structure TAST :> TAST = struct
                 | TCCall of string * Type.ty * tast list
                 | TWhile of tast * tast
                 | TLetRegion of Type.region * tast
+                | TAllocate of Type.region * tast
                 | TMakeRecord of Type.ty * string * (string * tast) list
                 | TSlotAccess of tast * string * Type.ty
                 | TFuncall of string * tast list * Type.ty
@@ -59,6 +60,7 @@ structure TAST :> TAST = struct
       | typeOf (TCCall (_, t, _)) = t
       | typeOf (TWhile _) = Unit
       | typeOf (TLetRegion (_, e)) = typeOf e
+      | typeOf (TAllocate (r, v)) = RegionPointer (typeOf v, r)
       | typeOf (TMakeRecord (t, _, _)) = t
       | typeOf (TSlotAccess (_, _, t)) = t
       | typeOf (TFuncall (_, _, t)) = t
@@ -210,6 +212,8 @@ structure TAST :> TAST = struct
                   end
               end
           end
+        | augment (Allocate (name, v)) s t f =
+          raise Fail "Unknown region name"
         | augment (MakeRecord (name, slots)) s t f =
           let val ty = lookup name t
           in

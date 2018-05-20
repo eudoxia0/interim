@@ -45,6 +45,7 @@ structure AST :> AST = struct
                | CCall of string * Parser.sexp * ast list
                | While of ast * ast
                | LetRegion of Type.region * ast
+               | Allocate of string * ast
                | MakeRecord of string * (string * ast) list
                | SlotAccess of ast * string
                | Funcall of string * ast list
@@ -111,6 +112,7 @@ structure AST :> AST = struct
       | parseL "while" (t :: body) e = While (parse t e, Progn (map (fn c => parse c e) body))
       | parseL "letregion" (Symbol name :: rest) e =
         LetRegion (Type.Region (freshRegionId (), name), Progn (map (fn c => parse c e) rest))
+      | parseL "allocate" [Symbol r, v] e = Allocate (r, parse v e)
       | parseL "not" [v] e = Funcall ("interim_not", [parse v e])
       | parseL "record" (Symbol name :: slots) e = MakeRecord (name, map (parseSlot e) slots)
       | parseL "slot" [r, Symbol slot] e = SlotAccess (parse r e, slot)

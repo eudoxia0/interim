@@ -114,6 +114,9 @@ structure Backend :> BACKEND = struct
       | newline AST.NoNewline = ""
   end
 
+  fun regionName (Type.Region (id, name)) =
+    "region_" ^ name ^ "_" ^ (Int.toString id)
+
   local
       open TAST
   in
@@ -258,18 +261,25 @@ structure Backend :> BACKEND = struct
       | convert (TLetRegion (r, b)) =
         let val (bblock, bval) = convert b
         in
-            let fun regionName (Type.Region (id, name)) =
-                  "region_" ^ name ^ "_" ^ (Int.toString id)
+            let val name = regionName r
             in
-                let val name = regionName r
-                in
-                    (CSeq [CDeclare (RegionType, name),
-                           CFuncall (NONE, "interim_region_create", [CAddressOf (CVar name)]),
-                           bblock,
-                           CFuncall (NONE, "interim_region_free", [CAddressOf (CVar name)])],
-                     bval)
-                end
+                (CSeq [CDeclare (RegionType, name),
+                       CFuncall (NONE, "interim_region_create", [CAddressOf (CVar name)]),
+                       bblock,
+                       CFuncall (NONE, "interim_region_free", [CAddressOf (CVar name)])],
+                 bval)
             end
+        end
+      | convert (TAllocate (r, v)) =
+        let val (vblock, vval) = convert v
+            and cr = CAddressOf (CVar (regionName r))
+            and res = freshVar ()
+            and cty = convertType (typeOf v)
+        in
+            (CSeq [vblock,
+                   CDeclare (cty, res),
+                   CFuncall (SOME res, "interim_region_allocate", [cr, CSizeOf cty])],
+             vval)
         end
       | convert (TMakeRecord (ty, name, slots)) =
         let val args = map (fn (_, e) => convert e) slots
