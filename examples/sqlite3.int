@@ -2,7 +2,7 @@
 ;; Compile with:
 ;;   interim sqlite3.int sqlite3.c
 ;; Compile that with:
-;;   clang -lsqlite3 sqlite3.c
+;;   clang -lsqlite3 sqlite3.c -o sqldemo
 (c/include "sqlite3.h")
 
 (defun die ((msg str)) unit
