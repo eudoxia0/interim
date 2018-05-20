@@ -1,7 +1,5 @@
 TODO:
 
-- Region operation: allocate value in region
-
 DONE:
 
 - Check type of function body matches return type
@@ -60,6 +58,7 @@ DONE:
 - Implement record creation
 - Implement record access
 - Region-tagged pointer types
+- Region operation: allocate value in region
 
 WISHLIST:
 
