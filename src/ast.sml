@@ -128,12 +128,10 @@ structure AST :> AST = struct
                                   map (fn p => parseParam p e) params,
                                   Type.parseTypeSpecifier rt e),
                parse (SList (Symbol "progn" :: body)) e)
-      | parseTopL "defun" _ _ = raise Fail "Bad defun"
       | parseTopL "defrecord" (Symbol name :: slots) e =
         Defrecord (name, (map (parseSlot e) slots))
       | parseTopL "c/include" [String s] _ = CInclude s
-      | parseTopL "c/include" _ _ = raise Fail "Bad c/include"
-      | parseTopL _ _ _ = raise Fail "Bad toplevel definition"
+      | parseTopL f _ _ = raise Fail ("Bad toplevel definition '" ^ f ^ "'")
     and parseSlot e (SList [Symbol name, tys]) = (name, Type.parseTypeSpecifier tys e)
       | parseSlot e _ = raise Fail "Bad defrecord slot"
   end
