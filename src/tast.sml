@@ -161,7 +161,7 @@ structure TAST :> TAST = struct
                                       ^ var
                                       ^ "': the type of the variable is "
                                       ^ (tyToString ty)
-                                      ^ ", while the type of the expression is"
+                                      ^ ", while the type of the expression is "
                                       ^ (tyToString (typeOf v')))
                   else
                       raise Fail ("Cannot assign to immutable variable '" ^ var ^ "'")
