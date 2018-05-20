@@ -4,10 +4,10 @@
 compile-time, GC-free memory management.
 
 Interim is a technology demonstrator for compile-time memory management
-using [regions][region]. As of 2018, the only major language with compile-time
-memory management is [Rust][rust], which is notoriously tough to learn. Interim
-was built to prove that sound, GC-free, compile-time memory management can both
-simple to implement and easy to learn and use.
+using [regions][region-cyclone]. As of 2018, the only major language with
+compile-time memory management is [Rust][rust], which is notoriously tough to
+learn. Interim was built to prove that sound, GC-free, compile-time memory
+management can both simple to implement and easy to learn and use.
 
 ## Overview of Regions
 
