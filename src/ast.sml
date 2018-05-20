@@ -89,7 +89,7 @@ structure AST :> AST = struct
       | parseL "the" [t, a] e = Cast (Type.parseTypeSpecifier t e, parse a e)
       | parseL "progn" rest e = Progn (map (fn a => parse a e) rest)
       | parseL "let" ((SList [SList [Symbol var, v]])::body) e =
-        Let (var, parse v e, Progn (map (fn a => parse a e) body))
+        Let (var, parse v e, Progn (mparse body e))
       | parseL "let" ((SList ((SList [Symbol var, v])::rest))::body) e =
         let val exp = SList [Symbol "let", SList [SList [Symbol var, v]],
                              SList ((Symbol "let")::(SList rest)::body)]
@@ -97,7 +97,7 @@ structure AST :> AST = struct
             parse exp e
         end
       | parseL "let" ((SList nil)::body) e =
-        Progn (map (fn a => parse a e) body)
+        Progn (mparse body e)
       | parseL "<-" [Symbol var, v] e = Assign (var, parse v e)
       | parseL "c/nullptr" [t] _ = NullPtr t
       | parseL "load" [v] e = Load (parse v e)
@@ -108,8 +108,8 @@ structure AST :> AST = struct
       | parseL "print" [v] e = Print (parse v e, NoNewline)
       | parseL "println" [v] e = Print (parse v e, Newline)
       | parseL "c/embed" [t, String s] _ = CEmbed (t, s)
-      | parseL "c/call" (String n :: t :: args) e = CCall (n, t, map (fn a => parse a e) args)
-      | parseL "while" (t :: body) e = While (parse t e, Progn (map (fn c => parse c e) body))
+      | parseL "c/call" (String n :: t :: args) e = CCall (n, t, mparse args e)
+      | parseL "while" (t :: body) e = While (parse t e, Progn (mparse body e))
       | parseL "letregion" (Symbol name :: rest) e =
         LetRegion (Type.Region (freshRegionId (), name), Progn (map (fn c => parse c e) rest))
       | parseL "allocate" [Symbol r, v] e = Allocate (r, parse v e)
