@@ -44,7 +44,8 @@ Pointers are tagged with the region they belong to.
 (defun fib ((n i32)) i32
   (if (< n 2)
       n
-      (+ (fib (- n 1)) (fib (- n 2)))))
+      (+ (fib (- n 1))
+         (fib (- n 2)))))
 
 (defun main () i32
   (print "fib(30) = ")
