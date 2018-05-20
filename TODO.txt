@@ -1,5 +1,7 @@
 TODO:
 
+- Nullable pointer types
+
 DONE:
 
 - Check type of function body matches return type
