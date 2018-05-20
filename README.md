@@ -27,6 +27,8 @@ $ make interim
 
 ### Dependencies
 
+The only dependency is [Parsimony][parsimony], a parser combinator library.
+
 ## Bibliography
 
 - Grossman, Dan, Greg Morrisett, Trevor Jim, Michael Hicks, Yanling Wang, and
@@ -46,8 +48,6 @@ $ make interim
 Copyright 2018 Fernando Borretti.
 
 Licensed under the GPLv3 license. See the COPYING file for details.
-
-The only dependency is [Parsimony][parsimony], a parser combinator library.
 
 [rust]: https://www.rust-lang.org/en-US/
 [parsimony]: https://github.com/eudoxia0/parsimony
