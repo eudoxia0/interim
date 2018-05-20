@@ -117,6 +117,7 @@ structure AST :> AST = struct
       | parseL "record" (Symbol name :: slots) e = MakeRecord (name, map (parseSlot e) slots)
       | parseL "slot" [r, Symbol slot] e = SlotAccess (parse r e, slot)
       | parseL f rest e = Funcall (f, map (fn a => parse a e) rest)
+    and mparse l e = map (fn elem => parse elem e) l
     and parseSlot e (SList [Symbol name, exp]) = (name, parse exp e)
       | parseSlot e _ = raise Fail "Bad slot"
 
