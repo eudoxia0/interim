@@ -11,6 +11,34 @@ implemented in a way that's both simple to build and easy to learn and use.
 
 ## Examples
 
+### Hello World
+
+~~~lisp
+(defun main () i32
+  (println "Hello, world!")
+  0)
+~~~
+
+### Fibonacci
+
+~~~lisp
+(defun fib ((n i32)) i32
+  (if (< n 2)
+      n
+      (+ (fib (- n 1)) (fib (- n 2)))))
+
+(defun main () i32
+  (print "fib(30) = ")
+  (println (fib 30))
+  0)
+~~~
+
+Output:
+
+~~~
+fib(30) = 832040
+~~~
+
 ## Building
 
 You need MLton, git and make to build Interim. On Ubuntu:
