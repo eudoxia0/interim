@@ -22,7 +22,7 @@ structure Compiler :> COMPILER = struct
           "void interim_region_free(interim_region_t* r) {",
           "  free(r->data);",
           "  r->size = 0;",
-          "  r->cap  = 0;"
+          "  r->cap  = 0;",
           "}",
           "",
           "int interim_print_bool(bool v, bool nl) {",
