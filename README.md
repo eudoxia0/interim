@@ -117,7 +117,7 @@ Allocated successfully! Value: 10
 
 ## Building
 
-You need MLton, git and make to build Interim. On Ubuntu:
+You need [MLton][mlton], git and make to build Interim. On Ubuntu:
 
 ~~~bash
 $ sudo apt-get install mlton git make
@@ -163,6 +163,7 @@ Copyright 2018 Fernando Borretti.
 Licensed under the GPLv3 license. See the COPYING file for details.
 
 [rust]: https://www.rust-lang.org/en-US/
+[mlton]: http://mlton.org/
 [parsimony]: https://github.com/eudoxia0/parsimony
 
 [region-cyclone]: https://www.cs.umd.edu/projects/cyclone/papers/cyclone-regions.pdf
