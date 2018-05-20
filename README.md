@@ -19,9 +19,8 @@ Memory safety is achieved by preventing three classes of errors:
 
 Preventing `NULL` pointers is easy: we use an option type (called `Maybe` in
 Haskell). In the case of Interim, we have a special pointer type called
-`nullable` which represents a pointer which is potentially `NULL`. The
-`nullable/case` construct can be used to extract a never-`NULL` pointer in a
-safe way.
+`nullable` which represents a pointer which is potentially `NULL`. The `case`
+construct can be used to extract a never-`NULL` pointer in a safe way.
 
 Preventing double `free()` and use after `free()` errors is harder, and this is
 where regions come in.
@@ -36,7 +35,7 @@ Consider this code:
         nil))))
 ~~~
 
-Here, we're defining a region `rho`, allocating an integer in that region, the
+Here, we're defining a region `rho`, allocating an integer in that region, then
 defining a region `rho'`, and allocating another integer in that region. Now
 notice what happens if we try to store `p'` in `p`:
 
