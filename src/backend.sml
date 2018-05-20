@@ -423,7 +423,7 @@ structure Backend :> BACKEND = struct
       in
           "\"" ^ (String.translate tr s) ^ "\""
       end
-    | renderExp CConstNull = "null"
+    | renderExp CConstNull = "NULL"
     | renderExp (CVar s) = (escapeIdent s)
     | renderExp (CBinop (oper, a, b)) =
       "(" ^ (renderExp a) ^ " " ^ (binopStr oper) ^ " " ^ (renderExp b) ^ ")"
