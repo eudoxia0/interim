@@ -176,6 +176,7 @@ structure TAST :> TAST = struct
           in
               case (typeOf e') of
                   RawPointer t => TLoad (e', t)
+                | RegionPointer (t, _) => TLoad (e', t)
                 | _ => raise Fail "load: not a pointer"
           end
         | augment (Store (p, v)) c =

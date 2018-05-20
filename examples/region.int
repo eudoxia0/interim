@@ -5,7 +5,8 @@
     (let ((p (allocate rho 10)))
       (case p
         ((not-null p')
-         (println "Allocated successfully!"))
+         (print "Allocated successfully! Value: ")
+         (println (load p')))
         (null
          (println "Out of memory!"))))))
 
