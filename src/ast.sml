@@ -87,7 +87,7 @@ structure AST :> AST = struct
       | parseL ">=" [a, b] e = Binop (GEq, parse a e, parse b e)
       | parseL "if" [t, c, a] e = Cond (parse t e, parse c e, parse a e)
       | parseL "the" [t, a] e = Cast (Type.parseTypeSpecifier t e, parse a e)
-      | parseL "progn" rest e = Progn (map (fn a => parse a e) rest)
+      | parseL "progn" rest e = Progn (mparse rest e)
       | parseL "let" ((SList [SList [Symbol var, v]])::body) e =
         Let (var, parse v e, Progn (mparse body e))
       | parseL "let" ((SList ((SList [Symbol var, v])::rest))::body) e =
@@ -111,12 +111,12 @@ structure AST :> AST = struct
       | parseL "c/call" (String n :: t :: args) e = CCall (n, t, mparse args e)
       | parseL "while" (t :: body) e = While (parse t e, Progn (mparse body e))
       | parseL "letregion" (Symbol name :: rest) e =
-        LetRegion (Type.Region (freshRegionId (), name), Progn (map (fn c => parse c e) rest))
+        LetRegion (Type.Region (freshRegionId (), name), Progn (mparse rest e))
       | parseL "allocate" [Symbol r, v] e = Allocate (r, parse v e)
       | parseL "not" [v] e = Funcall ("interim_not", [parse v e])
       | parseL "record" (Symbol name :: slots) e = MakeRecord (name, map (parseSlot e) slots)
       | parseL "slot" [r, Symbol slot] e = SlotAccess (parse r e, slot)
-      | parseL f rest e = Funcall (f, map (fn a => parse a e) rest)
+      | parseL f rest e = Funcall (f, mparse rest e)
     and mparse l e = map (fn elem => parse elem e) l
     and parseSlot e (SList [Symbol name, exp]) = (name, parse exp e)
       | parseSlot e _ = raise Fail "Bad slot"
