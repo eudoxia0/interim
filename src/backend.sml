@@ -100,6 +100,7 @@ structure Backend :> BACKEND = struct
     | convertType (Type.Record (n, _)) = Struct (escapeIdent n)
     | convertType (Type.RegionType _) = RegionType
     | convertType (Type.RegionPointer (t, _)) = Pointer (convertType t)
+    | convertType (Type.NullablePointer (t, _)) = Pointer (convertType t)
 
   fun convertParamType (Type.PUnit) = Bool
     | convertParamType (Type.PBool) = Bool
@@ -109,6 +110,7 @@ structure Backend :> BACKEND = struct
     | convertParamType (Type.PRecord (n, _)) = Struct (escapeIdent n)
     | convertParamType (Type.RegionParam _) = RegionType
     | convertParamType (Type.PRegionPointer (t, _)) = Pointer (convertParamType t)
+    | convertParamType (Type.PNullablePointer (t, _)) = Pointer (convertParamType t)
 
   val unitConstant = CConstBool false
 

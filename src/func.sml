@@ -112,8 +112,12 @@ structure Function :> FUNCTION = struct
            SOME r => RegionType r
          | NONE => raise Fail "Region parameter not present in assignments")
     | substType (PRegionPointer (t, name)) a =
+      (case getRegion name a of
+           SOME r => RegionPointer (substType t a, r)
+         | NONE => raise Fail "Region parameter not present in assignments")
+    | substType (PNullablePointer (t, name)) a =
       case getRegion name a of
-          SOME r => RegionPointer (substType t a, r)
+          SOME r => NullablePointer (substType t a, r)
         | NONE => raise Fail "Region parameter not present in assignments"
 
   fun matchParams params types =
@@ -141,6 +145,7 @@ structure Function :> FUNCTION = struct
     | regionParams (PRecord _) = []
     | regionParams (RegionParam name) = [name]
     | regionParams (PRegionPointer (_, name)) = [name]
+    | regionParams (PNullablePointer (_, name)) = [name]
 
   fun getIndex elem list =
     case (Util.position elem list) of
@@ -156,6 +161,8 @@ structure Function :> FUNCTION = struct
     | forciblyConcretizeType' (RegionParam name) e = RegionType (Region (getIndex name e, name))
     | forciblyConcretizeType' (PRegionPointer (ty, name)) e =
       RegionPointer (forciblyConcretizeType' ty e, (Region (getIndex name e, name)))
+    | forciblyConcretizeType' (PNullablePointer (ty, name)) e =
+      NullablePointer (forciblyConcretizeType' ty e, (Region (getIndex name e, name)))
 
   fun forciblyConcretizeType pt =
     forciblyConcretizeType' pt (regionParams pt)

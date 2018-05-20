@@ -26,6 +26,7 @@ signature TYPE = sig
               | Record of string * slot list
               | RegionType of region
               | RegionPointer of ty * region
+              | NullablePointer of ty * region
        and signedness = Signed | Unsigned
        and bit_width = Word8 | Word16 | Word32 | Word64
        and slot = Slot of string * ty
@@ -44,6 +45,7 @@ signature TYPE = sig
                | PRecord of string * slot list
                | RegionParam of string
                | PRegionPointer of pty * string
+               | PNullablePointer of pty * string
 
   val toParamType : ty -> pty
 
