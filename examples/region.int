@@ -2,4 +2,5 @@
 
 (defun main () i32
   (letregion rho
-    0))
+    (let ((p (allocate rho 10)))
+      0)))
