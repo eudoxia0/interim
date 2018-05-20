@@ -1,6 +1,16 @@
 ;; -*- mode: lisp -*-
 
+(defun test () unit
+  (letregion rho
+    (let ((p (allocate rho 10)))
+      (case p
+        ((not-null p')
+         (println "Allocated successfully!"))
+        (null
+         (println "Out of memory!"))))))
+
 (defun main () i32
+  (test)
   (letregion rho
     (let ((p (allocate rho 10)))
       (letregion rho'
