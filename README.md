@@ -26,7 +26,38 @@ safe way.
 Preventing double and use after `free()` errors is harder, and this is where
 regions come in.
 
-Pointers are tagged with the region they belong to.
+
+Consider this code:
+
+~~~lisp
+(letregion rho
+  (let ((p (allocate rho 10)))
+    (letregion rho'
+      (let ((p' (allocate rho' 12)))
+        nil))))
+~~~
+
+Here, we're defining a region `rho`, allocating an integer in that region, the
+defining a region `rho'`, and allocating another integer in that region. Now
+notice what happens if we try to store `p'` in `p`:
+
+~~~lisp
+(letregion rho
+  (let ((p (allocate rho 10)))
+    (letregion rho'
+      (let ((p' (allocate rho' 12)))
+        (<- p p')))))
+~~~
+
+The compiler will fail with
+
+~~~
+Cannot assign to variable 'p': the type of the variable is (nullable i32 rho), while the type of the expression is (nullable i32 rho')
+~~~
+
+This is the key to preventing double `free()` errors: _pointers are tagged with
+the region they belong to_. A pointer cannot escape its lifetime, to a higher-up
+region or to a global variable, because the types won't match.
 
 ## Examples
 
