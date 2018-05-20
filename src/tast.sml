@@ -229,7 +229,10 @@ structure TAST :> TAST = struct
               end
           end
         | augment (Allocate (name, v)) c =
-          raise Fail "Unknown region name"
+          let val r = lookup name (ctxRenv c)
+          in
+              TAllocate (r, augment v c)
+          end
         | augment (MakeRecord (name, slots)) c =
           let val ty = lookup name (ctxTenv c)
           in
