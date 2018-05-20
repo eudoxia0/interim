@@ -15,7 +15,7 @@ Memory safety is achieved by preventing three classes of errors:
 
 - `NULL pointers`
 - Double `free()`.
-- Use after `free()`.
+- Use after `free()` (dangling pointers)
 
 Preventing `NULL` pointers is easy: we use an option type (called `Maybe` in
 Haskell). In the case of Interim, we have a special pointer type called
@@ -55,9 +55,13 @@ Cannot assign to variable 'p': the type of the variable is (nullable i32 rho),
 while the type of the expression is (nullable i32 rho')
 ~~~
 
-This is the key to preventing double `free()` errors: _pointers are tagged with
+This is the key to preventing dangling pointer errors: _pointers are tagged with
 the region they belong to_. A pointer cannot escape its lifetime, to a higher-up
 region or to a global variable, because the types won't match.
+
+Double `free()` errors are prevented through a straightforward feature of
+regions: there is no way to do a manual `free()`, and everything in a region is
+freed automatically when exiting the region's body.
 
 ## Examples
 
