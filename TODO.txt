@@ -1,6 +1,7 @@
 TODO:
 
-- Implement nullable/case
+- load region pointers
+- store region pointers
 
 DONE:
 
@@ -64,6 +65,7 @@ DONE:
 - Print types
 - Nullable pointer types
 - allocate should return a nullable pointer
+- Implement nullable/case
 
 WISHLIST:
 
