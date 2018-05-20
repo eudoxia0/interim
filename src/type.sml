@@ -57,6 +57,7 @@ structure Type :> TYPE = struct
     | toParamType (RegionPointer _)  = raise Fail "Can't do this"
 
   type tenv = ty symtab
+  type renv = region SymTab.symtab
 
   local
     open Parser

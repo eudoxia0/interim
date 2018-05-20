@@ -29,6 +29,7 @@ signature TYPE = sig
   val toParamType : ty -> pty
 
   type tenv = ty SymTab.symtab
+  type renv = region SymTab.symtab
 
   val parseTypeSpecifier : Parser.sexp -> tenv -> ty
   val parseParamTypeSpecifier : Parser.sexp -> tenv -> pty
