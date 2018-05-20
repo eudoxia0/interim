@@ -72,49 +72,49 @@ structure AST :> AST = struct
       | parse (Symbol "true") _ = ConstBool true
       | parse (Symbol "false") _ = ConstBool false
       | parse (Symbol s) _ = Var s
-      | parse (SList [Symbol "+", a, b]) e = Binop (Add, parse a e, parse b e)
-      | parse (SList [Symbol "-", a, b]) e = Binop (Sub, parse a e, parse b e)
-      | parse (SList [Symbol "*", a, b]) e = Binop (Mul, parse a e, parse b e)
-      | parse (SList [Symbol "/", a, b]) e = Binop (Div, parse a e, parse b e)
-      | parse (SList [Symbol "=", a, b]) e = Binop (Eq, parse a e, parse b e)
-      | parse (SList [Symbol "<>", a, b]) e = Binop (NEq, parse a e, parse b e)
-      | parse (SList [Symbol "<", a, b]) e = Binop (LT, parse a e, parse b e)
-      | parse (SList [Symbol "<=", a, b]) e = Binop (LEq, parse a e, parse b e)
-      | parse (SList [Symbol ">", a, b]) e = Binop (GT, parse a e, parse b e)
-      | parse (SList [Symbol ">=", a, b]) e = Binop (GEq, parse a e, parse b e)
-      | parse (SList [Symbol "if", t, c, a]) e = Cond (parse t e, parse c e, parse a e)
-      | parse (SList [Symbol "the", t, a]) e = Cast (Type.parseTypeSpecifier t e, parse a e)
-      | parse (SList ((Symbol "progn")::rest)) e = Progn (map (fn a => parse a e) rest)
-      | parse (SList ((Symbol "let")::(SList [SList [Symbol var, v]])::body)) e =
+      | parse (SList (Symbol f::rest)) e = parseL f rest e
+      | parse _ _ = raise Fail "Bad expression"
+    and parseL "+" [a, b] e = Binop (Add, parse a e, parse b e)
+      | parseL "-" [a, b] e = Binop (Sub, parse a e, parse b e)
+      | parseL "*" [a, b] e = Binop (Mul, parse a e, parse b e)
+      | parseL "/" [a, b] e = Binop (Div, parse a e, parse b e)
+      | parseL "=" [a, b] e = Binop (Eq, parse a e, parse b e)
+      | parseL "<>" [a, b] e = Binop (NEq, parse a e, parse b e)
+      | parseL "<" [a, b] e = Binop (LT, parse a e, parse b e)
+      | parseL "<=" [a, b] e = Binop (LEq, parse a e, parse b e)
+      | parseL ">" [a, b] e = Binop (GT, parse a e, parse b e)
+      | parseL ">=" [a, b] e = Binop (GEq, parse a e, parse b e)
+      | parseL "if" [t, c, a] e = Cond (parse t e, parse c e, parse a e)
+      | parseL "the" [t, a] e = Cast (Type.parseTypeSpecifier t e, parse a e)
+      | parseL "progn" rest e = Progn (map (fn a => parse a e) rest)
+      | parseL "let" ((SList [SList [Symbol var, v]])::body) e =
         Let (var, parse v e, Progn (map (fn a => parse a e) body))
-      | parse (SList ((Symbol "let")::(SList ((SList [Symbol var, v])::rest))::body)) e =
+      | parseL "let" ((SList ((SList [Symbol var, v])::rest))::body) e =
         let val exp = SList [Symbol "let", SList [SList [Symbol var, v]],
                              SList ((Symbol "let")::(SList rest)::body)]
         in
             parse exp e
         end
-      | parse (SList ((Symbol "let")::(SList nil)::body)) e =
+      | parseL "let" ((SList nil)::body) e =
         Progn (map (fn a => parse a e) body)
-      | parse (SList [Symbol "<-", Symbol var, v]) e = Assign (var, parse v e)
-      | parse (SList [Symbol "c/nullptr", t]) _ = NullPtr t
-      | parse (SList [Symbol "load", v]) e = Load (parse v e)
-      | parse (SList [Symbol "store", p, v]) e = Store (parse p e, parse v e)
-      | parse (SList [Symbol "c/malloc", t, c]) e = Malloc (t, parse c e)
-      | parse (SList [Symbol "c/free", p]) e = Free (parse p e)
-      | parse (SList [Symbol "c/address-of", Symbol v]) _ = AddressOf v
-      | parse (SList [Symbol "print", v]) e = Print (parse v e, NoNewline)
-      | parse (SList [Symbol "println", v]) e = Print (parse v e, Newline)
-      | parse (SList [Symbol "c/embed", t, String s]) _ = CEmbed (t, s)
-      | parse (SList [Symbol "c/embed", _, _]) _ = raise Fail "Bad c/embed form"
-      | parse (SList (Symbol "c/call" :: String n :: t :: args)) e = CCall (n, t, map (fn a => parse a e) args)
-      | parse (SList (Symbol "while" :: t :: body)) e = While (parse t e, Progn (map (fn c => parse c e) body))
-      | parse (SList (Symbol "letregion" :: Symbol name :: rest)) e =
+      | parseL "<-" [Symbol var, v] e = Assign (var, parse v e)
+      | parseL "c/nullptr" [t] _ = NullPtr t
+      | parseL "load" [v] e = Load (parse v e)
+      | parseL "store" [p, v] e = Store (parse p e, parse v e)
+      | parseL "c/malloc" [t, c] e = Malloc (t, parse c e)
+      | parseL "c/free" [p] e = Free (parse p e)
+      | parseL "c/address-of" [Symbol v] _ = AddressOf v
+      | parseL "print" [v] e = Print (parse v e, NoNewline)
+      | parseL "println" [v] e = Print (parse v e, Newline)
+      | parseL "c/embed" [t, String s] _ = CEmbed (t, s)
+      | parseL "c/call" (String n :: t :: args) e = CCall (n, t, map (fn a => parse a e) args)
+      | parseL "while" (t :: body) e = While (parse t e, Progn (map (fn c => parse c e) body))
+      | parseL "letregion" (Symbol name :: rest) e =
         LetRegion (Type.Region (freshRegionId (), name), Progn (map (fn c => parse c e) rest))
-      | parse (SList [Symbol "not", v]) e = Funcall ("interim_not", [parse v e])
-      | parse (SList (Symbol "record" :: Symbol name :: slots)) e = MakeRecord (name, map (parseSlot e) slots)
-      | parse (SList [Symbol "slot", r, Symbol slot]) e = SlotAccess (parse r e, slot)
-      | parse (SList ((Symbol s)::rest)) e = Funcall (s, map (fn a => parse a e) rest)
-      | parse _ _ = raise Fail "Bad expression"
+      | parseL "not" [v] e = Funcall ("interim_not", [parse v e])
+      | parseL "record" (Symbol name :: slots) e = MakeRecord (name, map (parseSlot e) slots)
+      | parseL "slot" [r, Symbol slot] e = SlotAccess (parse r e, slot)
+      | parseL f rest e = Funcall (f, map (fn a => parse a e) rest)
     and parseSlot e (SList [Symbol name, exp]) = (name, parse exp e)
       | parseSlot e _ = raise Fail "Bad slot"
 
