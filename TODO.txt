@@ -1,7 +1,5 @@
 TODO:
 
-- Nullable pointer types
-- allocate should return a nullable pointer
 - Implement nullable/case
 
 DONE:
@@ -64,6 +62,8 @@ DONE:
 - Region-tagged pointer types
 - Region operation: allocate value in region
 - Print types
+- Nullable pointer types
+- allocate should return a nullable pointer
 
 WISHLIST:
 
