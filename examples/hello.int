@@ -2,4 +2,4 @@
 
 (defun main () i32
   (println "Hello, world!")
-  (the i32 0))
+  0)
