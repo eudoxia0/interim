@@ -10,7 +10,7 @@
   (c/call "exit" unit -1))
 
 (defun main () i32
-  (let ((null (nullptr u64))
+  (let ((null (c/nullptr u64))
         (db null))
     (c/call "sqlite3_open" i32 ":memory:" (c/address-of db))
     (if (= db null)
