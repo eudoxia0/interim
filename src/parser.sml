@@ -51,7 +51,7 @@ structure Parser :> PARSER = struct
 
   val quotedString = pmap String.implode (between (pchar #"\"") (many stringChar) (pchar #"\""))
 
-  val symbolChar = anyOfString "abcdefghijklmnopqrstuvwxyz0123456789+-*/><="
+  val symbolChar = anyOfString "abcdefghijklmnopqrstuvwxyz0123456789+-*/><='"
 
   val symbolParser = pmap String.implode (many1 symbolChar)
 
