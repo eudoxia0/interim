@@ -1,6 +1,5 @@
 TODO:
 
-- load region pointers
 - store region pointers
 
 DONE:
@@ -66,6 +65,7 @@ DONE:
 - Nullable pointer types
 - allocate should return a nullable pointer
 - Implement nullable/case
+- load region pointers
 
 WISHLIST:
 
