@@ -183,15 +183,19 @@ structure TAST :> TAST = struct
           let val p' = augment p c
               and v' = augment v c
           in
-              case (typeOf p') of
-                  RawPointer t => let val ty = typeOf v'
+              let fun mkStore t = let val ty = typeOf v'
                                   in
                                       if ty = t then
                                           TStore (p', v')
                                       else
                                           raise Fail "store: type mismatch"
                                   end
-                | _ => raise Fail "store: first argument must be a pointer"
+              in
+                  case (typeOf p') of
+                      RawPointer t => mkStore t
+                    | RegionPointer (t, _) => mkStore t
+                    | _ => raise Fail "store: first argument must be a pointer"
+              end
           end
         | augment (Malloc (ty, s)) c =
           let val t' = parseTypeSpecifier ty (ctxTenv c)
