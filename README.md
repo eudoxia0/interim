@@ -1,5 +1,7 @@
 # Interim
 
+[![Build Status](https://travis-ci.org/eudoxia0/interim.svg?branch=master)](https://travis-ci.org/eudoxia0/interim)
+
 **Interim** is a statically-typed, low-level dialect of Lisp featuring
 compile-time, GC-free memory management.
 
